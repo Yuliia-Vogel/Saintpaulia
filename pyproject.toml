@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "Saintpaulia web-based application"
+version = "0.1.0"
+description = "Web-based application for storage and management of varieties of sainpaulia flowers."
+authors = ["Yuliia Melnychenko <arwen.vogel@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "*", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+fastapi = "^0.115.11"
+uvicorn = {extras = ["standard"], version = "^0.34.0"}
+sqlalchemy = "^2.0.39"
+psycopg2 = "^2.9.10"
+alembic = "^1.15.1"
+pydantic = {extras = ["email"], version = "^2.10.6"}
+passlib = "^1.7.4"
+bcrypt = "^4.3.0"
+python-jose = {extras = ["cryptography"], version = "^3.4.0"}
+python-multipart = "^0.0.20"
