@@ -6,8 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from database import get_db
 from auth.models import User
 from token import create_access_token
-from saintpaulia_app.app.auth.security import verify_password
-from saintpaulia_app.app.auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from saintpaulia_app.auth.security import verify_password
+from saintpaulia_app.auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 router = APIRouter()

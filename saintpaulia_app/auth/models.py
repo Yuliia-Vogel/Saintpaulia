@@ -14,4 +14,4 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    role = Column(String, default="user")  # user, admin, expert, breeder
+    role = Column(String, default="user")  # user, expert, breeder, admin (superuser)

@@ -23,27 +23,12 @@ def root():
     return {"message" : "Welcome to the Saintpaulia app!"}
 
 
+@app.get("/")
+async def root():
+    return {"message" : "Hello! The app is working!"}
+
+
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
-
-# # ✅ Правильний спосіб змінити OpenAPI-схему
-# def custom_openapi():
-#     if app.openapi_schema:
-#         return app.openapi_schema  # Використовуємо кешовану версію
-
-#     openapi_schema = app.openapi()  # Отримуємо оригінальну OpenAPI-схему
-#     openapi_schema["components"]["securitySchemes"] = {
-#         "BearerAuth": {
-#             "type": "http",
-#             "scheme": "bearer",
-#             "bearerFormat": "JWT",
-#         }
-#     }
-#     openapi_schema["security"] = [{"BearerAuth": []}]
-#     app.openapi_schema = openapi_schema  # Зберігаємо оновлену схему
-#     return app.openapi_schema
-
-
-# app.openapi = custom_openapi  # Перевизначаємо метод OpenAPI
 
 # Функція для перевірки підключення
 def check_database_connection():

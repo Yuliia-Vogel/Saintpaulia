@@ -5,7 +5,7 @@ description = "Web-based application for storage and management of varieties of 
 authors = ["Yuliia Melnychenko <arwen.vogel@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "*", from = "src" }]
+packages = [{ include = "*", from = "saintpaulia_app" }]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
