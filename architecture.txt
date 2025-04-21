@@ -1,0 +1,26 @@
+        FIALKA folder contains:
+
+saintpaulia_project/
+│── saintpaulia_app/
+│   ├── auth/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── dependencies.py
+│   │   ├── models.py
+│   │   ├── router.py
+│   │   ├── schemas.py
+│   │   ├── security.py
+│   │   ├── services.py
+│   │   ├── token.py     
+│   ├── main.py
+│   ├── database.py
+│   ├── router.py
+├── venv/
+│── .env
+│── .gitignore
+│── alembic.ini
+│── architecture.txt
+│── LICENSE
+│── poetry.lock
+│── pyproject.toml
+│── README.md
