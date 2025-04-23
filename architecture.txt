@@ -1,6 +1,6 @@
-        FIALKA folder contains:
+    FIALKA folder contains:
 
-saintpaulia_project/
+│── alembic
 │── saintpaulia_app/
 │   ├── auth/
 │   │   ├── __init__.py
@@ -11,7 +11,11 @@ saintpaulia_project/
 │   │   ├── schemas.py
 │   │   ├── security.py
 │   │   ├── services.py
-│   │   ├── token.py     
+│   │   ├── token.py 
+│   ├── saintpaulia/
+│   │   ├── __init__.py    
+│   │   ├── models.py
+│   │   ├── schemas.py
 │   ├── main.py
 │   ├── database.py
 │   ├── router.py

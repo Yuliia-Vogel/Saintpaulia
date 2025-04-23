@@ -5,8 +5,10 @@ from logging.config import fileConfig
 from alembic import context
 
 from saintpaulia_app.database import SQLALCHEMY_DATABASE_URL as Database_url
-from saintpaulia_app.auth.models import Base
+from saintpaulia_app.database import Base
 
+from saintpaulia_app.auth import models as auth_models
+from saintpaulia_app.saintpaulia import models as saintpaulia_models
 
 SQLALCHEMY_DATABASE_URL = Database_url
 
