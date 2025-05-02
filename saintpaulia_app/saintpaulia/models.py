@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, func, ForeignKey
 from saintpaulia_app.database import Base
-
 
 class Saintpaulia(Base):
     __tablename__ = "saintpaulia_varieties"
@@ -27,5 +26,6 @@ class Saintpaulia(Base):
     blooming_features = Column(Text, default="дані ще не внесено")
 
     #дані про того, хто вніс запис
-    record_author = Column(String)
+    
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     record_creation_date = Column(DateTime, default=func.now())

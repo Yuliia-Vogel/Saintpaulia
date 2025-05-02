@@ -24,13 +24,13 @@ class SaintpauliaBase(BaseModel):
 
 
 class SaintpauliaCreate(SaintpauliaBase):
-    record_author: Optional[str] = None  # автозаповнення з авторизації
+    pass
 
 
 class SaintpauliaResponse(SaintpauliaBase):
     id: int
-    record_author: Optional[str] = None
+    owner_id: int  # автозаповнення з авторизації
     record_creation_date: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
