@@ -1,24 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Security
+from fastapi import APIRouter, Depends, HTTPException, status, Security, Request
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 
 from database import get_db
+from auth.token import SECRET_KEY, ALGORITHM
 from auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token
 from auth.dependencies import get_current_user
-from auth.models import User
+from saintpaulia_app.auth.models import User
 from auth.schemas import UserCreate
 from auth.repository import get_user_by_email, create_user, update_user_refresh_token, confirm_user_email
 from auth.service import Hash
 from auth.security import verify_password
+from services.email import send_email
 
 router = APIRouter()
 hash_handler = Hash()
 security = HTTPBearer()
 
+
 @router.post("/signup")
-async def signup(body: UserCreate, db: Session = Depends(get_db)):
+async def signup(body: UserCreate, request: Request, db: Session = Depends(get_db)):
     new_user = create_user(body.email, body.password, db)
-    return {"new_user": new_user.email}
+    host = str(request.base_url)[:-1]  # прибираємо /
+    await send_email(new_user.email, new_user.email, host) # ЧОМУ ТУТ ПОДВОЄНО new_user.email? 
+    return {"message": "Check your email to confirm your registration"}
+
 
 @router.post("/login")
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -31,6 +38,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     update_user_refresh_token(user, refresh_token, db)
 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
 
 @router.get('/refresh_token')
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
@@ -49,16 +57,25 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(sec
 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
+
 @router.get("/open_page")
 async def root():
     return {"message": "Hello World! It's open information!"}
+
 
 @router.get("/secret")
 async def read_item(current_user: User = Depends(get_current_user)):
     return {"message": 'secret router', "owner": current_user.email}
 
 
-@router.post("/confirm_email")
-async def confirm_email(email: str, db: Session = Depends(get_db)):
-    confirm_user_email(email, db)
-    return {"message": f"Email {email} підтверджено!"}
+@router.get("/confirm_email")
+async def confirm_email(token: str, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=400, detail="Invalid token")
+        confirm_user_email(email, db)
+        return {"message": f"Email {email} confirmed!"}
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Invalid token")

@@ -4,7 +4,7 @@ from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
 
 from database import get_db
-from auth.models import User
+from saintpaulia_app.auth.models import User
 from token import create_access_token
 from saintpaulia_app.auth.security import verify_password
 from saintpaulia_app.auth.config import ACCESS_TOKEN_EXPIRE_MINUTES
