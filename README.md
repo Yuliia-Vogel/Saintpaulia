@@ -8,6 +8,11 @@ A web-based application for saintpaulia varieties management.
 4) якщо в VSCode - pip install poetry 
    якщо ж PyCharm - то пропускаємо цей крок
 5) poetry install
-6) cd saintpaulia_app
-7) alembic revision --autogenerate -m "Init"
-8) alembic upgrade head
+6) alembic revision --autogenerate -m "Init"
+7) alembic upgrade head
+8) to create superuser for local development: 
+a - open file "auth/repository.py" and make  active "def create_superuser"
+b - open file "auth/router.py" and make  active "@router.post("/create-superuser")"
+c - run the application: uvicorn main:app --reload
+d - go to Swagger documentation - uri: http://127.0.0.1:8000/docs, endpoint "/create-superuser"
+e - Great! Your superuser created! Make inactive the code tou activated in steps "a" and "b"
