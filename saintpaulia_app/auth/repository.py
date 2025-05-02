@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from saintpaulia_app.auth.models import User
 from auth.service import Hash
 
+
 hash_handler = Hash()
 
 def get_user_by_email(email: str, db: Session) -> User:
@@ -31,4 +32,22 @@ def confirm_user_email(email: str, db: Session) -> None:
     user.confirmed = True
     db.commit()
 
+# лише для локальної розробки
 
+# from saintpaulia_app.auth.models import UserRole
+# from auth.security import hash_password
+
+# def create_superuser(email: str, password: str, db: Session):
+#     hashed_pw = hash_password(password)
+#     superuser = User(
+#         email=email,
+#         hashed_password=hashed_pw,
+#         is_active=True,
+#         is_superuser=True,
+#         confirmed=True,
+#         role=UserRole.superadmin
+#     )
+#     db.add(superuser)
+#     db.commit()
+#     db.refresh(superuser)
+#     return superuser
