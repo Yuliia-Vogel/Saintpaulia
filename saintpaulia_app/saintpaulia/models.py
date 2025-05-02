@@ -1,5 +1,8 @@
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, func, ForeignKey
+from sqlalchemy.orm import relationship
 from saintpaulia_app.database import Base
+
 
 class Saintpaulia(Base):
     __tablename__ = "saintpaulia_varieties"
@@ -26,6 +29,20 @@ class Saintpaulia(Base):
     blooming_features = Column(Text, default="дані ще не внесено")
 
     #дані про того, хто вніс запис
-    
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     record_creation_date = Column(DateTime, default=func.now())
+    
+    # soft delete
+    is_deleted = Column(Boolean, default=False)  
+
+
+class SaintpauliaLog(Base):
+    __tablename__ = "saintpaulia_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    action = Column(String, nullable=False)  # e.g., 'create', 'update', 'delete'
+    variety_name = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="saintpaulia_logs")

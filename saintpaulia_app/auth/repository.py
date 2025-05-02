@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
-from auth.models import User
+from saintpaulia_app.auth.models import User
 from auth.service import Hash
 
 hash_handler = Hash()

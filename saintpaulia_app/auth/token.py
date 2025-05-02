@@ -6,7 +6,7 @@ from jose import JWTError, jwt
 from auth.config import SECRET_KEY, ALGORITHM
 
 
-# define a function to generate a new access token
+# to generate a new access token
 async def create_access_token(data: dict, expires_delta: Optional[float] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -18,7 +18,7 @@ async def create_access_token(data: dict, expires_delta: Optional[float] = None)
     return encoded_access_token
 
 
-# define a function to generate a new refresh token
+# to generate a new refresh token
 async def create_refresh_token(data: dict, expires_delta: Optional[float] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -41,3 +41,8 @@ async def get_email_form_refresh_token(refresh_token: str):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
 
 
+def create_email_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=1)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

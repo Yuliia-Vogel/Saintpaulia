@@ -1,5 +1,16 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from saintpaulia_app.database import Base
+from sqlalchemy import Enum as SqlEnum
+import enum
+
+
+class UserRole(enum.Enum):
+    user = "user"
+    expert = "expert"
+    breeder = "breeder"
+    admin = "admin"
+    superadmin = "superadmin"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -13,5 +24,8 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    role = Column(String, default="user")  # user, expert, breeder, admin (superuser)
+    role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin (superuser)
     confirmed = Column(Boolean, default=False) 
+
+    def __repr__(self):
+        return f"<User(id={self.id}, email={self.email}, role={self.role})>"

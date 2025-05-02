@@ -5,7 +5,7 @@ from starlette import status
 from sqlalchemy.orm import Session
 
 from auth.config import SECRET_KEY, ALGORITHM
-from auth.models import User
+from saintpaulia_app.auth.models import User
 from database import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
