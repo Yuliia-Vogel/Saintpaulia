@@ -30,7 +30,7 @@ def get_all_varieties(db: Session = Depends(get_db)):
     return result
 
 
-# # Пошук за повною назвою
+# # Пошук за повною назвою - наразі неактуально, не бачу потреби в цьому роутері:
 # @router.get("/by-name/{name}", response_model=SaintpauliaResponse)
 # def get_variety_by_name(name: str, db: Session = Depends(get_db)):
 #     result = repository.get_saintpaulia_by_exact_name(name, db)
@@ -72,8 +72,10 @@ def delete_variety(name: str,
 
 
 @router.get("/logs/")
-def get_logs(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if current_user.role not in ["admin", "superadmin"]:
+def get_logs(db: Session = Depends(get_db), 
+             current_user: User = Depends(get_current_user)):
+    print("ROLE:", current_user.role, "| TYPE:", type(current_user.role))
+    if current_user.role.value not in {"admin", "superadmin"}:
         raise HTTPException(status_code=403, detail="Доступ заборонено")
 
     return db.query(SaintpauliaLog).order_by(SaintpauliaLog.timestamp.desc()).all()

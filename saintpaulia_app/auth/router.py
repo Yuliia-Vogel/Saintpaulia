@@ -79,3 +79,13 @@ async def confirm_email(token: str, db: Session = Depends(get_db)):
         return {"message": f"Email {email} confirmed!"}
     except JWTError:
         raise HTTPException(status_code=400, detail="Invalid token")
+    
+
+
+# лише для локальної розробки
+
+# from auth.repository import create_superuser
+
+# @router.post("/create-superuser") 
+# def create_superuser_endpoint(db: Session = Depends(get_db)):
+#     return create_superuser("juliya.naukma@gmail.com", "juliya_pass", db)
