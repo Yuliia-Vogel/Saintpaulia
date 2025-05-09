@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from starlette import status
 from typing import Optional
 from jose import JWTError, jwt
-from auth.config import SECRET_KEY, ALGORITHM
+from auth.config import SECRET_KEY, ALGORITHM, RESET_TOKEN_EXPIRE_MINUTES
 
 
 # to generate a new access token
@@ -46,3 +46,18 @@ def create_email_token(data: dict) -> str:
     expire = datetime.utcnow() + timedelta(hours=1)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_reset_password_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def verify_reset_password_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")
+    except JWTError:
+        return None
