@@ -1,17 +1,22 @@
+
+import os
 from pathlib import Path
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr
+from dotenv import load_dotenv
 
 from auth.token import create_email_token, create_reset_password_token  # ф-ція створення токена
 
+load_dotenv() # завантажуються дані з файлу .env 
+
 conf = ConnectionConfig(
-    MAIL_USERNAME="yuliia_melnychenko88@meta.ua",
-    MAIL_PASSWORD="Kitty_Mitty_Balabitti88",
-    MAIL_FROM="yuliia_melnychenko88@meta.ua",
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.meta.ua",
-    MAIL_FROM_NAME="Automated Saintpaulia",
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+    MAIL_FROM=os.getenv("MAIL_FROM"),
+    MAIL_PORT=os.getenv("MAIL_PORT"),
+    MAIL_SERVER=os.getenv("MAIL_SERVER"),
+    MAIL_FROM_NAME=os.getenv("MAIL_FROM_NAME"),
     MAIL_STARTTLS=False,
     MAIL_SSL_TLS=True,
     USE_CREDENTIALS=True,

@@ -23,14 +23,10 @@ app = FastAPI(
 # Оголошення OAuth2 схеми безпеки
 oauth2_scheme = security_scheme
 
-@app.get("/api/healthchecker")
-def root():
-    return {"message" : "Welcome to the Saintpaulia app!"}
-
 
 @app.get("/")
 async def root():
-    return {"message" : "Hello! The app is working!"}
+    return {"message" : "Welcome to the Saintpaulia app!"}
 
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
