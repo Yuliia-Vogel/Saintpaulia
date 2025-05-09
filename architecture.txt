@@ -19,8 +19,13 @@
 │   │   ├── repository.py
 │   │   ├── router.py
 │   │   ├── schemas.py
-│   ├── main.py
+│   ├── services/
+│   │   ├── templates/
+│   │   │   ├── confirmation_email.html
+│   │   ├── __init__.py    
+│   │   ├── email.py
 │   ├── database.py
+│   ├── main.py
 │   ├── router.py
 ├── venv/
 │── .env

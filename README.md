@@ -14,5 +14,6 @@ A web-based application for saintpaulia varieties management.
 a - open file "auth/repository.py" and make  active "def create_superuser"
 b - open file "auth/router.py" and make  active "@router.post("/create-superuser")"
 c - run the application: uvicorn main:app --reload
-d - go to Swagger documentation - uri: http://127.0.0.1:8000/docs, endpoint "/create-superuser"
+d - go to Swagger documentation - uri: http://127.0.0.1:8000/docs, endpoint "/create-superuser" ->
+   -> Try it out -> Execute
 e - Great! Your superuser created! Make inactive the code tou activated in steps "a" and "b"

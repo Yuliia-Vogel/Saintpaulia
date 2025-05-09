@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 from typing import Optional
 from enum import Enum
 
@@ -18,7 +18,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: constr(min_length=8)
     role: UserRole = UserRole.user
 
 
@@ -34,3 +34,17 @@ class UserRead(UserBase):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+
+class RequestEmail(BaseModel):
+    email: EmailStr
+
+
+class RequestPasswordReset(BaseModel):
+    email: EmailStr
+
+
+class ResetPassword(BaseModel):
+    token: str
+    new_password: constr(min_length=8)

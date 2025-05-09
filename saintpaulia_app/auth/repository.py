@@ -32,6 +32,9 @@ def confirm_user_email(email: str, db: Session) -> None:
     user.confirmed = True
     db.commit()
 
+
+
+
 # лише для локальної розробки
 
 # from saintpaulia_app.auth.models import UserRole

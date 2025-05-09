@@ -1,6 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
+from fastapi.middleware.cors import CORSMiddleware
 
 import database
 from auth.router import router as auth_router
@@ -45,3 +49,11 @@ def check_database_connection():
 @app.on_event("startup")
 async def startup_event():    
     check_database_connection()
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": "Invalid input. Please provide a valid email address."}
+    )
