@@ -3,7 +3,7 @@ A web-based application for saintpaulia varieties management.
 
 1) postgress creation in CMD:
    docker run --name fialka_db -p 5433:5432 -e POSTGRES_PASSWORD=fialka_db_pass -d postgres
-2) Redis container creation in CMD:
+2) Redis container creation in CMD (for FastapiLimiter, але сам лімітер поки не реалізувала):
    docker run -d -p 6379:6379 redis
 2) python -m venv venv
 3) venv\Scripts\Activate

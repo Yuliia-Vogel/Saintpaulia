@@ -22,7 +22,7 @@ class Saintpaulia(Base):
     leaf_variegation = Column(String, default="дані ще не внесено")
 
     # Додаткові поля
-    photo_url = Column(String, default="")  # потім інтегруємо із Cloudinary
+    photos = relationship("UploadedPhoto", back_populates="variety", cascade="all, delete")
     origin = Column(String, default="дані ще не внесено") # походження сорту
     selectionist = Column(String, nullable=False, default="дані ще не внесено")
     selection_year = Column(Integer, nullable=True)

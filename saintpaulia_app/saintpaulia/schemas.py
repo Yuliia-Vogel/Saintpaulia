@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from photos.schemas import PhotoResponce
 
 
 class SaintpauliaBase(BaseModel):
@@ -16,7 +17,7 @@ class SaintpauliaBase(BaseModel):
     leaf_shape: Optional[str] = "дані ще не внесено"
     leaf_variegation: Optional[str] = "дані ще не внесено"
 
-    photo_url: Optional[str] = ""
+    photos: Optional[list] = []
     origin: Optional[str] = "дані ще не внесено"
     selectionist: str = "дані ще не внесено"
     selection_year: Optional[int] = None
@@ -31,6 +32,7 @@ class SaintpauliaResponse(SaintpauliaBase):
     id: int
     owner_id: int  # автозаповнення з авторизації
     record_creation_date: datetime
+    photos: list[PhotoResponce] = []
 
     class Config:
         from_attributes = True

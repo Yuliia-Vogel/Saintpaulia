@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database
 from auth.router import router as auth_router
+from photos.router import router as photos_router
 from saintpaulia.router import router as saintpaulia_router
 from auth.dependencies import oauth2_scheme as security_scheme
 
@@ -31,6 +32,7 @@ async def root():
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(saintpaulia_router, prefix="/saintpaulia")
+app.include_router(photos_router)
 
 # Функція для перевірки підключення
 def check_database_connection():
