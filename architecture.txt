@@ -12,21 +12,28 @@
 │   │   ├── schemas.py
 │   │   ├── security.py
 │   │   ├── services.py
-│   │   ├── token.py 
+│   │   └── token.py 
+│   ├── photos/
+│   │   ├── router.py                  
+│   │   ├── service.py                  
+│   │   ├── models.py
+│   │   ├── cloudinary_config.py       
+│   │   ├── schemas.py                  
+│   │   └── __init__.py
 │   ├── saintpaulia/
 │   │   ├── __init__.py    
 │   │   ├── models.py
 │   │   ├── repository.py
 │   │   ├── router.py
-│   │   ├── schemas.py
+│   │   └── schemas.py
 │   ├── services/
 │   │   ├── templates/
 │   │   │   ├── confirmation_email.html
 │   │   ├── __init__.py    
-│   │   ├── email.py
+│   │   └── email.py
 │   ├── database.py
 │   ├── main.py
-│   ├── router.py
+│   └── router.py
 ├── venv/
 │── .env
 │── .gitignore
@@ -35,4 +42,4 @@
 │── LICENSE
 │── poetry.lock
 │── pyproject.toml
-│── README.md
+└── README.md
