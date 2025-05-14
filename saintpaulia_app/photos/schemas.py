@@ -17,4 +17,4 @@ class PhotoResponce(BaseModel):
     uploaded_by: int  
 
     class Config:
-        orm_mode = True
+        from_attributes = True

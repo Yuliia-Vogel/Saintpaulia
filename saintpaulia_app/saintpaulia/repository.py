@@ -75,7 +75,8 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
     :return: The Saintpaulia variety with the specified name, or None if it does not exist.
     :rtype: Saintpaulia | None
     """
-    return db.query(Saintpaulia).filter(Saintpaulia.name == name).first()
+    result = db.query(Saintpaulia).filter(Saintpaulia.name == name).first()
+    return result
 
 
 # Пошук сортів за частиною назви (нечіткий пошук)
@@ -111,7 +112,6 @@ def get_variety_by_user(user: User, db: Session) -> List[Saintpaulia] | None:
     return db.query(Saintpaulia).filter(Saintpaulia.owner_id == user.id).all()
 
 
-# Оновлення сорту (поки — за точним іменем)
 def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Optional[Saintpaulia]:
     """
     Updates a Saintpaulia variety by its exact name.
