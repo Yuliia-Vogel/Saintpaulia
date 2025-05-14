@@ -30,13 +30,13 @@ def get_all_varieties(db: Session = Depends(get_db)):
     return result
 
 
-# # Пошук за повною назвою - наразі неактуально, не бачу потреби в цьому роутері:
-# @router.get("/by-name/{name}", response_model=SaintpauliaResponse)
-# def get_variety_by_name(name: str, db: Session = Depends(get_db)):
-#     result = repository.get_saintpaulia_by_exact_name(name, db)
-#     if not result:
-#         raise HTTPException(status_code=404, detail="Сорт не знайдено")
-#     return result
+# Пошук за повною назвою - потрібен для виведення карток кожного сорту на фронтенді:
+@router.get("/by-name/{name}", response_model=SaintpauliaResponse)
+def get_variety_by_name(name: str, db: Session = Depends(get_db)):
+    result = repository.get_saintpaulia_by_exact_name(name, db)
+    if not result:
+        raise HTTPException(status_code=404, detail="Сорт не знайдено")
+    return result
 
 
 # Пошук за частиною назви

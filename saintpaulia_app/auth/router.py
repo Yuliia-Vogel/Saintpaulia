@@ -102,6 +102,13 @@ async def request_email_verification(
     return {"message": "Check your email for confirmation"}
 
 
+@router.post("/logout")
+async def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    current_user.refresh_token = None
+    db.commit()
+    return {"message": "Ви успішно вийшли з акаунту."}
+
+
 # лише для локальної розробки:
 
 # from auth.repository import create_superuser
