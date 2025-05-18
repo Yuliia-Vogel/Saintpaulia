@@ -1,6 +1,40 @@
     FIALKA folder contains:
 
-│── alembic
+│── alembic/
+│── frontend/
+│   │── .vite/
+│   │── node_modules/
+│   │── public
+│   │── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── Header.jsx
+│   │   │   └── Navbar.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── pages/
+│   │   │   ├── ForgotPassword.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── ResetPassword.jsx
+│   │   │   ├── SearchPage.jsx
+│   │   │   └── VarietyDetail.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── authService.js                  
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   └── vite.config.js
 │── saintpaulia_app/
 │   ├── auth/
 │   │   ├── __init__.py

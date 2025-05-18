@@ -41,13 +41,15 @@ async def send_confirmation_email(email: EmailStr, username: str, host: str):
         print(err)
 
 
-async def send_password_reset_email(email: EmailStr, username: str, host: str):
+# async def send_password_reset_email(email: EmailStr, username: str, host: str, reset_link: str):
+async def send_password_reset_email(email: EmailStr, username: str, reset_link: str):
     try:
         token = create_reset_password_token({"sub": email})
         message = MessageSchema(
             subject="Ви запросили відновлення пароля на сайті Saintpaulia",
             recipients=[email],
-            template_body={"host": host, "username": username, "token": token},
+            # template_body={"host": host, "username": username, "token": token},
+            template_body={"username": username, "reset_link": reset_link},
             subtype=MessageType.html
         )
 
