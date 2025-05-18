@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
+import Header from "./components/Header"
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -10,7 +11,8 @@ import VarietyDetail from './pages/VarietyDetail'
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
+      <Header />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -21,7 +23,7 @@ function App() {
         <Route path="/variety/:name" element={<VarietyDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </>
   )
 }
 

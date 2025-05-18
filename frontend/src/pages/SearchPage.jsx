@@ -1,6 +1,6 @@
 // src/pages/SearchPage.jsx
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const API_BASE = "http://localhost:8000/saintpaulia/saintpaulias";
 
@@ -10,11 +10,12 @@ export default function SearchPage() {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleSearch = async (query) => {
+  const handleSearch = async (searchQuery) => {
     try {
-      const response = await fetch(`${API_BASE}/search/?name=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `${API_BASE}/search/?name=${encodeURIComponent(searchQuery)}`
+      );
       if (!response.ok) throw new Error("Помилка при пошуку.");
       const data = await response.json();
       setResults(data);
@@ -44,16 +45,14 @@ export default function SearchPage() {
   };
 
   useEffect(() => {
-  const currentQuery = searchParams.get("query") || "";
-  setQuery(currentQuery); // оновлюємо поле вводу
-
-  if (currentQuery) {
-    handleSearch(currentQuery);
-  } else {
-    handleShowAll();
-  }
-  }, [searchParams]);
-
+    const currentQuery = searchParams.get("query") || "";
+    setQuery(currentQuery);
+    if (currentQuery) {
+      handleSearch(currentQuery);
+    } else {
+      handleShowAll();
+    }
+  }, [searchParams.toString()]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -65,7 +64,7 @@ export default function SearchPage() {
         onChange={(e) => setQuery(e.target.value)}
         style={{ marginRight: "10px", padding: "5px", width: "300px" }}
       />
-      <button onClick={() => onSubmitSearch()} style={{ marginRight: "10px" }}>
+      <button onClick={onSubmitSearch} style={{ marginRight: "10px" }}>
         Пошук
       </button>
       <button onClick={handleShowAll}>Вивести всі сорти</button>
@@ -75,7 +74,12 @@ export default function SearchPage() {
       <ul style={{ marginTop: "20px" }}>
         {results.map((item) => (
           <li key={item.name}>
-            <Link to={`/variety/${encodeURIComponent(item.name)}`}>{item.name}</Link>
+            <Link
+              to={`/variety/${encodeURIComponent(item.name)}`}
+              state={{ fromQuery: query }}
+            >
+              {item.name}
+            </Link>
           </li>
         ))}
       </ul>
