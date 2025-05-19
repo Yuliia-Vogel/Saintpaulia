@@ -6,9 +6,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000', // Адреса vjuj FastAPI
+        target: 'http://localhost:8000', // Адреса мого FastAPI
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/auth': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        // не потрібно rewrite, бо я хочу /auth -> /auth
       },
     },
   },
