@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams()
   const [message, setMessage] = useState('Підтверджуємо вашу пошту...')
   const [success, setSuccess] = useState(null)
+  const { fetchUserData } = useAuth() // ✅ Дістаємо функцію з контексту
 
   useEffect(() => {
     const token = searchParams.get('token')
@@ -23,6 +25,8 @@ const ConfirmEmail = () => {
         const data = await response.json()
         setMessage(data.message || 'Пошту підтверджено успішно!')
         setSuccess(true)
+
+        await fetchUserData() //Оновлюємо дані користувача
       } catch (err) {
         setMessage('Підтвердження не вдалося. Можливо, токен недійсний або протермінований.')
         setSuccess(false)
@@ -30,7 +34,7 @@ const ConfirmEmail = () => {
     }
 
     confirmEmail()
-  }, [searchParams])
+  }, [searchParams, fetchUserData]) // fetchUserData додано до залежностей
 
   return (
     <div className="p-4">

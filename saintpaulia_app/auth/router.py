@@ -41,7 +41,15 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     refresh_token = await create_refresh_token(data={"sub": user.email})
     update_user_refresh_token(user, refresh_token, db)
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "email": user.email,
+            "confirmed": user.confirmed 
+            }
+        }
 
 
 @router.get('/refresh_token')
@@ -97,7 +105,8 @@ async def request_email_verification(
     if user and user.confirmed:
         return {"message": "Your email is already confirmed"}
     if user:
-        background_tasks.add_task(send_confirmation_email, user.email, user.username)
+        username = user.first_name or user.email
+        background_tasks.add_task(send_confirmation_email, user.email, username)
         # background_tasks.add_task(send_confirmation_email, user.email, user.username, str(request.base_url))
     # завжди повертаємо одне й те саме
     return {"message": "Check your email for confirmation"}
@@ -146,3 +155,11 @@ async def reset_password(
     user.hashed_password = hash_handler.get_password_hash(body.new_password)
     db.commit()
     return {"message": "Password reset successful"}
+
+
+@router.get("/me")
+async def get_me(current_user: User = Depends(get_current_user)):
+    return {
+        "email": current_user.email,
+        "confirmed": current_user.confirmed,
+    }

@@ -27,3 +27,26 @@ export function getUserFromToken(token) {
   }
 }
 
+
+import api from "./api";
+
+export async function requestConfirmationEmail(email) {
+  const res = await api.post("/auth/request-email", { email });
+  return res.data;
+}
+
+
+export async function getUserData() {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    throw new Error("Token not found");
+  }
+
+  const res = await api.get("/auth/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data; // очікується, що бекенд повертає { email, confirmed }
+}
