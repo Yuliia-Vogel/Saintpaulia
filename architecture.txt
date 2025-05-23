@@ -8,11 +8,13 @@
 │   │── src/
 │   │   ├── assets/
 │   │   ├── components/
+│   │   │   ├── EmailConfirmationNotice.jsx
 │   │   │   ├── Header.jsx
 │   │   │   └── Navbar.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
+│   │   │   ├── ConfirmEmail.jsx
 │   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
@@ -28,6 +30,7 @@
 │   │   ├── App.jsx
 │   │   ├── index.css
 │   │   └── main.jsx
+│   ├── .env
 │   ├── .gitignore
 │   ├── eslint.config.js
 │   ├── index.html

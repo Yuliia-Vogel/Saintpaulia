@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <h2>Hello, {{username}}!</h2>
+    <h2>Hello, {{ username }}!</h2>
     <p>Your email was used for registration on site saintpaulia.ua.</p>
     <p>---</p>
     <p>If you don't know anything about the registration, please ignore this email.</p>
@@ -9,6 +9,6 @@
     <p>If it was you, please confirm your email for the signup.</p>
     <p> </p>
     <p>To confirm your email, click the link below:</p>
-    <a href="{{host}}/auth/confirm_email?token={{token}}">Confirm Email</a>
+    <a href="{{ host }}/confirm-email?token={{ token }}">Confirm Email</a>
   </body>
 </html>

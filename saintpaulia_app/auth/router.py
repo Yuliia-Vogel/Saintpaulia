@@ -1,10 +1,8 @@
-import os
 from fastapi import APIRouter, Depends, HTTPException, status, Security, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from starlette.status import HTTP_200_OK
-from dotenv import load_dotenv
 
 from database import get_db
 from auth.config import SECRET_KEY, ALGORITHM
@@ -21,8 +19,6 @@ router = APIRouter()
 hash_handler = Hash()
 security = HTTPBearer()
 
-load_dotenv()
-FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 @router.post("/signup")
 async def signup(body: UserCreate, 
@@ -31,7 +27,7 @@ async def signup(body: UserCreate,
                   db: Session = Depends(get_db)):
     new_user = create_user(body.email, body.password, db)
     host = str(request.base_url)[:-1]  # прибираємо /
-    background_tasks.add_task(send_confirmation_email, new_user.email, new_user.email, host) # new_user.email, new_user.email: перший - це кому, другий - як звертатись
+    background_tasks.add_task(send_confirmation_email, new_user.email, new_user.email) # new_user.email, new_user.email: перший - це кому, другий - як звертатись
     return {"message": "Check your email to confirm your registration"}
 
 
@@ -45,7 +41,15 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     refresh_token = await create_refresh_token(data={"sub": user.email})
     update_user_refresh_token(user, refresh_token, db)
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "email": user.email,
+            "confirmed": user.confirmed 
+            }
+        }
 
 
 @router.get('/refresh_token')
@@ -76,7 +80,7 @@ async def read_item(current_user: User = Depends(get_current_user)):
     return {"message": 'secret router', "owner": current_user.email}
 
 
-@router.get("/confirm_email")
+@router.get("/confirm-email")
 async def confirm_email(token: str, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -101,7 +105,9 @@ async def request_email_verification(
     if user and user.confirmed:
         return {"message": "Your email is already confirmed"}
     if user:
-        background_tasks.add_task(send_confirmation_email, user.email, user.username, str(request.base_url))
+        username = user.first_name or user.email
+        background_tasks.add_task(send_confirmation_email, user.email, username)
+        # background_tasks.add_task(send_confirmation_email, user.email, user.username, str(request.base_url))
     # завжди повертаємо одне й те саме
     return {"message": "Check your email for confirmation"}
 
@@ -129,17 +135,11 @@ async def forgot_password(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    print("Отримано запит на скидання пароля для:", body.email)
     user = get_user_by_email(body.email, db)
     if user:
         token = create_reset_password_token({"sub": user.email})
-        # reset_link = f"{request.base_url}reset-password?token={token}"
-        reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
-        background_tasks.add_task(
-            send_password_reset_email, 
-            user.email, 
-            user.email, 
-            reset_link=reset_link) # user.email, user.email: перший - куди, другий - як звертатись
+        reset_link = f"{request.base_url}reset-password?token={token}"
+        background_tasks.add_task(send_password_reset_email, user.email, user.email, reset_link) # user.email, user.email: перший - куди, другий - як звертатись
     return {"message": "If the user exists, a password reset email has been sent."}
 
 
@@ -155,3 +155,11 @@ async def reset_password(
     user.hashed_password = hash_handler.get_password_hash(body.new_password)
     db.commit()
     return {"message": "Password reset successful"}
+
+
+@router.get("/me")
+async def get_me(current_user: User = Depends(get_current_user)):
+    return {
+        "email": current_user.email,
+        "confirmed": current_user.confirmed,
+    }

@@ -26,6 +26,7 @@ class UserRead(UserBase):
     id: int
     is_active: bool
     role: UserRole
+    confirmed: bool
 
     class Config:
         from_attributes = True

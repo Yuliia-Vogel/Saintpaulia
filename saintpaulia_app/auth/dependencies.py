@@ -33,4 +33,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     user: User = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
+    if not user.confirmed:
+        raise HTTPException(status_code=403, detail="Email not confirmed")
     return user

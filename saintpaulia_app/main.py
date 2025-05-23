@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 
 import database
 from auth.router import router as auth_router
@@ -61,5 +62,5 @@ async def startup_event():
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": "Invalid input. Please provide a valid email address."}
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
     )

@@ -6,9 +6,10 @@ import { useAuth } from "../context/AuthContext";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👈 додано
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { loginUser } = useAuth(); // ⬅️ Отримуємо функцію з контексту
+  const { loginUser } = useAuth(); // Отримуємо функцію з контексту
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,9 +22,13 @@ function Login() {
       localStorage.setItem("accessToken", access_token);
       localStorage.setItem("refreshToken", refresh_token);
 
-      // ⬇️ Витягуємо юзера з токена і зберігаємо в контекст
+      // Витягуємо юзера з токена і зберігаємо в контекст
       const userData = getUserFromToken(access_token);
-      loginUser(userData); // ⬅️ ОНОВЛЕННЯ КОНТЕКСТУ
+      loginUser({
+        access_token,
+        refresh_token,
+        user: res.data.user, // передаємо user об'єкт як є
+      });
 
       navigate("/");
     } catch (err) {
@@ -49,13 +54,22 @@ function Login() {
         </div>
         <div>
           <label className="block mb-1">Пароль</label>
-          <input
-            type="password"
-            className="w-full border px-3 py-2 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="w-full border px-3 py-2 rounded pr-20"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline"
+            >
+              {showPassword ? "Сховати" : "Показати"}
+            </button>
+          </div>
         </div>
         <button
           type="submit"
