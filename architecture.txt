@@ -9,11 +9,14 @@
 │   │   ├── assets/
 │   │   ├── components/
 │   │   │   ├── EmailConfirmationNotice.jsx
+│   │   │   ├── ErrorBoundary.jsx
 │   │   │   ├── Header.jsx
-│   │   │   └── Navbar.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   └── PrivateRoute.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
+│   │   │   ├── AddVariety.jsx
 │   │   │   ├── ConfirmEmail.jsx
 │   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.jsx

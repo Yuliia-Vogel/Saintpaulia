@@ -13,6 +13,8 @@ export default function VarietyDetail() {
 
   const fromQuery = location.state?.fromQuery || "";
 
+  // console.log("🔎 name param from useParams:", name);
+
   useEffect(() => {
     const fetchVariety = async () => {
       try {
@@ -30,6 +32,15 @@ export default function VarietyDetail() {
 
     fetchVariety();
   }, [name]);
+
+
+  const handleBack = () => {
+    if (location.state?.fromSearch) {
+      navigate(-1); // повернення назад до результатів
+    } else {
+      navigate("/"); // або на головну
+      }
+    };
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!variety) return <p>Завантаження...</p>;
