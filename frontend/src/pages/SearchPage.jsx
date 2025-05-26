@@ -1,84 +1,53 @@
-// src/pages/SearchPage.jsx
-import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-
-const API_BASE = "http://localhost:8000/saintpaulia/saintpaulias";
+import { useLocation, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function SearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get("query") || "";
-  const [query, setQuery] = useState(initialQuery);
+  const location = useLocation();
+  const queryParam = new URLSearchParams(location.search).get("query") || "";
+  const [query, setQuery] = useState(queryParam);
   const [results, setResults] = useState([]);
-  const [error, setError] = useState("");
 
-  const handleSearch = async (searchQuery) => {
+useEffect(() => {
+  fetchSearchResults(query);  // навіть якщо query порожній
+}, [query]);
+
+  const fetchSearchResults = async (q) => {
     try {
-      const response = await fetch(
-        `${API_BASE}/search/?name=${encodeURIComponent(searchQuery)}`
-      );
-      if (!response.ok) throw new Error("Помилка при пошуку.");
-      const data = await response.json();
+      const res = await fetch(`/api/saintpaulia/saintpaulias/search/?name=${encodeURIComponent(q)}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status} - ${errText}`);
+      }
+      const data = await res.json();
       setResults(data);
-      setError("");
     } catch (err) {
-      setError(err.message);
-      setResults([]);
+      console.error("Помилка під час завантаження пошуку:", err);
+      setResults([]);  // щоб хоч щось рендерити, навіть якщо порожньо
     }
   };
 
-  const handleShowAll = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/`);
-      if (!response.ok) throw new Error("Помилка при завантаженні.");
-      const data = await response.json();
-      setResults(data);
-      setError("");
-    } catch (err) {
-      setError(err.message);
-      setResults([]);
-    }
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
   };
 
-  const onSubmitSearch = () => {
-    setSearchParams({ query });
-    handleSearch(query);
+  const handleSearch = () => {
+    // Оновлюємо URL (щоб можна було відновити з нього стан)
+    window.history.pushState({}, "", `/search?query=${encodeURIComponent(query)}`);
+    fetchSearchResults(query);
   };
-
-  useEffect(() => {
-    const currentQuery = searchParams.get("query") || "";
-    setQuery(currentQuery);
-    if (currentQuery) {
-      handleSearch(currentQuery);
-    } else {
-      handleShowAll();
-    }
-  }, [searchParams.toString()]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Пошук сортів фіалок</h1>
-      <input
-        type="text"
-        placeholder="Введіть назву сорту"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{ marginRight: "10px", padding: "5px", width: "300px" }}
-      />
-      <button onClick={onSubmitSearch} style={{ marginRight: "10px" }}>
-        Пошук
-      </button>
-      <button onClick={handleShowAll}>Вивести всі сорти</button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <ul style={{ marginTop: "20px" }}>
-        {results.map((item) => (
-          <li key={item.name}>
-            <Link
-              to={`/variety/${encodeURIComponent(item.name)}`}
+    <div>
+      <input value={query} onChange={handleInputChange} />
+      <button onClick={handleSearch}>Пошук</button>
+      <ul>
+        {results.map((variety) => (
+          <li key={variety.name}>
+            <Link 
+              to={`/variety/${encodeURIComponent(variety.name)}`} 
               state={{ fromQuery: query }}
             >
-              {item.name}
+              {variety.name}
             </Link>
           </li>
         ))}

@@ -76,6 +76,7 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
     :rtype: Saintpaulia | None
     """
     result = db.query(Saintpaulia).filter(Saintpaulia.name == name).first()
+    # result = db.query(Saintpaulia).filter(Saintpaulia.name.ilike(name)).first()
     return result
 
 

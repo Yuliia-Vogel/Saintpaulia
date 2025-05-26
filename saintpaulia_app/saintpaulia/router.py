@@ -38,6 +38,14 @@ def get_variety_by_name(name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Сорт не знайдено")
     return result
 
+# Пошук за id - потім буде для виведення карток кожного сорту на фронтенді:
+# @router.get("/by-id/{id}", response_model=SaintpauliaResponse)
+# def get_variety_by_id(id: int, db: Session = Depends(get_db)):
+#     result = repository.get_saintpaulia_by_id(id, db)
+#     if not result:
+#         raise HTTPException(status_code=404, detail="Сорт не знайдено")
+#     return result
+
 
 # Пошук за частиною назви
 @router.get("/search/", response_model=List[SaintpauliaResponse])

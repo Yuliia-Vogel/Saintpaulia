@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getUserFromToken, getUserData } from "../services/authService"; // додай getUserData
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -10,15 +9,15 @@ export const AuthProvider = ({ children }) => {
   // Отримати user з бекенду (з підтвердженням!)
   const fetchUserData = async () => {
     try {
-      const response = await axios.get("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axios.get("/api/auth/me");
       setUser(response.data);
-    } catch (error) {
-      console.error("Не вдалося отримати дані користувача", error);
-      setUser(null); // або не міняти, залежно від логіки
+    } catch (err) {
+      if (err.response?.status === 401) {
+        // Користувач не авторизований — це нормально, нічого не робимо
+        setUser(null);
+      } else {
+        console.error("Не вдалося отримати дані користувача", err);
+      }
     }
   };
 
