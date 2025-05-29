@@ -40,7 +40,7 @@ function Login() {
   return (
     <div className="max-w-md mx-auto mt-10 p-4 border rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Вхід</h2>
-      {error && <div className="text-red-600 mb-2">{error}</div>}
+      {error && <div className="text-red-600 font-semibold mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block mb-1">Email</label>
