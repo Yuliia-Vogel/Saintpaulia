@@ -46,7 +46,7 @@ export default function VarietyDetail() {
   if (!variety) return <p>Завантаження...</p>;
 
   return (
-    <div style={{ padding: "20px", lineHeight: "0.5" }}>
+    <div style={{ padding: "20px" }}>
       <button
         onClick={() => {
           if (fromQuery) {
