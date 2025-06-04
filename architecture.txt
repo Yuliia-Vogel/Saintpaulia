@@ -25,7 +25,8 @@
 │   │   │   ├── Register.jsx
 │   │   │   ├── ResetPassword.jsx
 │   │   │   ├── SearchPage.jsx
-│   │   │   └── VarietyDetail.jsx
+│   │   │   ├── VarietyDetail.jsx
+│   │   │   └── VarietyForm.jsx
 │   │   ├── services/
 │   │   │   ├── api.js
 │   │   │   └── authService.js                  

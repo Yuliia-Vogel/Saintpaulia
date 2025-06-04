@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { jwtDecode } from "jwt-decode"
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams()
   const [message, setMessage] = useState('Підтверджуємо вашу пошту...')
   const [success, setSuccess] = useState(null)
-  const { fetchUserData } = useAuth() // ✅ Дістаємо функцію з контексту
+  const { setUser } = useAuth(); // Дістаємо функцію з контексту
 
   useEffect(() => {
     const token = searchParams.get('token')
@@ -26,7 +27,16 @@ const ConfirmEmail = () => {
         setMessage(data.message || 'Пошту підтверджено успішно!')
         setSuccess(true)
 
-        await fetchUserData() //Оновлюємо дані користувача
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          const decoded = jwtDecode(token);
+          setUser({
+            email: decoded.email,
+            role: decoded.role,
+            confirmed: decoded.confirmed,
+            accessToken: token,
+          });
+        } //Оновлюємо дані користувача
       } catch (err) {
         setMessage('Підтвердження не вдалося. Можливо, токен недійсний або протермінований.')
         setSuccess(false)
@@ -34,7 +44,7 @@ const ConfirmEmail = () => {
     }
 
     confirmEmail()
-  }, [searchParams, fetchUserData]) // fetchUserData додано до залежностей
+  }, [searchParams])
 
   return (
     <div className="p-4">

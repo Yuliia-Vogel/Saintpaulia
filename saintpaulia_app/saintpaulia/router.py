@@ -18,6 +18,7 @@ router = APIRouter(prefix="/saintpaulias", tags=["Saintpaulias"])
 def create_variety(data: SaintpauliaCreate, 
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
+    print(data) # для відладки фронту   
     return repository.create_saintpaulia_variety(data, current_user, db)
 
 

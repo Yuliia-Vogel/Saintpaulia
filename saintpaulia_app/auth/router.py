@@ -37,8 +37,8 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     if not hash_handler.verify_password(body.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
     
-    access_token = await create_access_token(data={"sub": user.email})
-    refresh_token = await create_refresh_token(data={"sub": user.email})
+    access_token = await create_access_token(data={"sub": user.email, "role": user.role.value, "confirmed": user.confirmed})
+    refresh_token = await create_refresh_token(data={"sub": user.email, "role": user.role.value, "confirmed": user.confirmed})
     update_user_refresh_token(user, refresh_token, db)
 
     return {
@@ -47,7 +47,8 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
         "token_type": "bearer",
         "user": {
             "email": user.email,
-            "confirmed": user.confirmed 
+            "confirmed": user.confirmed,  
+            "role": user.role.value
             }
         }
 

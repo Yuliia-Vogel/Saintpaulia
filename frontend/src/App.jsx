@@ -29,8 +29,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/add" element={<AddVariety />} />
         <Route path="/variety/:name" element={<VarietyDetail />} />
-        <Route path="/add-variety" element={<PrivateRoute><AddVariety /></PrivateRoute>} />
+        {/* <Route path="/add-variety" element={<PrivateRoute><AddVariety /></PrivateRoute>} /> */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>

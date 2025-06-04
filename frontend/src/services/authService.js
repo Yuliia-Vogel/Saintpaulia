@@ -1,52 +1,67 @@
+// src/services/authService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8000";
+// Авторизація (логін)
+export const login = async (email, password) => {
+  const data = new URLSearchParams();
+  data.append("username", email);
+  data.append("password", password);
 
-export async function login(email, password) {
-  const formData = new URLSearchParams();
-  formData.append("username", email); 
-  formData.append("password", password);
-
-  return axios.post(`${API_URL}/auth/login`, formData, {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-}
-
-
-import { jwtDecode } from "jwt-decode";
-
-export function getUserFromToken(token) {
   try {
-    const decoded = jwtDecode(token);
-    return { email: decoded.sub };
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/auth/login`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const { access_token, refresh_token, user } = res.data;
+
+    // Зберігаємо токени
+    localStorage.setItem("accessToken", access_token);
+    localStorage.setItem("refreshToken", refresh_token);
+
+    // Повертаємо користувача з токенами
+    return {
+      ...user,
+      accessToken: access_token,
+      refreshToken: refresh_token,
+    };
   } catch (error) {
-    console.error("Invalid token");
-    return null;
+    console.error("Помилка логіну:", error);
+    throw error;
   }
-}
+};
 
-
-import api from "./api";
-
-export async function requestConfirmationEmail(email) {
-  const res = await api.post("/auth/request-email", { email });
-  return res.data;
-}
-
-
-export async function getUserData() {
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    throw new Error("Token not found");
+// Надіслати запит на повторне надсилання листа підтвердження
+export const requestConfirmationEmail = async (email) => {
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/auth/confirm-email/request`,
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Помилка надсилання листа підтвердження:", error);
+    throw error;
   }
+};
 
-  const res = await api.get("/auth/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+// (необов’язково) Отримати accessToken з локального сховища
+export const getAccessToken = () => {
+  return localStorage.getItem("accessToken");
+};
 
-  return res.data; // очікується, що бекенд повертає { email, confirmed }
-}
+// (необов’язково) Очистити всі токени
+export const logout = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+};
