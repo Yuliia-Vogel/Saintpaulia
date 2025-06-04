@@ -5,22 +5,40 @@ const Header = () => {
   const { user } = useAuth();
 
   return (
-    <header style={{ padding: "1rem", background: "#f5f5f5" }}>
-      <div style={{ textAlign: "right" }}>
+    <header style={styles.header}>
+      <div style={styles.userBlock}>
         {user ? (
-          <span>👋 Ви авторизовані як <strong>{user.email}</strong></span>
+          <span>
+            👋 Ви авторизовані як <strong>{user.email}</strong>{" "}
+            {user.role && <span>(роль: <strong>{user.role}</strong>)</span>}
+          </span>
         ) : (
           <span>🔒 Ви ще не увійшли в свій акаунт</span>
         )}
       </div>
 
       {user && !user.confirmed && (
-        <div style={{ marginTop: "1rem" }}>
+        <div style={styles.noticeBlock}>
           <EmailConfirmationNotice email={user.email} />
         </div>
       )}
     </header>
   );
+};
+
+const styles = {
+  header: {
+    padding: "1rem",
+    background: "#f5f5f5",
+  },
+  userBlock: {
+    textAlign: "right",
+    fontSize: "0.95rem",
+    color: "#333",
+  },
+  noticeBlock: {
+    marginTop: "1rem",
+  },
 };
 
 export default Header;

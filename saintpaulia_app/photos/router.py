@@ -1,3 +1,5 @@
+print("Початок імпорту photos.router")
+
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -8,10 +10,14 @@ from saintpaulia_app.saintpaulia.models import Saintpaulia
 from photos.models import UploadedPhoto
 from photos.cloudinary_config import cloudinary as cl_service
 
+print("Імпорти завершено")
+
 router = APIRouter(
     prefix="/photos",
     tags=["Photos"]
 )
+
+print("Роутер photos створено")
 
 @router.post("/upload")
 async def upload_variety_photo(
@@ -20,8 +26,9 @@ async def upload_variety_photo(
     session: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+    print("Функція upload_photo завантажена")
     # 1. Перевірка, що сорт існує
-    result = session.execute(select(Saintpaulia).where(Saintpaulia.id == variety_id))
+    result = await session.execute(select(Saintpaulia).where(Saintpaulia.id == variety_id)) # додаю await, щоб уникнути дивної поведінки, що приводить до зависання додатку
     variety = result.scalar_one_or_none()
     if not variety:
         raise HTTPException(status_code=404, detail="Saintpaulia variety not found")
@@ -50,7 +57,7 @@ async def upload_variety_photo(
         uploaded_by=current_user.id
     )
     session.add(photo)
-    session.commit()
+    await session.commit() # додаю await, щоб уникнути дивної поведінки, що приводить до зависання додатку
 
     # return {"message": "Photo uploaded successfully", "photo_url": photo.file_url}
     return {"file_url": file_url, "public_id": public_id}

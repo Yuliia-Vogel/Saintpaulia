@@ -33,6 +33,13 @@ def create_saintpaulia_variety(body: SaintpauliaCreate, user: User, db: Session)
     :return: The newly created Saintpaulia variety.
     :rtype: Saintpaulia
     """
+    # Перевірка ролі
+    if user.role.value not in ["expert", "breeder", "admin", "superadmin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Недостатньо прав для створення сорту."
+            )
+    
     data = body.dict()
     data["owner_id"] = user.id
 

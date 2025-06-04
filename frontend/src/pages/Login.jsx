@@ -1,35 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, getUserFromToken } from "../services/authService";
+import { login } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // 👈 додано
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { loginUser } = useAuth(); // Отримуємо функцію з контексту
+  const { setUser } = useAuth(); // ✅ тільки setUser
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const res = await login(email, password);
-      const { access_token, refresh_token } = res.data;
-
-      localStorage.setItem("accessToken", access_token);
-      localStorage.setItem("refreshToken", refresh_token);
-
-      // Витягуємо юзера з токена і зберігаємо в контекст
-      const userData = getUserFromToken(access_token);
-      loginUser({
-        access_token,
-        refresh_token,
-        user: res.data.user, // передаємо user об'єкт як є
-      });
-
+      const userData = await login(email, password);
+      setUser(userData); // email, role, confirmed, accessToken
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -42,6 +30,7 @@ function Login() {
       <h2 className="text-2xl font-bold mb-4">Вхід</h2>
       {error && <div className="text-red-600 font-semibold mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* email */}
         <div>
           <label className="block mb-1">Email</label>
           <input
@@ -52,6 +41,8 @@ function Login() {
             required
           />
         </div>
+
+        {/* password */}
         <div>
           <label className="block mb-1">Пароль</label>
           <div className="relative">
@@ -71,6 +62,8 @@ function Login() {
             </button>
           </div>
         </div>
+
+        {/* button */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
@@ -78,6 +71,7 @@ function Login() {
           Увійти
         </button>
       </form>
+
       <div className="mt-4 text-sm text-center">
         <a href="/forgot-password" className="text-blue-600 hover:underline">
           Забули пароль?
