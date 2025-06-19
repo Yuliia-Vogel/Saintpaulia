@@ -7,7 +7,7 @@ const ConfirmEmail = () => {
   const [searchParams] = useSearchParams()
   const [message, setMessage] = useState('Підтверджуємо вашу пошту...')
   const [success, setSuccess] = useState(null)
-  const { setUser } = useAuth(); // Дістаємо функцію з контексту
+  const { setUser } = useAuth()
 
   useEffect(() => {
     const token = searchParams.get('token')
@@ -19,7 +19,8 @@ const ConfirmEmail = () => {
 
     const confirmEmail = async () => {
       try {
-        const response = await fetch(`/auth/confirm-email?token=${token}`)
+        const API_URL = import.meta.env.VITE_API_URL
+        const response = await fetch(`${API_URL}/auth/confirm-email?token=${token}`)
         if (!response.ok) {
           throw new Error('Невдале підтвердження')
         }
@@ -27,16 +28,16 @@ const ConfirmEmail = () => {
         setMessage(data.message || 'Пошту підтверджено успішно!')
         setSuccess(true)
 
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          const decoded = jwtDecode(token);
+        const storedToken = localStorage.getItem("accessToken")
+        if (storedToken) {
+          const decoded = jwtDecode(storedToken)
           setUser({
             email: decoded.email,
             role: decoded.role,
             confirmed: decoded.confirmed,
-            accessToken: token,
-          });
-        } //Оновлюємо дані користувача
+            accessToken: storedToken,
+          })
+        }
       } catch (err) {
         setMessage('Підтвердження не вдалося. Можливо, токен недійсний або протермінований.')
         setSuccess(false)

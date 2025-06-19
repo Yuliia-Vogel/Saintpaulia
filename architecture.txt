@@ -15,9 +15,12 @@
 │   │   │   └── PrivateRoute.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
+│   │   ├── hooks/
+│   │   │   └── useCurrentUser.js
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
 │   │   │   ├── ConfirmEmail.jsx
+│   │   │   ├──EditVariety.jsx
 │   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
@@ -29,7 +32,10 @@
 │   │   │   └── VarietyForm.jsx
 │   │   ├── services/
 │   │   │   ├── api.js
-│   │   │   └── authService.js                  
+│   │   │   └── authService.js
+│   │   ├── utils/
+│   │   │   ├── apiRoutes.js
+│   │   │   └── jwt.js                  
 │   │   ├── App.css
 │   │   ├── App.jsx
 │   │   ├── index.css
