@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status, Security, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
@@ -15,10 +16,13 @@ from auth.service import Hash
 from auth.security import verify_password
 from services.email import send_confirmation_email, send_password_reset_email
 
+from dotenv import load_dotenv
+
 router = APIRouter()
 hash_handler = Hash()
 security = HTTPBearer()
 
+load_dotenv()
 
 @router.post("/signup")
 async def signup(body: UserCreate, 
@@ -108,7 +112,6 @@ async def request_email_verification(
     if user:
         username = user.first_name or user.email
         background_tasks.add_task(send_confirmation_email, user.email, username)
-        # background_tasks.add_task(send_confirmation_email, user.email, user.username, str(request.base_url))
     # завжди повертаємо одне й те саме
     return {"message": "Check your email for confirmation"}
 
@@ -139,7 +142,9 @@ async def forgot_password(
     user = get_user_by_email(body.email, db)
     if user:
         token = create_reset_password_token({"sub": user.email})
-        reset_link = f"{request.base_url}reset-password?token={token}"
+        # reset_link = f"{request.base_url}reset-password?token={token}"
+        front_url = os.getenv("FRONTEND_URL")
+        reset_link = f"{front_url}/reset-password?token={token}"
         background_tasks.add_task(send_password_reset_email, user.email, user.email, reset_link) # user.email, user.email: перший - куди, другий - як звертатись
     return {"message": "If the user exists, a password reset email has been sent."}
 

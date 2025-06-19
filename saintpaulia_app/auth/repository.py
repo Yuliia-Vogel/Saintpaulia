@@ -9,6 +9,7 @@ hash_handler = Hash()
 
 def get_user_by_email(email: str, db: Session) -> User:
     user = db.query(User).filter(User.email == email).first()
+    print(f"User: {user}")
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user

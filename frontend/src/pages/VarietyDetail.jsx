@@ -1,6 +1,6 @@
-// src/pages/VarietyDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 const API_BASE = "http://localhost:8000/saintpaulia/saintpaulias";
 
@@ -12,17 +12,13 @@ export default function VarietyDetail() {
   const [error, setError] = useState("");
 
   const fromQuery = location.state?.fromQuery || "";
-
-  // console.log("🔎 name param from useParams:", name);
+  const currentUser = useCurrentUser(); // 🔄 заміни на свій спосіб отримання поточного користувача
 
   useEffect(() => {
     const fetchVariety = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE}/by-name/${encodeURIComponent(name)}`
-        );
-        if (!response.ok)
-          throw new Error("Не вдалося завантажити дані про сорт.");
+        const response = await fetch(`${API_BASE}/by-name/${encodeURIComponent(name)}`);
+        if (!response.ok) throw new Error("Не вдалося завантажити дані про сорт.");
         const data = await response.json();
         setVariety(data);
       } catch (err) {
@@ -33,14 +29,18 @@ export default function VarietyDetail() {
     fetchVariety();
   }, [name]);
 
-
   const handleBack = () => {
     if (location.state?.fromSearch) {
-      navigate(-1); // повернення назад до результатів
+      navigate(-1);
     } else {
-      navigate("/"); // або на головну
-      }
-    };
+      navigate("/");
+    }
+  };
+
+  const canEdit = 
+    currentUser &&
+    (currentUser.id === variety?.owner_id || // бо owner_id — це email
+      ["admin", "superadmin"].includes(currentUser.role));
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!variety) return <p>Завантаження...</p>;
@@ -68,37 +68,29 @@ export default function VarietyDetail() {
         <strong>Опис:</strong> {variety.description || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Розмір розетки:</strong>{" "}
-        {variety.size_category || "Інформація відсутня"}
+        <strong>Розмір розетки:</strong>{" "} {variety.size_category || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Колір квітів:</strong>{" "}
-        {variety.flower_color || "Інформація відсутня"}
+        <strong>Колір квітів:</strong>{" "} {variety.flower_color || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Розмір квітів:</strong>{" "}
-        {variety.flower_size || "Інформація відсутня"}
+        <strong>Розмір квітів:</strong>{" "} {variety.flower_size || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Форма квітів:</strong>{" "}
-        {variety.flower_shape || "Інформація відсутня"}
+        <strong>Форма квітів:</strong>{" "} {variety.flower_shape || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Наповненість квітів:</strong>{" "}
-        {variety.flower_doubleness || "Інформація відсутня"}
+        <strong>Наповненість квітів:</strong>{" "} {variety.flower_doubleness || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Характеристики цвітіння:</strong>{" "}
-        {variety.blooming_features || "Інформація відсутня"}
+        <strong>Характеристики цвітіння:</strong>{" "} {variety.blooming_features || "Інформація відсутня"}
       </p>
 
       <p>
-        <strong>Форма листків:</strong>{" "}
-        {variety.leaf_shape || "Інформація відсутня"}
+        <strong>Форма листків:</strong>{" "} {variety.leaf_shape || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Строкатість листя:</strong>{" "}
-        {variety.leaf_variegation || "Інформація відсутня"}
+        <strong>Строкатість листя:</strong>{" "} {variety.leaf_variegation || "Інформація відсутня"}
       </p>
 
       <p>
@@ -115,18 +107,12 @@ export default function VarietyDetail() {
         <strong>Автор запису:</strong> {variety.owner_id || "Інформація відсутня"}
       </p>
       <p>
-        <strong>Дата створення запису:</strong> {variety.record_creation_date || "Інформація відсутня"}
+        <strong>Дата створення запису:</strong>{" "} {variety.record_creation_date || "Інформація відсутня"}
       </p>
 
+      {/* 🌸 Фото */}
       {variety.photos && variety.photos.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "16px",
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "20px" }}>
           {variety.photos.map((photo) => (
             <img
               key={photo.id}
@@ -135,6 +121,24 @@ export default function VarietyDetail() {
               style={{ maxWidth: "300px", borderRadius: "8px" }}
             />
           ))}
+        </div>
+      )}
+
+      {/* ✏️ Кнопки для редагування */}
+      {canEdit && (
+        <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
+          <button
+            onClick={() => navigate(`/variety/${variety.name}/edit`)}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600"
+          >
+            ✏️ Редагувати сорт
+          </button>
+          <button
+            onClick={() => navigate(`/photos/upload/${variety.id}`)}
+            className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+          >
+            📷 Додати фото
+          </button>
         </div>
       )}
     </div>

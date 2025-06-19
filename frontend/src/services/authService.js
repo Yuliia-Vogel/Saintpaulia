@@ -1,5 +1,8 @@
 // src/services/authService.js
 import axios from "axios";
+import { API_ROUTES } from "../utils/apiRoutes";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Авторизація (логін)
 export const login = async (email, password) => {
@@ -8,23 +11,17 @@ export const login = async (email, password) => {
   data.append("password", password);
 
   try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/login`,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    const res = await axios.post(`${API_URL}${API_ROUTES.login}`, data, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
 
     const { access_token, refresh_token, user } = res.data;
 
-    // Зберігаємо токени
     localStorage.setItem("accessToken", access_token);
     localStorage.setItem("refreshToken", refresh_token);
 
-    // Повертаємо користувача з токенами
     return {
       ...user,
       accessToken: access_token,
@@ -40,7 +37,7 @@ export const login = async (email, password) => {
 export const requestConfirmationEmail = async (email) => {
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/confirm-email/request`,
+      `${API_URL}${API_ROUTES.requestConfirmationEmail}`,
       { email },
       {
         headers: {
@@ -60,7 +57,7 @@ export const getAccessToken = () => {
   return localStorage.getItem("accessToken");
 };
 
-// (необов’язково) Очистити всі токени
+// Очистити всі токени
 export const logout = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");

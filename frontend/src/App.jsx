@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound'
 import VarietyDetail from './pages/VarietyDetail'
 import SearchPage from './pages/SearchPage'
 import AddVariety from './pages/AddVariety'
+import EditVariety from "./pages/EditVariety";
 import PrivateRoute from './components/PrivateRoute'
 
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/add" element={<AddVariety />} />
         <Route path="/variety/:name" element={<VarietyDetail />} />
         {/* <Route path="/add-variety" element={<PrivateRoute><AddVariety /></PrivateRoute>} /> */}
+        <Route path="/variety/:name/edit" element={<EditVariety />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>
