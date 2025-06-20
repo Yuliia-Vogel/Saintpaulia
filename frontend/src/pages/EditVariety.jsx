@@ -10,6 +10,7 @@ export default function EditVariety() {
   const navigate = useNavigate();
   const [initialData, setInitialData] = useState(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchVariety = async () => {
@@ -49,7 +50,16 @@ export default function EditVariety() {
       }
 
       const updatedVariety = await response.json();
-      navigate(`/variety/${encodeURIComponent(updatedVariety.name)}`);
+
+      setSuccessMessage(`Зміни збережено до сорту "${updatedVariety.name}".`)
+
+      // ⏳ Затримка перед переходом (1.5 сек)
+      setTimeout(() => {
+        navigate(`/variety/${encodeURIComponent(updatedVariety.name)}`, {
+          state: { successMessage: `Зміни збережено до сорту "${updatedVariety.name}".` }
+        });
+      }, 1000);
+
     } catch (err) {
       setError(err.message);
     }
@@ -61,6 +71,11 @@ export default function EditVariety() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Редагувати сорт: {initialData.name}</h1>
+      {successMessage && (
+        <p style={{ color: "green", fontStyle: "italic", marginBottom: "1rem" }}>
+          {successMessage} 
+          </p>
+      )}
       <VarietyForm initialData={initialData} onSubmit={handleUpdate} />
     </div>
   );

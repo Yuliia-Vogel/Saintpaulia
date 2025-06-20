@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export function VarietyForm({ initialData = {}, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -19,19 +19,6 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     record_creation_date: initialData.record_creation_date || '',
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
   const fields = [
     ['name', 'Назва сорту'],
     ['description', 'Опис'],
@@ -50,26 +37,39 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     ['record_creation_date', 'Дата створення запису'],
   ];
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 max-w-xl mx-auto p-4 border rounded-2xl shadow bg-white"
-    >
-      {fields.map(([field, label]) => (
-        <div key={field}>
-          <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-1">
-            {label}
-          </label>
-          <input
-            type="text"
-            name={field}
-            id={field}
-            value={formData[field]}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring focus:ring-violet-300 focus:outline-none"
-          />
-        </div>
-      ))}
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-4 border rounded-2xl shadow bg-white">
+      {fields.map(([field, label]) => {
+        const isReadOnlyField = field === "owner_id" || field === "record_creation_date";
+        return (
+          <div key={field}>
+            <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-1">
+              {label}
+            </label>
+            <input
+              type="text"
+              name={field}
+              id={field}
+              value={formData[field]}
+              onChange={handleChange}
+              disabled={isReadOnlyField}
+              className={`w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring focus:ring-violet-300 focus:outline-none ${
+                isReadOnlyField ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+        );
+      })}
 
       <button
         type="submit"
