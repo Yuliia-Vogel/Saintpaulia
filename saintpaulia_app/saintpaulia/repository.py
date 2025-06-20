@@ -139,8 +139,14 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
     if not variety or variety.is_deleted:
         return None
     
-    if variety.owner_id != user.id and user.role not in ["admin", "superadmin"]:
+    print("👤 user.role.value:", user.role.value, type(user.role))
+    if variety.owner_id != user.id and user.role.value not in ["admin", "superadmin"]:
         raise HTTPException(status_code=403, detail="У вас немає прав для редагування цього сорту.")
+    
+    # якщо раптом користувач не вніс рік селекції:
+    for key in updated_data:
+        if key == "selection_year" and updated_data[key] == "":
+            updated_data[key] = None
 
     for key, value in updated_data.items():
         if hasattr(variety, key):

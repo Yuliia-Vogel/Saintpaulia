@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE = "http://localhost:8000/saintpaulia/saintpaulias";
 
@@ -8,13 +8,15 @@ export default function VarietyDetail() {
   const { name } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+
   const [variety, setVariety] = useState(null);
   const [error, setError] = useState("");
-
   const fromQuery = location.state?.fromQuery || "";
-  const currentUser = useCurrentUser(); // 🔄 заміни на свій спосіб отримання поточного користувача
+  const successMessage = location.state?.successMessage;
 
   useEffect(() => {
+    console.log("currentUser:", currentUser);
     const fetchVariety = async () => {
       try {
         const response = await fetch(`${API_BASE}/by-name/${encodeURIComponent(name)}`);
@@ -29,6 +31,15 @@ export default function VarietyDetail() {
     fetchVariety();
   }, [name]);
 
+  const canEdit =
+    currentUser &&
+    variety &&
+    (
+      currentUser.user_id === variety?.owner_id || // автор
+      currentUser.role === "admin" ||
+      currentUser.role === "superadmin"
+    );
+
   const handleBack = () => {
     if (location.state?.fromSearch) {
       navigate(-1);
@@ -37,26 +48,17 @@ export default function VarietyDetail() {
     }
   };
 
-  const canEdit = 
-    currentUser &&
-    (currentUser.id === variety?.owner_id || // бо owner_id — це email
-      ["admin", "superadmin"].includes(currentUser.role));
-
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!variety) return <p>Завантаження...</p>;
 
   return (
     <div style={{ padding: "20px" }}>
-      <button
-        onClick={() => {
-          if (fromQuery) {
-            navigate(`/?query=${encodeURIComponent(fromQuery)}`);
-          } else {
-            navigate("/");
-          }
-        }}
-        style={{ marginBottom: "20px" }}
-      >
+          {successMessage && (
+            <p style={{ color: "green", fontStyle: "italic", marginBottom: "1rem" }}>
+              {successMessage}
+            </p>
+          )}
+      <button onClick={handleBack} style={{ marginBottom: "20px" }}>
         ← Назад
       </button>
 
@@ -110,8 +112,19 @@ export default function VarietyDetail() {
         <strong>Дата створення запису:</strong>{" "} {variety.record_creation_date || "Інформація відсутня"}
       </p>
 
+       {canEdit && (
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+          <button onClick={() => navigate(`/variety/${variety.name}/edit`)}>
+            ✏️ Редагувати сорт
+          </button>
+          <button onClick={() => navigate(`/photos/upload/${variety.id}`)}>
+            📷 Додати фото
+          </button>
+        </div>
+      )}
+
       {/* 🌸 Фото */}
-      {variety.photos && variety.photos.length > 0 && (
+      {variety.photos.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "20px" }}>
           {variety.photos.map((photo) => (
             <img
@@ -123,24 +136,6 @@ export default function VarietyDetail() {
           ))}
         </div>
       )}
-
-      {/* ✏️ Кнопки для редагування */}
-      {canEdit && (
-        <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
-          <button
-            onClick={() => navigate(`/variety/${variety.name}/edit`)}
-            className="bg-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600"
-          >
-            ✏️ Редагувати сорт
-          </button>
-          <button
-            onClick={() => navigate(`/photos/upload/${variety.id}`)}
-            className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
-          >
-            📷 Додати фото
-          </button>
-        </div>
-      )}
     </div>
-  );
-}
+    );
+  }

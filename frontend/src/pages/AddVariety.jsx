@@ -9,11 +9,6 @@ export default function AddVariety() {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      console.log("🔍 JWT Token Contents:", decoded);
-      console.log("📧 Email:", decoded.sub);
-      console.log("👤 Role:", decoded.role);
-      console.log("✅ Confirmed:", decoded.confirmed);
-      console.log("⏰ Token expires:", new Date(decoded.exp * 1000));
     } catch (e) {
       console.error("❌ Error decoding token:", e);
     }

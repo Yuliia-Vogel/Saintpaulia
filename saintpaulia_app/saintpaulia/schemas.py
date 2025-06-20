@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional
 from datetime import datetime
 from photos.schemas import PhotoResponce
@@ -20,8 +20,18 @@ class SaintpauliaBase(BaseModel):
     photos: Optional[list] = []
     origin: Optional[str] = "дані ще не внесено"
     selectionist: str = "дані ще не внесено"
-    selection_year: Optional[int] = None
     blooming_features: Optional[str] = "дані ще не внесено"
+    selection_year: Optional[int] = None
+
+    @validator("selection_year", pre=True)
+    def validate_selection_year(cls, value):
+        if value == "":
+            return None
+        if isinstance(value, str) and value.isdigit():
+            value = int(value)
+        if isinstance(value, int) and (value < 1800 or value > datetime.now().year):
+            raise ValueError("Рік селекції має бути між 1800 і поточним роком.")
+        return value
 
 
 class SaintpauliaCreate(SaintpauliaBase):

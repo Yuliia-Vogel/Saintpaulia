@@ -15,8 +15,8 @@
 │   │   │   └── PrivateRoute.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
-│   │   ├── hooks/
-│   │   │   └── useCurrentUser.js
+│   │   ├── hooks/                    # можна видалити
+│   │   │   └── useCurrentUser.js     # можна видалити
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
 │   │   │   ├── ConfirmEmail.jsx
