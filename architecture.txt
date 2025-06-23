@@ -28,6 +28,7 @@
 │   │   │   ├── Register.jsx
 │   │   │   ├── ResetPassword.jsx
 │   │   │   ├── SearchPage.jsx
+│   │   │   ├── UploadPhoto.jsx
 │   │   │   ├── VarietyDetail.jsx
 │   │   │   └── VarietyForm.jsx
 │   │   ├── services/
