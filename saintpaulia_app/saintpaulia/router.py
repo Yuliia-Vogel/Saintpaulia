@@ -92,7 +92,9 @@ def get_logs(db: Session = Depends(get_db),
 
 @router.get("/my-varieties/")
 def get_my_varieties(db: Session = Depends(get_db), 
-                     current_user: User = Depends(get_current_user)):
+                     current_user: User = Depends(get_current_user),
+                     limit: int = Query(10, ge=1, le=20),
+                     offset: int = Query(0, ge=0)):
     """
     Отримати сорти, які вніс поточний користувач.
     """

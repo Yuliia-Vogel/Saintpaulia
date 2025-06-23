@@ -182,7 +182,7 @@ def delete_variety(name: str, user: User, db: Session) -> bool:
     return True
 
 
-def get_varieties_by_user(db: Session, user_id: int) -> List[SaintpauliaResponse]:
+def get_varieties_by_user(db: Session, user_id: int, limit: int = 10, offset: int = 0) -> List[SaintpauliaResponse]:
     """
     Retrieves a list of Saintpaulia varieties for a specific user.
 
@@ -193,7 +193,9 @@ def get_varieties_by_user(db: Session, user_id: int) -> List[SaintpauliaResponse
     :return: A list of Saintpaulia varieties for specific user.
     :rtype: List[SaintpauliaResponse]
     """
-    varieties = db.query(Saintpaulia).filter(Saintpaulia.owner_id == user_id, Saintpaulia.is_deleted == False).all()
+    varieties = db.query(Saintpaulia).filter(
+        Saintpaulia.owner_id == user_id, 
+        Saintpaulia.is_deleted == False
+        ).offset(offset).limit(limit).all()
     user_list = [SaintpauliaResponse.from_orm(variety) for variety in varieties] if varieties else []
-    print(user_list)
     return user_list
