@@ -13,6 +13,7 @@ import VarietyDetail from './pages/VarietyDetail'
 import SearchPage from './pages/SearchPage'
 import AddVariety from './pages/AddVariety'
 import EditVariety from "./pages/EditVariety";
+import UploadPhoto from './pages/UploadPhoto';
 import PrivateRoute from './components/PrivateRoute'
 
 
@@ -34,6 +35,9 @@ function App() {
         <Route path="/variety/:name" element={<VarietyDetail />} />
         {/* <Route path="/add-variety" element={<PrivateRoute><AddVariety /></PrivateRoute>} /> */}
         <Route path="/variety/:name/edit" element={<EditVariety />} />
+        {/* <Route path="/variety/:name/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} /> */}
+        <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>

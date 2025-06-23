@@ -117,7 +117,7 @@ export default function VarietyDetail() {
           <button onClick={() => navigate(`/variety/${variety.name}/edit`)}>
             ✏️ Редагувати сорт
           </button>
-          <button onClick={() => navigate(`/photos/upload/${variety.id}`)}>
+          <button onClick={() => navigate(`/variety/${variety.id}/upload-photo`, { state: { varietyName: name } })}>
             📷 Додати фото
           </button>
         </div>

@@ -1,6 +1,6 @@
 print("Початок імпорту photos.router")
 
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from photos.cloudinary_service import CloudinaryService
@@ -21,21 +21,21 @@ print("Роутер photos створено")
 
 @router.post("/upload")
 async def upload_variety_photo(
-    variety_id: int,
+    variety_id: int = Form(...),  # Тепер очікується з multipart/form-data
     file: UploadFile = File(...),
     session: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
     print("Функція upload_photo завантажена")
     # 1. Перевірка, що сорт існує
-    result = await session.execute(select(Saintpaulia).where(Saintpaulia.id == variety_id)) # додаю await, щоб уникнути дивної поведінки, що приводить до зависання додатку
+    result = session.execute(select(Saintpaulia).where(Saintpaulia.id == variety_id)) 
     variety = result.scalar_one_or_none()
     if not variety:
         raise HTTPException(status_code=404, detail="Saintpaulia variety not found")
 
     # 2. Перевірка прав доступу
     allowed_roles = ["admin", "superadmin"]
-    if current_user.id != variety.owner_id and current_user.role not in allowed_roles:
+    if current_user.id != variety.owner_id and current_user.role.value not in allowed_roles:
         raise HTTPException(status_code=403, detail="You do not have permission to upload photo for this variety")
 
     # 3. Завантаження через сервіс
@@ -57,7 +57,6 @@ async def upload_variety_photo(
         uploaded_by=current_user.id
     )
     session.add(photo)
-    await session.commit() # додаю await, щоб уникнути дивної поведінки, що приводить до зависання додатку
-
+    session.commit()
     # return {"message": "Photo uploaded successfully", "photo_url": photo.file_url}
     return {"file_url": file_url, "public_id": public_id}
