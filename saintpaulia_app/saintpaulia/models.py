@@ -30,6 +30,7 @@ class Saintpaulia(Base):
 
     #дані про того, хто вніс запис
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User", back_populates="saintpaulias")
     record_creation_date = Column(DateTime, default=func.now())
     
     # soft delete

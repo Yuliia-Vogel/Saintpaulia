@@ -35,7 +35,7 @@ async def signup(body: UserCreate,
     return {"message": "Check your email to confirm your registration"}
 
 
-@router.post("/login")
+@router.post("/login") 
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user_by_email(body.username, db)
     if not hash_handler.verify_password(body.password, user.hashed_password):
@@ -176,7 +176,14 @@ async def reset_password(
 
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_user)):
+    varieties_number = len(current_user.saintpaulias) if current_user.saintpaulias else 0
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {
+        "name": str(current_user.first_name) + str(" ") + str(current_user.last_name) or current_user.email.split('@')[0],
         "email": current_user.email,
+        "role": current_user.role.value,
+        "user_id": current_user.id,
         "confirmed": current_user.confirmed,
+        "varieties_number": varieties_number
     }
