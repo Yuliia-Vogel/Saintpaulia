@@ -35,7 +35,7 @@ async def signup(body: UserCreate,
     return {"message": "Check your email to confirm your registration"}
 
 
-@router.post("/login")
+@router.post("/login") 
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user_by_email(body.username, db)
     if not hash_handler.verify_password(body.password, user.hashed_password):

@@ -88,3 +88,15 @@ def get_logs(db: Session = Depends(get_db),
         raise HTTPException(status_code=403, detail="Доступ заборонено")
 
     return db.query(SaintpauliaLog).order_by(SaintpauliaLog.timestamp.desc()).all()
+
+
+@router.get("/my-varieties/")
+def get_my_varieties(db: Session = Depends(get_db), 
+                     current_user: User = Depends(get_current_user)):
+    """
+    Отримати сорти, які вніс поточний користувач.
+    """
+    result = repository.get_varieties_by_user(db, current_user.id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Ваших сортів не знайдено.")
+    return result

@@ -8,7 +8,7 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-load_dotenv() # завантажуються дані з файлу .env 
+load_dotenv()
 
 postgres_user = os.getenv("POSTGRESQL_USER")
 postgres_password = os.getenv("POSTGRESQL_PASS")

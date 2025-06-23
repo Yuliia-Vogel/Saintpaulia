@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from saintpaulia_app.database import Base
 from sqlalchemy import Enum as SqlEnum
+from sqlalchemy.orm import relationship
 import enum
 
 
@@ -26,6 +27,7 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin (superuser)
     confirmed = Column(Boolean, default=False) 
+    saintpaulias = relationship("Saintpaulia", back_populates="owner", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"

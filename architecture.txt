@@ -15,8 +15,6 @@
 │   │   │   └── PrivateRoute.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
-│   │   ├── hooks/                    # можна видалити
-│   │   │   └── useCurrentUser.js     # можна видалити
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
 │   │   │   ├── ConfirmEmail.jsx
@@ -82,8 +80,7 @@
 │   │   ├── __init__.py    
 │   │   └── email.py
 │   ├── database.py
-│   ├── main.py
-│   └── router.py
+│   └── main.py
 ├── venv/
 │── .env
 │── .gitignore
