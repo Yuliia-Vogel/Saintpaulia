@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from photos.schemas import PhotoResponce
 
@@ -46,3 +46,8 @@ class SaintpauliaResponse(SaintpauliaBase):
 
     class Config:
         from_attributes = True
+
+
+class PaginatedVarietyResponse(BaseModel):
+    items: List[SaintpauliaResponse]
+    total: int

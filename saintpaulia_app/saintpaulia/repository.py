@@ -20,6 +20,10 @@ def log_action(action: str, variety_name: str, user: User, db: Session):
     db.commit()
 
 
+def count_all_varieties(db: Session) -> int:
+    return db.query(Saintpaulia).filter(Saintpaulia.is_deleted == False).count()
+
+
 def create_saintpaulia_variety(body: SaintpauliaCreate, user: User, db: Session) -> Saintpaulia:
     """
     Creates a new Saintpaulia variety.
@@ -58,7 +62,9 @@ def create_saintpaulia_variety(body: SaintpauliaCreate, user: User, db: Session)
     return new_variety 
 
 
-def get_all_varieties(db: Session) -> List[Saintpaulia]:
+def get_all_varieties(db: Session, 
+                      limit: int = 10, 
+                      offset: int = 0) -> List[Saintpaulia]:
     """
     Retrieves a list of all Saintpaulia varieties in database.
 
@@ -67,7 +73,13 @@ def get_all_varieties(db: Session) -> List[Saintpaulia]:
     :return: A list of Saintpaulia varieties.
     :rtype: List[Saintpaulia]
     """
-    return db.query(Saintpaulia).filter(Saintpaulia.is_deleted == False).all()
+    return (
+        db.query(Saintpaulia)
+        .filter(Saintpaulia.is_deleted == False)
+        .offset(offset).
+        limit(limit).
+        all()
+    )
 
 
 def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpaulia] | None:
@@ -88,7 +100,10 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
 
 
 # Пошук сортів за частиною назви (нечіткий пошук)
-def search_saintpaulias_by_name(name_part: str, db: Session) -> List[Saintpaulia] | None:
+def search_saintpaulias_by_name(name_part: str, 
+                                db: Session, 
+                                limit: int = 10, 
+                                offset: int = 0) -> List[Saintpaulia] | None:
     """
     Retrieves a single Saintpaulia variety with the exact name.
 
@@ -103,21 +118,21 @@ def search_saintpaulias_by_name(name_part: str, db: Session) -> List[Saintpaulia
     return db.query(Saintpaulia).filter(
         Saintpaulia.name.ilike(f"%{name_part}%"),
         Saintpaulia.is_deleted == False
-        ).all()
+        ).offset(offset).limit(limit).all()
 
 
-def get_variety_by_user(user: User, db: Session) -> List[Saintpaulia] | None:
-    """
-    Retrieves a list of Saintpaulia varieties for specific user.
+# def get_variety_by_user(user: User, db: Session) -> List[Saintpaulia] | None:
+#     """
+#     Retrieves a list of Saintpaulia varieties for specific user.
 
-    :param user: The user whose varieties should be retrieved.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: A list of Saintpaulia varieties for specific user.
-    :rtype: List[Saintpaulia]
-    """
-    return db.query(Saintpaulia).filter(Saintpaulia.owner_id == user.id).all()
+#     :param user: The user whose varieties should be retrieved.
+#     :type user: User
+#     :param db: The database session.
+#     :type db: Session
+#     :return: A list of Saintpaulia varieties for specific user.
+#     :rtype: List[Saintpaulia]
+#     """
+#     return db.query(Saintpaulia).filter(Saintpaulia.owner_id == user.id).all()
 
 
 def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Optional[Saintpaulia]:
@@ -182,7 +197,10 @@ def delete_variety(name: str, user: User, db: Session) -> bool:
     return True
 
 
-def get_varieties_by_user(db: Session, user_id: int, limit: int = 10, offset: int = 0) -> List[SaintpauliaResponse]:
+def get_varieties_by_user(db: Session, 
+                          user_id: int, 
+                          limit: int = 10, 
+                          offset: int = 0) -> List[SaintpauliaResponse]:
     """
     Retrieves a list of Saintpaulia varieties for a specific user.
 
