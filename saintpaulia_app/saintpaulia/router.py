@@ -104,7 +104,7 @@ def get_logs(db: Session = Depends(get_db),
     return db.query(SaintpauliaLog).order_by(SaintpauliaLog.timestamp.desc()).all()
 
 
-@router.get("/my-varieties/")
+@router.get("/my-varieties/", response_model=PaginatedVarietyResponse)
 def get_my_varieties(db: Session = Depends(get_db), 
                      current_user: User = Depends(get_current_user),
                      limit: int = Query(10, ge=1, le=20),
@@ -112,7 +112,11 @@ def get_my_varieties(db: Session = Depends(get_db),
     """
     Отримати сорти, які вніс поточний користувач.
     """
-    result = repository.get_varieties_by_user(db, current_user.id)
-    if not result:
+    total = repository.count_varieties_by_user(db, current_user.id)
+    if total == 0:
         raise HTTPException(status_code=404, detail="Ваших сортів не знайдено.")
-    return result
+    items = repository.get_varieties_by_user(db, current_user.id, limit=limit, offset=offset)
+    # Перетворюємо ORM-обʼєкти у Pydantic-схеми
+    serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
+    # Повертаємо результат у форматі пагінації
+    return {"items": serialized_items, "total": total}
