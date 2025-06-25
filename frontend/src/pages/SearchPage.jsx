@@ -1,81 +1,121 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import PaginationControls from "../components/PaginationControls";
 
 export default function SearchPage() {
   const location = useLocation();
   const queryParam = new URLSearchParams(location.search).get("query") || "";
   const [query, setQuery] = useState(queryParam);
   const [results, setResults] = useState([]);
-  const [error, setError] = useState("");           // для повід. про помилку
-  const [isLoaded, setIsLoaded] = useState(false);  // щоб знати, коли запит завершився
+  const [total, setTotal] = useState(0); // кількість усіх записів
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const limit = 10;
+  const offset = (currentPage - 1) * limit;
 
   useEffect(() => {
     fetchSearchResults(query);
-  }, [query]);
+  }, [query, currentPage]);
 
   const fetchSearchResults = async (q) => {
-  try {
-    setError("");
-    setIsLoaded(false);
+    try {
+      setError("");
+      setIsLoaded(false);
 
-    const url = q.trim()
-      ? `/api/saintpaulia/saintpaulias/search/?name=${encodeURIComponent(q)}`
-      : `/api/saintpaulia/saintpaulias/`;
+      const base = q.trim()
+        ? `/api/saintpaulia/saintpaulias/search/`
+        : `/api/saintpaulia/saintpaulias`;
 
-    const res = await fetch(url);
-    if (!res.ok) {
-      let errorMessage = "Сталася помилка.";
-      try {
-        const errJson = await res.json();
-        errorMessage = errJson.detail || errorMessage;
-      } catch {
-        errorMessage = `HTTP ${res.status}`;
+      const params = new URLSearchParams();
+      if (q.trim()) {
+        params.append("name", q.trim());
       }
-      throw new Error(errorMessage);
-    }
+      params.append("limit", limit);
+      params.append("offset", offset);
 
-    const data = await res.json();
-    setResults(data);
-  } catch (err) {
-    setResults([]);
-    setError(err.message || "Сталася помилка при завантаженні.");
-  } finally {
-    setIsLoaded(true);
-  }
-};
+      const url = `${base}?${params.toString()}`; // ✅ правильне складання запиту
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        let errorMessage = "Сталася помилка.";
+        try {
+          const errJson = await res.json();
+          errorMessage = errJson.detail || errorMessage;
+        } catch {
+          errorMessage = `HTTP ${res.status}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await res.json();
+      setResults(data.items || []);
+      setTotal(data.total || 0);
+    } catch (err) {
+      setResults([]);
+      setTotal(0);
+      setError(err.message || "Сталася помилка при завантаженні.");
+    } finally {
+      setIsLoaded(true);
+    }
+  };
 
   const handleInputChange = (e) => setQuery(e.target.value);
 
   const handleSearch = () => {
     window.history.pushState({}, "", `/search?query=${encodeURIComponent(query)}`);
+    setCurrentPage(1); // скидаємо сторінку на першу при новому пошуку
     fetchSearchResults(query);
   };
 
   return (
-    <div>
-      <input value={query} onChange={handleInputChange} />
-      <button onClick={handleSearch}>Пошук</button>
+    <div className="p-4 max-w-2xl mx-auto">
+      <div className="flex space-x-2 mb-4">
+        <input
+          value={query}
+          onChange={handleInputChange}
+          className="border border-gray-400 px-2 py-1 rounded w-full"
+          placeholder="Пошук за назвою сорту..."
+        />
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+        >
+          Пошук
+        </button>
+      </div>
 
       {isLoaded && error && (
-        <p style={{ color: "red", marginTop: "20px" }}>{error}</p>
+        <p className="text-red-600 mb-4">{error}</p>
       )}
 
       {isLoaded && !error && results.length === 0 && (
-        <p style={{ marginTop: "20px" }}>Сортів не знайдено.</p>
+        <p className="text-gray-700 mb-4">Сортів не знайдено.</p>
       )}
 
-      <ul>
+      <ul className="space-y-2">
         {results.map((variety) => (
           <li key={variety.name}>
             <Link
               to={`/variety/${encodeURIComponent(variety.name)}`}
               state={{ fromQuery: query }}
+              className="text-blue-700 hover:underline"
             >
               {variety.name}
             </Link>
           </li>
         ))}
       </ul>
+
+      {results.length > 0 && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalItems={total}
+          itemsPerPage={limit}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

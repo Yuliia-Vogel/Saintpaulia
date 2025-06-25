@@ -12,6 +12,7 @@
 │   │   │   ├── ErrorBoundary.jsx
 │   │   │   ├── Header.jsx
 │   │   │   ├── Navbar.jsx
+│   │   │   ├── PaginationControls.jsx
 │   │   │   └── PrivateRoute.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx

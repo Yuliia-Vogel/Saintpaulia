@@ -7,7 +7,7 @@ from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia import repository
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(prefix="/saintpaulias", tags=["Saintpaulias"])
@@ -23,17 +23,24 @@ def create_variety(data: SaintpauliaCreate,
 
 
 # Отримати всі сорти
-@router.get("/", response_model=List[SaintpauliaResponse])
-def get_all_varieties(db: Session = Depends(get_db)):
-    result = repository.get_all_varieties(db)
-    if not result:
+@router.get("/", response_model=PaginatedVarietyResponse)
+def get_all_varieties(db: Session = Depends(get_db), 
+                      limit: int = Query(10, ge=1, le=20),
+                      offset: int = Query(0, ge=0)):
+    total = repository.count_all_varieties(db)
+    items = repository.get_all_varieties(db, limit=limit, offset=offset)
+    if not items:
         raise HTTPException(status_code=404, detail="Сортів не знайдено.")
-    return result
+     # Перетворюємо ORM-обʼєкти у Pydantic-схеми
+    serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
+    # Повертаємо результат у форматі пагінації
+    return {"items": serialized_items, "total": total}
 
 
 # Пошук за повною назвою - потрібен для виведення карток кожного сорту на фронтенді:
 @router.get("/by-name/{name}", response_model=SaintpauliaResponse)
-def get_variety_by_name(name: str, db: Session = Depends(get_db)):
+def get_variety_by_name(name: str, 
+                        db: Session = Depends(get_db)):
     result = repository.get_saintpaulia_by_exact_name(name, db)
     if not result:
         raise HTTPException(status_code=404, detail="Сорт не знайдено")
@@ -49,12 +56,19 @@ def get_variety_by_name(name: str, db: Session = Depends(get_db)):
 
 
 # Пошук за частиною назви
-@router.get("/search/", response_model=List[SaintpauliaResponse])
-def search_varieties(name: str, db: Session = Depends(get_db)):
-    result = repository.search_saintpaulias_by_name(name, db)
-    if not result:
+@router.get("/search/", response_model=PaginatedVarietyResponse)
+def search_varieties(name: str, 
+                     db: Session = Depends(get_db),
+                     limit: int = Query(10, ge=1, le=20),
+                     offset: int = Query(0, ge=0)):
+    items, total = repository.search_saintpaulias_by_name(name, db, limit=limit, offset=offset)
+
+    if total == 0:
         raise HTTPException(status_code=404, detail="Сортів не знайдено.")
-    return result
+    # Перетворюємо ORM-обʼєкти у Pydantic-схеми
+    serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
+    # Повертаємо результат у форматі пагінації
+    return {"items": serialized_items, "total": total}
 
 
 # Оновити дані про сорт
@@ -90,7 +104,7 @@ def get_logs(db: Session = Depends(get_db),
     return db.query(SaintpauliaLog).order_by(SaintpauliaLog.timestamp.desc()).all()
 
 
-@router.get("/my-varieties/")
+@router.get("/my-varieties/", response_model=PaginatedVarietyResponse)
 def get_my_varieties(db: Session = Depends(get_db), 
                      current_user: User = Depends(get_current_user),
                      limit: int = Query(10, ge=1, le=20),
@@ -98,7 +112,10 @@ def get_my_varieties(db: Session = Depends(get_db),
     """
     Отримати сорти, які вніс поточний користувач.
     """
-    result = repository.get_varieties_by_user(db, current_user.id)
-    if not result:
+    items, total = repository.get_varieties_by_user(db, current_user.id, limit=limit, offset=offset)
+    if not items:
         raise HTTPException(status_code=404, detail="Ваших сортів не знайдено.")
-    return result
+    # Перетворюємо ORM-обʼєкти у Pydantic-схеми
+    serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
+    # Повертаємо результат у форматі пагінації
+    return {"items": serialized_items, "total": total}
