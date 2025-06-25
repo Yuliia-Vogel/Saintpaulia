@@ -8,9 +8,12 @@
 │   │── src/
 │   │   ├── assets/
 │   │   ├── components/
+│   │   │   ├── CabinetUserInfo.jsx
 │   │   │   ├── EmailConfirmationNotice.jsx
 │   │   │   ├── ErrorBoundary.jsx
 │   │   │   ├── Header.jsx
+│   │   │   ├── MyVarietiesInfo.jsx
+│   │   │   ├── MyVarietiesList.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── PaginationControls.jsx
 │   │   │   └── PrivateRoute.jsx
@@ -18,11 +21,13 @@
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
+│   │   │   ├── CabinetPage.jsx
 │   │   │   ├── ConfirmEmail.jsx
-│   │   │   ├──EditVariety.jsx
+│   │   │   ├── EditVariety.jsx
 │   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
+│   │   │   ├── MyVarietiesPage.jsx
 │   │   │   ├── NotFound.jsx
 │   │   │   ├── Register.jsx
 │   │   │   ├── ResetPassword.jsx
