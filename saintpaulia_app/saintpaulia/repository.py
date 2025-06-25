@@ -81,7 +81,7 @@ def get_all_varieties(db: Session,
         all()
     )
 
-
+# Пошук сорту за точною назвою - використовується в функціях 'update_variety' та 'delete_variety'
 def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpaulia] | None:
     """
     Retrieves a single Saintpaulia variety with the exact name. 
@@ -95,7 +95,6 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
     :rtype: Saintpaulia | None
     """
     result = db.query(Saintpaulia).filter(Saintpaulia.name == name).first()
-    # result = db.query(Saintpaulia).filter(Saintpaulia.name.ilike(name)).first()
     return result
 
 
@@ -103,7 +102,7 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
 def search_saintpaulias_by_name(name_part: str, 
                                 db: Session, 
                                 limit: int = 10, 
-                                offset: int = 0) -> List[Saintpaulia] | None:
+                                offset: int = 0) -> tuple[list[Saintpaulia], int]:
     """
     Retrieves a single Saintpaulia variety with the exact name.
 
@@ -114,11 +113,12 @@ def search_saintpaulias_by_name(name_part: str,
     :return: The Saintpaulia variety list with the provided name part, or None if no one exists.
     :rtype: List [Saintpaulia] | None
     """
-    # return db.query(Saintpaulia).filter(Saintpaulia.name.ilike(f"%{name_part}%")).all()
-    return db.query(Saintpaulia).filter(
+    query = db.query(Saintpaulia).filter(
         Saintpaulia.name.ilike(f"%{name_part}%"),
-        Saintpaulia.is_deleted == False
-        ).offset(offset).limit(limit).all()
+        Saintpaulia.is_deleted == False)
+    total = query.count()
+    items = query.offset(offset).limit(limit).all()
+    return items, total
 
 
 # def get_variety_by_user(user: User, db: Session) -> List[Saintpaulia] | None:
@@ -211,9 +211,19 @@ def get_varieties_by_user(db: Session,
     :return: A list of Saintpaulia varieties for specific user.
     :rtype: List[SaintpauliaResponse]
     """
-    varieties = db.query(Saintpaulia).filter(
+    query = db.query(Saintpaulia).filter(
         Saintpaulia.owner_id == user_id, 
         Saintpaulia.is_deleted == False
-        ).offset(offset).limit(limit).all()
-    user_list = [SaintpauliaResponse.from_orm(variety) for variety in varieties] if varieties else []
-    return user_list
+        )
+    total = query.count()
+    print("Query count:", total)
+    items = query.offset(offset).limit(limit).all()
+    return items, total
+
+
+    # query = db.query(Saintpaulia).filter(
+    #     Saintpaulia.name.ilike(f"%{name_part}%"),
+    #     Saintpaulia.is_deleted == False)
+    # total = query.count()
+    # items = query.offset(offset).limit(limit).all()
+    # return items, total

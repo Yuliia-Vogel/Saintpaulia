@@ -61,9 +61,9 @@ def search_varieties(name: str,
                      db: Session = Depends(get_db),
                      limit: int = Query(10, ge=1, le=20),
                      offset: int = Query(0, ge=0)):
-    total = repository.count_all_varieties(db)
-    items = repository.search_saintpaulias_by_name(name, db, limit=limit, offset=offset)
-    if not items:
+    items, total = repository.search_saintpaulias_by_name(name, db, limit=limit, offset=offset)
+
+    if total == 0:
         raise HTTPException(status_code=404, detail="Сортів не знайдено.")
     # Перетворюємо ORM-обʼєкти у Pydantic-схеми
     serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
@@ -112,10 +112,9 @@ def get_my_varieties(db: Session = Depends(get_db),
     """
     Отримати сорти, які вніс поточний користувач.
     """
-    total = repository.count_varieties_by_user(db, current_user.id)
-    if total == 0:
+    items, total = repository.get_varieties_by_user(db, current_user.id, limit=limit, offset=offset)
+    if not items:
         raise HTTPException(status_code=404, detail="Ваших сортів не знайдено.")
-    items = repository.get_varieties_by_user(db, current_user.id, limit=limit, offset=offset)
     # Перетворюємо ORM-обʼєкти у Pydantic-схеми
     serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
     # Повертаємо результат у форматі пагінації
