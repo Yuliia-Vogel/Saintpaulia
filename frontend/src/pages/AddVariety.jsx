@@ -1,19 +1,9 @@
 // src/pages/AddVariety.jsx
-import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 export default function AddVariety() {
-  // Debug JWT token
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-    } catch (e) {
-      console.error("❌ Error decoding token:", e);
-    }
-  }
-
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -41,68 +31,39 @@ export default function AddVariety() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      setError("Потрібна авторизація.");
-      return;
-    }
-
-    // Debug info
-    console.log("🔑 Using token:", token.substring(0, 50) + "...");
-    console.log("🚀 Sending request to:", "http://localhost:8000/saintpaulia/saintpaulias/");
-    console.log("📋 Form data:", JSON.stringify(formData, null, 2));
+    setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/saintpaulia/saintpaulias/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.post("/saintpaulia/saintpaulias/", formData);
 
-      console.log("📡 Response status:", response.status);
-      console.log("📡 Response headers:", [...response.headers.entries()]);
+      const newVariety = response.data;
+      navigate(`/variety/${encodeURIComponent(newVariety.name)}`);
+    } catch (err) {
+      console.error("💥 Submit error:", err);
 
-      if (!response.ok) {
-      const data = await response.json();
-      console.log("❌ Error response:", data);
-      console.log("📝 Detailed error info:", JSON.stringify(data, null, 2));
-      
-      // Handle different error formats
       let errorMessage = "Помилка при створенні сорту.";
 
-      if (data.detail) {
+      const data = err.response?.data;
+      if (data?.detail) {
         if (Array.isArray(data.detail)) {
-          // Handle validation errors (array format)
           errorMessage = data.detail
-            .map(error => {
-              if (typeof error === 'string') {
+            .map((error) => {
+              if (typeof error === "string") {
                 return error;
               } else if (error.msg) {
-                return `${error.loc ? error.loc.join('.') + ': ' : ''}${error.msg}`;
+                return `${error.loc ? error.loc.join(".") + ": " : ""}${error.msg}`;
               }
               return JSON.stringify(error);
             })
-            .join('; ');
-        } else if (typeof data.detail === 'string') {
-          // Handle simple string errors
+            .join("; ");
+        } else if (typeof data.detail === "string") {
           errorMessage = data.detail;
         }
       }
-      
-      throw new Error(errorMessage);
-    }
 
-    const newVariety = await response.json();
-    navigate(`/variety/${encodeURIComponent(newVariety.name)}`);
-  } catch (err) {
-    console.error("💥 Submit error:", err);
-    setError(err.message);
-  }
-};
+      setError(errorMessage);
+    }
+  };
 
   return (
     <div style={{ padding: "20px" }}>

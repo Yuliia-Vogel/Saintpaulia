@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import axios from "axios";
 import api from "../services/api";
 
 function ForgotPassword() {
@@ -15,7 +14,6 @@ function ForgotPassword() {
 
     try {
       // 👇 надсилаємо запит до бекенду
-      // const res = await axios.post("/api/auth/forgot-password", {
       const res = await api.post("/auth/forgot-password", {
         email: email.trim(),
       });

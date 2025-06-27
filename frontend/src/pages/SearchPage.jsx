@@ -1,13 +1,14 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PaginationControls from "../components/PaginationControls";
+import api from "../services/api";
 
 export default function SearchPage() {
   const location = useLocation();
   const queryParam = new URLSearchParams(location.search).get("query") || "";
   const [query, setQuery] = useState(queryParam);
   const [results, setResults] = useState([]);
-  const [total, setTotal] = useState(0); // кількість усіх записів
+  const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -17,6 +18,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     fetchSearchResults(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, currentPage]);
 
   const fetchSearchResults = async (q) => {
@@ -25,37 +27,24 @@ export default function SearchPage() {
       setIsLoaded(false);
 
       const base = q.trim()
-        ? `/api/saintpaulia/saintpaulias/search/`
-        : `/api/saintpaulia/saintpaulias`;
+        ? `/saintpaulia/saintpaulias/search/`
+        : `/saintpaulia/saintpaulias`;
 
       const params = new URLSearchParams();
-      if (q.trim()) {
-        params.append("name", q.trim());
-      }
+      if (q.trim()) params.append("name", q.trim());
       params.append("limit", limit);
       params.append("offset", offset);
 
-      const url = `${base}?${params.toString()}`; // ✅ правильне складання запиту
+      const url = `${base}?${params.toString()}`;
 
-      const res = await fetch(url);
-      if (!res.ok) {
-        let errorMessage = "Сталася помилка.";
-        try {
-          const errJson = await res.json();
-          errorMessage = errJson.detail || errorMessage;
-        } catch {
-          errorMessage = `HTTP ${res.status}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await res.json();
-      setResults(data.items || []);
-      setTotal(data.total || 0);
+      const response = await api.get(url);
+      setResults(response.data.items || []);
+      setTotal(response.data.total || 0);
     } catch (err) {
+      console.error("❌ Error in search:", err);
       setResults([]);
       setTotal(0);
-      setError(err.message || "Сталася помилка при завантаженні.");
+      setError(err.response?.data?.detail || "Сталася помилка при завантаженні.");
     } finally {
       setIsLoaded(true);
     }
@@ -65,7 +54,7 @@ export default function SearchPage() {
 
   const handleSearch = () => {
     window.history.pushState({}, "", `/search?query=${encodeURIComponent(query)}`);
-    setCurrentPage(1); // скидаємо сторінку на першу при новому пошуку
+    setCurrentPage(1);
     fetchSearchResults(query);
   };
 
