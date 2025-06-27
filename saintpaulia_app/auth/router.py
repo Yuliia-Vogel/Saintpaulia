@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Security, Request
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from pydantic import BaseModel
 from starlette.status import HTTP_200_OK
 
 from database import get_db
@@ -17,6 +18,7 @@ from auth.security import verify_password
 from services.email import send_confirmation_email, send_password_reset_email
 
 from dotenv import load_dotenv
+from auth.token import create_access_token, get_email_form_refresh_token
 
 router = APIRouter()
 hash_handler = Hash()
@@ -187,3 +189,13 @@ async def get_me(current_user: User = Depends(get_current_user)):
         "confirmed": current_user.confirmed,
         "varieties_number": varieties_number
     }
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+@router.post("/refresh")
+async def refresh_access_token(request: RefreshTokenRequest):
+    email = await get_email_form_refresh_token(request.refresh_token)
+    access_token = await create_access_token(data={"sub": email})
+    return {"access_token": access_token}

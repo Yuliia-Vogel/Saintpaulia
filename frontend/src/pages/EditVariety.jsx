@@ -2,8 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { VarietyForm } from "./VarietyForm";
-
-const API_BASE = "http://localhost:8000/saintpaulia/saintpaulias";
+import api from "../services/api";
 
 export default function EditVariety() {
   const { name } = useParams();
@@ -15,12 +14,11 @@ export default function EditVariety() {
   useEffect(() => {
     const fetchVariety = async () => {
       try {
-        const response = await fetch(`${API_BASE}/by-name/${encodeURIComponent(name)}`);
-        if (!response.ok) throw new Error("Не вдалося завантажити дані про сорт.");
-        const data = await response.json();
-        setInitialData(data);
+        const response = await api.get(`/saintpaulia/saintpaulias/by-name/${encodeURIComponent(name)}`);
+        setInitialData(response.data);
       } catch (err) {
-        setError(err.message);
+        console.error("❌ Fetch error:", err);
+        setError(err.response?.data?.detail || "Не вдалося завантажити дані про сорт.");
       }
     };
 
@@ -28,40 +26,21 @@ export default function EditVariety() {
   }, [name]);
 
   const handleUpdate = async (updatedData) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setError("Потрібна авторизація.");
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_BASE}/${encodeURIComponent(name)}`, {
-        method: "PUT", 
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await api.put(`/saintpaulia/saintpaulias/${encodeURIComponent(name)}`, updatedData);
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || "Помилка при оновленні сорту.");
-      }
+      const updatedVariety = response.data;
 
-      const updatedVariety = await response.json();
+      setSuccessMessage(`Зміни збережено до сорту "${updatedVariety.name}".`);
 
-      setSuccessMessage(`Зміни збережено до сорту "${updatedVariety.name}".`)
-
-      // ⏳ Затримка перед переходом (1.5 сек)
       setTimeout(() => {
         navigate(`/variety/${encodeURIComponent(updatedVariety.name)}`, {
           state: { successMessage: `Зміни збережено до сорту "${updatedVariety.name}".` }
         });
       }, 1000);
-
     } catch (err) {
-      setError(err.message);
+      console.error("❌ Update error:", err);
+      setError(err.response?.data?.detail || "Помилка при оновленні сорту.");
     }
   };
 
@@ -73,8 +52,8 @@ export default function EditVariety() {
       <h1>Редагувати сорт: {initialData.name}</h1>
       {successMessage && (
         <p style={{ color: "green", fontStyle: "italic", marginBottom: "1rem" }}>
-          {successMessage} 
-          </p>
+          {successMessage}
+        </p>
       )}
       <VarietyForm initialData={initialData} onSubmit={handleUpdate} />
     </div>

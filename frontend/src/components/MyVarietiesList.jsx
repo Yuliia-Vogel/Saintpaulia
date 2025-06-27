@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import PaginationControls from "./PaginationControls";
 import { Link } from "react-router-dom";
+import api from "../services/api";
 
 const MyVarietiesList = () => {
   const { user } = useAuth();
@@ -18,23 +19,16 @@ const MyVarietiesList = () => {
     try {
       setLoading(true);
       setError("");
-      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const res = await fetch(`${API_BASE_URL}/saintpaulia/saintpaulias/my-varieties/?limit=${limit}&offset=${offset}`, {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-        }
-      );
 
-      if (!res.ok) {
-        throw new Error("Помилка при завантаженні сортів.");
-      }
+      const res = await api.get(`/saintpaulia/saintpaulias/my-varieties/`, {
+        params: { limit, offset },
+      });
 
-      const data = await res.json();
-      setVarieties(data.items);
-      setTotal(data.total);
+      setVarieties(res.data.items);
+      setTotal(res.data.total);
     } catch (err) {
-      setError(err.message || "Невідома помилка.");
+      console.error("Помилка завантаження сортів:", err);
+      setError(err.response?.data?.detail || "Невідома помилка.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +36,6 @@ const MyVarietiesList = () => {
 
   useEffect(() => {
     fetchMyVarieties();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset]);
 
   if (!user) return null;

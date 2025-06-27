@@ -1,6 +1,7 @@
 // src/services/authService.js
 import axios from "axios";
 import { API_ROUTES } from "../utils/apiRoutes";
+import api from "./api";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,7 +37,7 @@ export const login = async (email, password) => {
 // Надіслати запит на повторне надсилання листа підтвердження
 export const requestConfirmationEmail = async (email) => {
   try {
-    const response = await axios.post(
+    const response = await api.post(
       `${API_URL}${API_ROUTES.requestConfirmationEmail}`,
       { email },
       {

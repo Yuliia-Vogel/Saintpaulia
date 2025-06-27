@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import api from "../services/api"; 
 
 const MyVarietiesInfo = () => {
   const { user } = useAuth();
@@ -12,21 +13,12 @@ const MyVarietiesInfo = () => {
     const fetchTotal = async () => {
       if (!user) return;
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-        const res = await fetch(`${API_BASE_URL}/saintpaulia/saintpaulias/my-varieties/?limit=1&offset=0`, {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-        });
+        const res = await api.get("/saintpaulia/saintpaulias/my-varieties/?limit=1&offset=0");
 
-        if (!res.ok) {
-          throw new Error("Не вдалося отримати інформацію про сорти.");
-        }
-
-        const data = await res.json();
-        setTotal(data.total);
+        setTotal(res.data.total);
       } catch (err) {
-        setError(err.message || "Невідома помилка.");
+        console.error("Помилка завантаження кількості сортів:", err);
+        setError(err.response?.data?.detail || "Невідома помилка.");
       }
     };
 
