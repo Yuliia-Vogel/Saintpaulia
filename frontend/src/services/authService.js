@@ -53,7 +53,7 @@ export const requestConfirmationEmail = async (email) => {
   }
 };
 
-// (необов’язково) Отримати accessToken з локального сховища
+// Отримати accessToken з локального сховища
 export const getAccessToken = () => {
   return localStorage.getItem("accessToken");
 };

@@ -1,11 +1,13 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status, Query, Request
+from sqlalchemy import select, distinct
 from sqlalchemy.orm import Session
 
 from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
+from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.saintpaulia import repository
 from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
@@ -119,3 +121,17 @@ def get_my_varieties(db: Session = Depends(get_db),
     serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
     # Повертаємо результат у форматі пагінації
     return {"items": serialized_items, "total": total}
+
+# роут для отримання даних для випадаючих списків на фронтенді
+@router.get("/field-options")
+async def get_field_options(db: Session = Depends(get_db)):
+    fields = ["flower_color", "selectionist", "ruffles_color", "origin", "blooming_features", "selection_year"]
+    result = {}
+
+    for field in fields:
+        column = getattr(Saintpaulia, field)
+        res = db.execute(select(distinct(column)))
+        values = [r[0] for r in res if r[0] and r[0] != "дані ще не внесено"]
+        result[field] = sorted(values)
+
+    return result

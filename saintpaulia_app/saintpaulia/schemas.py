@@ -13,7 +13,8 @@ class SaintpauliaBase(BaseModel):
     flower_size: str
     flower_shape: Optional[str] = "дані ще не внесено"
     flower_doubleness: str
-
+    ruffles: Optional[bool] = None  # True, False або None
+    ruffles_color: Optional[str] = "дані ще не внесено"
     leaf_shape: Optional[str] = "дані ще не внесено"
     leaf_variegation: Optional[str] = "дані ще не внесено"
 

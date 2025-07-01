@@ -16,7 +16,10 @@
 │   │   │   ├── MyVarietiesList.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── PaginationControls.jsx
-│   │   │   └── PrivateRoute.jsx
+│   │   │   ├── PrivateRoute.jsx
+│   │   │   └── VarietyForm.jsx
+│   │   ├── constants/
+│   │   │   └── fieldOptions.js
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
@@ -33,11 +36,11 @@
 │   │   │   ├── ResetPassword.jsx
 │   │   │   ├── SearchPage.jsx
 │   │   │   ├── UploadPhoto.jsx
-│   │   │   ├── VarietyDetail.jsx
-│   │   │   └── VarietyForm.jsx
+│   │   │   └── VarietyDetail.jsx  
 │   │   ├── services/
 │   │   │   ├── api.js
-│   │   │   └── authService.js
+│   │   │   ├── authService.js
+│   │   │   └── fieldOptionsService.js
 │   │   ├── utils/
 │   │   │   ├── apiRoutes.js
 │   │   │   └── jwt.js                  

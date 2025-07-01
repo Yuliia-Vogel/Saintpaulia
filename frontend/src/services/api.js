@@ -1,4 +1,4 @@
-// src/api.js
+// src/services/api.js
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "./authService";
@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 10000,  // Загальний таймаут 10 секунд для будь-якого запиту
 });
 
 // Перевірка, чи токен протермінувався
@@ -19,26 +20,33 @@ const isTokenExpired = (token) => {
   }
 };
 
-// Додаємо перехоплювач запитів
 api.interceptors.request.use(async (config) => {
   let accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
 
   if (accessToken && isTokenExpired(accessToken) && refreshToken) {
     try {
-      const response = await api.post(`${API_URL}/auth/refresh`, {
-        refresh_token: refreshToken,
-      });
+      // Окремий axios-запит з коротшим тайм-аутом для refresh
+      const response = await axios.post(
+        `${API_URL}/auth/refresh`,
+        { refresh_token: refreshToken },
+        { timeout: 5000 }  // таймаут 5 секунд саме для refresh
+      );
 
       accessToken = response.data.access_token;
       localStorage.setItem("accessToken", accessToken);
 
-      // Оновлення заголовків
+      // Оновлюємо заголовки запиту
       config.headers.Authorization = `Bearer ${accessToken}`;
     } catch (error) {
       console.error("Помилка оновлення токена:", error);
+
+      // Автоматичний логаут
       logout();
-      window.location.href = "/auth/login";
+
+      // Перенаправлення на сторінку логіну (можна налаштувати)
+      window.location.href = "/login";
+
       return Promise.reject(error);
     }
   }
