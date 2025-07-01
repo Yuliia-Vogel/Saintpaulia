@@ -1,7 +1,7 @@
 // src/pages/EditVariety.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { VarietyForm } from "./VarietyForm";
+import { VarietyForm } from "../components/VarietyForm";
 import api from "../services/api";
 
 export default function EditVariety() {

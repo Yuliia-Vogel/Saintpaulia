@@ -22,7 +22,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
-    refresh_token = Column(String(255), nullable=True)
+    refresh_token = Column(String(512), nullable=True)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin (superuser)

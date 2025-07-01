@@ -24,7 +24,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # дозволяємо запити з фронта
+    allow_origins=["http://localhost:5173", "http://localhost:4173"],  # дозволяємо запити з фронта
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

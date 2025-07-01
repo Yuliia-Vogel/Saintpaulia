@@ -17,7 +17,9 @@ class Saintpaulia(Base):
     flower_size = Column(String, nullable=False, default="дані ще не внесено")
     flower_shape = Column(String, default="дані ще не внесено")
     flower_doubleness = Column(String, nullable=False, default="дані ще не внесено")  # проста, напівмахрова, махрова
-
+    ruffles = Column(Boolean, default=None)  # True, False або None
+    ruffles_color = Column(String, default="дані ще не внесено")
+    
     leaf_shape = Column(String, default="дані ще не внесено")
     leaf_variegation = Column(String, default="дані ще не внесено")
 

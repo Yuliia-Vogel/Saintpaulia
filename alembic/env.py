@@ -9,6 +9,7 @@ from saintpaulia_app.database import Base
 
 from saintpaulia_app.auth import models as auth_models
 from saintpaulia_app.saintpaulia import models as saintpaulia_models
+from saintpaulia_app.photos import models as photos_models
 
 SQLALCHEMY_DATABASE_URL = Database_url
 
