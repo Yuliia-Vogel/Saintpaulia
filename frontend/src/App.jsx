@@ -17,6 +17,7 @@ import UploadPhoto from './pages/UploadPhoto';
 import PrivateRoute from './components/PrivateRoute';
 import CabinetPage from './pages/CabinetPage';
 import MyVarietiesPage from "./pages/MyVarietiesPage";
+import ExtendedSearchPage from './pages/ExtendedSearchPage';
 
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
         <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
         <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
         <Route path="/my-varieties" element={<MyVarietiesPage />} />
-
+        <Route path="/extended-search" element={<ExtendedSearchPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </ErrorBoundary>

@@ -27,6 +27,7 @@
 │   │   │   ├── CabinetPage.jsx
 │   │   │   ├── ConfirmEmail.jsx
 │   │   │   ├── EditVariety.jsx
+│   │   │   ├── ExtendedSearchPage.jsx
 │   │   │   ├── ForgotPassword.jsx
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
