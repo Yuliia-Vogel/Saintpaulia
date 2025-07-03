@@ -6,38 +6,42 @@ from photos.schemas import PhotoResponce
 
 class SaintpauliaBase(BaseModel):
     name: str
-    description: Optional[str] = "дані ще не внесено"
+    description: Optional[str] = None
 
     size_category: str
-    flower_color: str
-    flower_size: str
-    flower_shape: Optional[str] = "дані ще не внесено"
-    flower_doubleness: str
-    ruffles: Optional[bool] = None  # True, False або None
-    ruffles_color: Optional[str] = "дані ще не внесено"
-    leaf_shape: Optional[str] = "дані ще не внесено"
-    leaf_variegation: Optional[str] = "дані ще не внесено"
+    flower_color: Optional[str] = None
+    flower_size: Optional[str] = None
+    flower_shape: Optional[str] = None
+    flower_doubleness: Optional[str] = None
+    ruffles: Optional[bool] = None
+    ruffles_color: Optional[str] = None
+    blooming_features: Optional[str] = None
+    
+    leaf_shape: Optional[str] = None
+    leaf_variegation: Optional[str] = None
 
-    photos: Optional[list] = []
-    origin: Optional[str] = "дані ще не внесено"
-    selectionist: str = "дані ще не внесено"
-    blooming_features: Optional[str] = "дані ще не внесено"
+    # photos: Optional[list[PhotoResponce]] = [] # це поле не використ.при створенні сорту
+    origin: Optional[str] = None
+    selectionist: Optional[str] = None
     selection_year: Optional[int] = None
 
     @validator("selection_year", pre=True)
     def validate_selection_year(cls, value):
         if value == "":
             return None
-        if isinstance(value, str) and value.isdigit():
-            value = int(value)
-        if isinstance(value, int) and (value < 1800 or value > datetime.now().year):
-            raise ValueError("Рік селекції має бути між 1800 і поточним роком.")
+        if isinstance(value, str):
+            value = value.strip()
+            if value.isdigit():
+                value = int(value)
+        if isinstance(value, int):
+            current_year = datetime.now().year
+            if value < 1892 or value > current_year:
+                raise ValueError(f"Рік селекції має бути між 1892 і {current_year}.")
         return value
 
 
 class SaintpauliaCreate(SaintpauliaBase):
     pass
-
 
 class SaintpauliaResponse(SaintpauliaBase):
     id: int
