@@ -1,3 +1,5 @@
+import logging  
+
 from fastapi import FastAPI, Request
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer
@@ -21,7 +23,6 @@ app = FastAPI(
     swagger_ui_parameters={"persistAuthorization": True},  # Запам'ятовує авторизацію
 )
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:4173"],  # дозволяємо запити з фронта
@@ -29,6 +30,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Налаштування логування
+logging.basicConfig(
+    level=logging.INFO,  # Можна DEBUG, якщо хочеш бачити більше деталей
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 # Оголошення OAuth2 схеми безпеки
 oauth2_scheme = security_scheme

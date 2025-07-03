@@ -2,8 +2,8 @@
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from typing import List, Optional
+from sqlalchemy import select, distinct
+from typing import List, Optional, Dict
 
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog
@@ -221,9 +221,58 @@ def get_varieties_by_user(db: Session,
     return items, total
 
 
-    # query = db.query(Saintpaulia).filter(
-    #     Saintpaulia.name.ilike(f"%{name_part}%"),
-    #     Saintpaulia.is_deleted == False)
-    # total = query.count()
-    # items = query.offset(offset).limit(limit).all()
-    # return items, total
+
+def get_field_options(db: Session) -> Dict[str, List[str]]:
+    fields = [
+        "flower_color", "selectionist", "ruffles_color",
+        "origin", "blooming_features", "selection_year"
+    ]
+    result = {}
+
+    for field in fields:
+        column = getattr(Saintpaulia, field)
+        res = db.execute(select(distinct(column)))
+        values = [r[0] for r in res if r[0] is not None]
+        result[field] = sorted(values)
+
+    return result
+
+
+def extended_search(
+    db: Session,
+    size_category: Optional[str] = None,
+    flower_color: Optional[str] = None,
+    flower_size: Optional[str] = None,
+    flower_shape: Optional[str] = None,
+    flower_doubleness: Optional[str] = None,
+    ruffles: Optional[bool] = None,
+    ruffles_color: Optional[str] = None,
+    leaf_shape: Optional[str] = None,
+    leaf_variegation: Optional[str] = None,
+    selectionist: Optional[str] = None,
+    selection_year: Optional[int] = None,
+    origin: Optional[str] = None,
+        ) -> List[Saintpaulia]:
+    query = select(Saintpaulia).where(Saintpaulia.is_deleted == False)
+
+    filters = {
+        "size_category": size_category,
+        "flower_color": flower_color,
+        "flower_size": flower_size,
+        "flower_shape": flower_shape,
+        "flower_doubleness": flower_doubleness,
+        "ruffles": ruffles,
+        "ruffles_color": ruffles_color,
+        "leaf_shape": leaf_shape,
+        "leaf_variegation": leaf_variegation,
+        "selectionist": selectionist,
+        "selection_year": selection_year,
+        "origin": origin,
+    }
+
+    for field, value in filters.items():
+        if value is not None:
+            query = query.where(getattr(Saintpaulia, field) == value)
+
+    results = db.execute(query).scalars().all()
+    return results

@@ -1,7 +1,9 @@
-from typing import List
+import logging
 
+from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status, Query, Request
 from sqlalchemy import select, distinct
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from saintpaulia_app.database import get_db
@@ -14,6 +16,7 @@ from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(prefix="/saintpaulias", tags=["Saintpaulias"])
 
+logger = logging.getLogger(__name__)
 
 # Створити новий сорт
 @router.post("/", response_model=SaintpauliaResponse)
@@ -125,13 +128,58 @@ def get_my_varieties(db: Session = Depends(get_db),
 # роут для отримання даних для випадаючих списків на фронтенді
 @router.get("/field-options")
 async def get_field_options(db: Session = Depends(get_db)):
-    fields = ["flower_color", "selectionist", "ruffles_color", "origin", "blooming_features", "selection_year"]
-    result = {}
+    try:
+        return repository.get_field_options(db)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during field options fetch: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при отриманні даних з бази.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during field options fetch: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
 
-    for field in fields:
-        column = getattr(Saintpaulia, field)
-        res = db.execute(select(distinct(column)))
-        values = [r[0] for r in res if r[0] and r[0] != "дані ще не внесено"]
-        result[field] = sorted(values)
 
-    return result
+@router.get("/extended_search")
+async def search_varieties(
+    size_category: Optional[str] = None,
+    flower_color: Optional[str] = None,
+    flower_size: Optional[str] = None,
+    flower_shape: Optional[str] = None,
+    flower_doubleness: Optional[str] = None,
+    ruffles: Optional[bool] = None,
+    ruffles_color: Optional[str] = None,
+    leaf_shape: Optional[str] = None,
+    leaf_variegation: Optional[str] = None,
+    selectionist: Optional[str] = None,
+    selection_year: Optional[int] = None,
+    origin: Optional[str] = None,
+    db: Session = Depends(get_db),
+    ):
+    try:
+        results = repository.extended_search(
+            db,
+            size_category,
+            flower_color,
+            flower_size,
+            flower_shape,
+            flower_doubleness,
+            ruffles,
+            ruffles_color,
+            leaf_shape,
+            leaf_variegation,
+            selectionist,
+            selection_year,
+            origin,
+        )
+        response = {
+            "items": results,
+            "total": len(results),
+            "message": "Сортів за цими критеріями не знайдено." if not results else None,
+        }
+        logger.info(f"Знайдено {len(results)} результатів.")
+        return response
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during extended search: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при виконанні запиту до бази.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during extended search: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка під час обробки запиту.")

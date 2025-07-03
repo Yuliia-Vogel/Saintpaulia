@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -18,21 +18,31 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Вітаємо у світі сенполій!</h1>
-      <p>Спробуйте знайти сорт фіалки або перегляньте весь список:</p>
+    <>
+      <div style={{ padding: "20px" }}>
+        <h1>Вітаємо у світі сенполій!</h1>
+        <p>Спробуйте знайти сорт фіалки або перегляньте весь список:</p>
 
-      <input
-        type="text"
-        placeholder="Введіть назву сорту"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{ marginRight: "10px", padding: "5px", width: "300px" }}
-      />
-      <button onClick={handleSearch} style={{ marginRight: "10px" }}>
-        Пошук
-      </button>
-      <button onClick={handleShowAll}>Вивести всі сорти</button>
-    </div>
+        <input
+          type="text"
+          placeholder="Введіть назву сорту"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ marginRight: "10px", padding: "5px", width: "300px" }}
+        />
+        <button onClick={handleSearch} style={{ marginRight: "10px" }}>
+          Пошук
+        </button>
+        <button onClick={handleShowAll}>Вивести всі сорти</button>
+      </div>
+      <div className="mt-4">
+        <Link
+          to="/extended-search"
+          className="text-blue-600 hover:underline"
+        >
+          Перейти до розширеного пошуку →
+        </Link>
+      </div>
+    </>
   );
 }
