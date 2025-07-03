@@ -9,26 +9,27 @@ class Saintpaulia(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
-    description = Column(Text, default="дані ще не внесено")
+    description = Column(Text, nullable=True)
 
     # Загальні параметри
     size_category = Column(String, nullable=False)  # стандарт, напівміні, міні
-    flower_color = Column(String, nullable=False, default="дані ще не внесено")
-    flower_size = Column(String, nullable=False, default="дані ще не внесено")
-    flower_shape = Column(String, default="дані ще не внесено")
-    flower_doubleness = Column(String, nullable=False, default="дані ще не внесено")  # проста, напівмахрова, махрова
-    ruffles = Column(Boolean, default=None)  # True, False або None
-    ruffles_color = Column(String, default="дані ще не внесено")
-    
-    leaf_shape = Column(String, default="дані ще не внесено")
-    leaf_variegation = Column(String, default="дані ще не внесено")
+
+    flower_color = Column(String, nullable=True)
+    flower_size = Column(String, nullable=True)
+    flower_shape = Column(String, nullable=True)
+    flower_doubleness = Column(String, nullable=True)  # проста, напівмахрова, махрова
+    ruffles = Column(Boolean, nullable=True) # наявність рюшів
+    ruffles_color = Column(String, nullable=True)
+    blooming_features = Column(Text, nullable=True)
+
+    leaf_shape = Column(String, nullable=True)
+    leaf_variegation = Column(String, nullable=True)  # варіації листя
 
     # Додаткові поля
     photos = relationship("UploadedPhoto", back_populates="variety", cascade="all, delete")
-    origin = Column(String, default="дані ще не внесено") # походження сорту
-    selectionist = Column(String, nullable=False, default="дані ще не внесено")
+    origin = Column(String, nullable=True) # походження сорту
+    selectionist = Column(String, nullable=True)
     selection_year = Column(Integer, nullable=True)
-    blooming_features = Column(Text, default="дані ще не внесено")
 
     #дані про того, хто вніс запис
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
