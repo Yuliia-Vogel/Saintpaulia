@@ -30,6 +30,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     const loadFieldOptions = async () => {
       try {
         const options = await fetchFieldOptions();
+        console.log("✅ Опції, які отримали з сервісу:", options);
         setFieldOptions(options);
       } catch (error) {
         console.error("Не вдалося завантажити опції для полів:", error);
@@ -41,16 +42,38 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (value === "__custom__") {
-      setCustomFields((prev) => ({ ...prev, [name]: "" }));
-      setFormData((prev) => ({ ...prev, [name]: "" }));
+
+    // Якщо змінюємо "ruffles"
+    if (name === "ruffles") {
+      const rufflesBool = value === "true" ? true : value === "false" ? false : null;
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: rufflesBool,
+        // Якщо "ні" — очищаємо колір рюш
+        ...(rufflesBool === false ? { ruffles_color: "" } : {}),
+      }));
+
+      // Відповідно очищаємо кастомне поле, якщо є
+      if (rufflesBool === false) {
+        setCustomFields((prev) => {
+          const newCustom = { ...prev };
+          delete newCustom.ruffles_color;
+          return newCustom;
+        });
+      }
     } else {
-      setCustomFields((prev) => {
-        const newCustom = { ...prev };
-        delete newCustom[name];
-        return newCustom;
-      });
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      if (value === "__custom__") {
+        setCustomFields((prev) => ({ ...prev, [name]: "" }));
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+      } else {
+        setCustomFields((prev) => {
+          const newCustom = { ...prev };
+          delete newCustom[name];
+          return newCustom;
+        });
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }
     }
   };
 
@@ -68,6 +91,10 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
   const renderField = (field, label) => {
     const staticOpts = staticOptions[field];
     const dynamicOpts = fieldOptions[field];
+    console.log(`🧪 renderField(${field}):`, {
+      hasStatic: !!staticOpts,
+      hasDynamic: !!dynamicOpts,
+    });
 
     // рюшики - булеве поле
     if (field === "ruffles") {
@@ -89,6 +116,40 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
         </select>
       );
     }
+
+    if (field === "ruffles_color") {
+    return (
+      <>
+        <select
+          name={field}
+          value={formData[field] ? formData[field] : "__custom__"}
+          onChange={handleChange}
+          disabled={formData.ruffles !== true}  // блокування якщо рюш немає
+          className="w-full border px-3 py-2 rounded-xl text-sm"
+        >
+          <option value="">Не вказано</option>
+          {(fieldOptions[field] || []).map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+          <option value="__custom__">Інший варіант...</option>
+        </select>
+
+        {customFields[field] !== undefined && (
+          <input
+            type="text"
+            name={field}
+            value={customFields[field]}
+            onChange={handleCustomChange}
+            placeholder="Введіть власне значення"
+            disabled={formData.ruffles !== true}  // блокування інпуту кастомного кольору
+            className="mt-2 w-full border px-3 py-2 rounded-xl text-sm"
+          />
+        )}
+      </>
+    );
+  }
 
     // селекти з варіантами
     if (staticOpts || dynamicOpts) {
@@ -162,6 +223,10 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     ["owner_id", "Автор запису"],
     ["record_creation_date", "Дата створення запису"],
   ];
+
+  if (Object.keys(fieldOptions).length === 0) {
+    return <p className="text-center p-4">⏳ Завантаження форми...</p>;
+  }
 
   return (
     <form
