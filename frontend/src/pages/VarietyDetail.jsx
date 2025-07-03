@@ -67,8 +67,19 @@ export default function VarietyDetail() {
       <p><strong>Форма квітів:</strong> {variety.flower_shape || "Інформація відсутня"}</p>
       <p><strong>Наповненість квітів:</strong> {variety.flower_doubleness || "Інформація відсутня"}</p>
       <p><strong>Характеристики цвітіння:</strong> {variety.blooming_features || "Інформація відсутня"}</p>
-      <p><strong>Рюші:</strong> {variety.ruffles || "Інформація відсутня"}</p>
-      <p><strong>Колір рюш:</strong> {variety.ruffles_color || "Інформація відсутня"}</p>
+      <p><strong>Рюші:</strong>{" "}
+        {variety.ruffles === true
+          ? "Так"
+          : variety.ruffles === false
+          ? "Ні"
+          : "Інформація відсутня"}
+      </p>
+
+      {variety.ruffles === true && variety.ruffles_color && (
+        <p>
+          <strong>Колір рюш:</strong> {variety.ruffles_color}
+        </p>
+      )}
       <p><strong>Форма листків:</strong> {variety.leaf_shape || "Інформація відсутня"}</p>
       <p><strong>Строкатість листя:</strong> {variety.leaf_variegation || "Інформація відсутня"}</p>
       <p><strong>Селекціонер:</strong> {variety.selectionist || "Інформація відсутня"}</p>
