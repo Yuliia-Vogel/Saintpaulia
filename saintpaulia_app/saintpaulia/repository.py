@@ -276,3 +276,31 @@ def extended_search(
 
     results = db.execute(query).scalars().all()
     return results
+
+
+def get_varieties_names(db: Session) -> List[str]:
+    """
+    Retrieves a list of all Saintpaulia variety names.
+
+    :param db: The database session.
+    :type db: Session
+    :return: A list of Saintpaulia variety names.
+    :rtype: List[str]
+    """
+    results = db.query(Saintpaulia.name).filter(Saintpaulia.is_deleted == False).all()
+    names = [row[0] for row in results]
+    return names
+
+
+def is_name_unique(name: str, db: Session) -> bool:
+    """
+    Checks if a Saintpaulia variety name is unique.
+
+    :param name: The name of the Saintpaulia variety to check.
+    :type name: str
+    :param db: The database session.
+    :type db: Session
+    :return: True if the name is unique, False if it already exists.
+    :rtype: bool
+    """
+    return not db.query(Saintpaulia).filter(Saintpaulia.name == name, Saintpaulia.is_deleted == False).first()

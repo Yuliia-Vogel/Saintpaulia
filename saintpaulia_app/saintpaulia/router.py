@@ -183,3 +183,28 @@ async def search_varieties(
     except Exception as e:
         logger.exception(f"Unexpected error during extended search: {e}")
         raise HTTPException(status_code=500, detail="Невідома помилка під час обробки запиту.")
+    
+
+@router.get("/get_varieties_names")
+async def get_varieties_names(db: Session = Depends(get_db)):
+    try:
+        names = repository.get_varieties_names(db)
+        return {"total": len(names), "items": names}
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during varieties names fetch: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при отриманні назв сортів з бази.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during varieties names fetch: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    
+@router.get("/name_unique")
+async def is_name_unique(name: str, db: Session = Depends(get_db)):
+    try:
+        is_unique = repository.is_name_unique(name, db)
+        return {"is_unique": is_unique}
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during name uniqueness check: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при перевірці унікальності назви.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during name uniqueness check: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
