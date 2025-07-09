@@ -1,95 +1,98 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchVarietiesNames, checkNameUnique } from "../services/fieldOptionsService";
 
 export default function VarietyNameField({ value, onChange }) {
-  console.log("🚨 Компонент VarietyNameField монтується або перемонтовується");
-
-  const [varietyNames, setVarietyNames] = useState([]);
-  const [inputValue, setInputValue] = useState(value || "");
-  const [isUnique, setIsUnique] = useState(undefined);
-  const [checking, setChecking] = useState(false);
-
-  useEffect(() => {
-    setInputValue(value || "");
-  }, [value]);
-  
+  const [allNames, setAllNames] = useState([]);
+  const [filteredNames, setFilteredNames] = useState([]);
+  const [isUnique, setIsUnique] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    const loadVarieties = async () => {
+    const loadNames = async () => {
       try {
-        const res = await fetchVarietiesNames();
-        setVarietyNames(res);  // Ось тут виправлено!
+        const names = await fetchVarietiesNames();
+        setAllNames(names);
       } catch (error) {
         console.error("Не вдалося завантажити назви сортів:", error);
       }
     };
-    loadVarieties();
+    loadNames();
   }, []);
 
   useEffect(() => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) {
-      setIsUnique(undefined);
-      return;
+    if (value.trim()) {
+      const filtered = allNames.filter((name) =>
+        name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredNames(filtered);
+    } else {
+      setFilteredNames([]);
     }
+  }, [value, allNames]);
 
-    const timer = setTimeout(async () => {
-      try {
-        setChecking(true);
-        const res = await checkNameUnique(trimmed);
-        console.log("✅ Перевірка завершена:", res);
-        setIsUnique(res.is_unique);
-      } catch (error) {
-        console.error("❌ Помилка при перевірці унікальності:", error);
-        setIsUnique(undefined);
-      } finally {
-        setChecking(false);
+  useEffect(() => {
+    const check = async () => {
+      if (value.trim()) {
+        try {
+          const unique = await checkNameUnique(value);
+          setIsUnique(unique);
+        } catch (error) {
+          console.error("Помилка при перевірці унікальності назви:", error);
+        }
+      } else {
+        setIsUnique(null);
       }
-    }, 500);
+    };
+    check();
+  }, [value]);
 
-    return () => clearTimeout(timer);
-  }, [inputValue]);
-
-
-  const handleInputChange = (e) => {
-    const val = e.target.value;
-    setInputValue(val);
-    console.log("🪄 Прийшов проп value у VarietyNameField:", value);
-    onChange({ target: { name: "name", value: val } });
+  const handleSuggestionClick = (suggestion) => {
+    onChange({ target: { name: "name", value: suggestion } });
+    setShowSuggestions(false);
+    inputRef.current.blur();
   };
 
-  console.log("🔄 Рендер VarietyNameField:", { inputValue, isUnique, checking });
-  console.log("🧐 Умови рендера повідомлення:", {
-    trimmedInput: inputValue.trim(),
-    checking,
-    isUnique,
-  });
-
   return (
-    <div>
+    <div className="relative">
       <input
+        ref={inputRef}
         type="text"
-        list="variety-names"
         name="name"
-        value={inputValue}
-        onChange={handleInputChange}
+        value={value}
+        onChange={(e) => {
+          onChange(e);
+          setShowSuggestions(true);
+        }}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => {
+          setTimeout(() => setShowSuggestions(false), 100); // невеличка затримка для кліку
+        }}
         placeholder="Введіть назву сорту"
         className="w-full border px-3 py-2 rounded-xl text-sm"
       />
-      <datalist id="variety-names">
-        {Array.isArray(varietyNames) &&
-          varietyNames.map((name) => (
-            <option key={name} value={name} />
+      {showSuggestions && filteredNames.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white border rounded-xl shadow mt-1 max-h-40 overflow-auto text-sm">
+          {filteredNames.map((suggestion) => (
+            <li
+              key={suggestion}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="px-3 py-2 hover:bg-violet-100 cursor-pointer"
+            >
+              {suggestion}
+            </li>
           ))}
-      </datalist>
-
-      {inputValue.trim() && !checking && isUnique === true && (
-        <p className="text-green-600 mt-1 text-sm">Назва доступна для створення</p>
+        </ul>
       )}
-      {inputValue.trim() && !checking && isUnique === false && (
-        <p className="text-red-600 mt-1 text-sm">Сорт з такою назвою вже існує</p>
+      {isUnique !== null && (
+        <p
+          className={`mt-1 text-sm ${
+            isUnique ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {isUnique ? "Назва унікальна" : "Назва вже використовується"}
+        </p>
       )}
-      {checking && <p className="text-gray-500 mt-1 text-sm">Перевірка назви...</p>}
     </div>
   );
 }
