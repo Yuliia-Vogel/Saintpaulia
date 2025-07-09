@@ -49,7 +49,7 @@ export default function ExtendedSearchPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value === "Не вказано" ? "" : value,
+      [name]: value === "-" ? "" : value,
     }));
   };
 
@@ -120,7 +120,7 @@ export default function ExtendedSearchPage() {
               onChange={handleChange}
               className="w-full border px-2 py-1 rounded"
             >
-              <option value="">Не вказано</option>
+              <option value="">-</option>
               {options.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}

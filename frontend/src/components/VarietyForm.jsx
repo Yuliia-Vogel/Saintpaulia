@@ -26,6 +26,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     record_creation_date: initialData.record_creation_date || '',
   });
 
+  const [formErrors, setFormErrors] = useState({});
   const [fieldOptions, setFieldOptions] = useState({});
   const [customFields, setCustomFields] = useState({});
 
@@ -89,6 +90,19 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+  const errors = {};
+
+  if (formData.ruffles !== true && formData.ruffles !== false) {
+    errors.ruffles = "Будь ласка, вкажіть, чи є рюші у квітів.";
+  }
+
+  setFormErrors(errors);
+
+  if (Object.keys(errors).length > 0) {
+    return; // Не надсилаємо форму, якщо є помилки
+  }
+
     onSubmit(formData);
   };
 
@@ -111,16 +125,24 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
 
     if (field === "ruffles") {
       return (
-        <select
-          name={field}
-          value={formData[field] === true ? "true" : formData[field] === false ? "false" : ""}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded-xl text-sm"
-        >
-          <option value="">Не вказано</option>
-          <option value="true">Так</option>
-          <option value="false">Ні</option>
-        </select>
+        <>
+          <select
+            name={field}
+            value={formData[field] === true ? "true" : formData[field] === false ? "false" : ""}
+            onChange={handleChange}
+            className={`w-full border px-3 py-2 rounded-xl text-sm ${
+              formErrors.ruffles ? "border-red-500" : ""
+            }`}
+          >
+            <option value="">-</option>
+            <option value="true">Так</option>
+            <option value="false">Ні</option>
+          </select>
+
+          {formErrors.ruffles && (
+            <p className="mt-1 text-sm text-red-600">{formErrors.ruffles}</p>
+          )}
+        </>
       );
     }
 
@@ -134,7 +156,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
             disabled={formData.ruffles !== true}
             className="w-full border px-3 py-2 rounded-xl text-sm"
           >
-            <option value="">Не вказано</option>
+            <option value="">-</option>
             {(fieldOptions[field] || []).map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -158,6 +180,21 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
       );
     }
 
+    if (field === "selection_year") {
+      return (
+        <input
+          type="number"
+          name={field}
+          value={formData[field]}
+          onChange={handleChange}
+          min="1800"
+          max={new Date().getFullYear()}
+          placeholder="Введіть рік селекції"
+          className="w-full border px-3 py-2 rounded-xl text-sm"
+        />
+      );
+    }
+
     if (staticOpts || dynamicOpts) {
       const options = [...(staticOpts || []), ...(dynamicOpts || [])]
         .filter((v, i, a) => a.indexOf(v) === i && v !== "")
@@ -167,11 +204,11 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
         <>
           <select
             name={field}
-            value={options.includes(String(formData[field])) ? formData[field] : "__custom__"}
+            value={options.includes(String(formData[field])) ? formData[field] : (customFields[field] !== undefined ? "__custom__" : "")}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded-xl text-sm"
           >
-            <option value="">Не вказано</option>
+            <option value="">-</option>
             {options.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
