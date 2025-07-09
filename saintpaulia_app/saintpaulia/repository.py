@@ -288,7 +288,7 @@ def get_varieties_names(db: Session) -> List[str]:
     :rtype: List[str]
     """
     results = db.query(Saintpaulia.name).filter(Saintpaulia.is_deleted == False).all()
-    names = [row[0] for row in results]
+    names = [row[0].strip() for row in results if row[0]]
     return names
 
 
@@ -303,4 +303,12 @@ def is_name_unique(name: str, db: Session) -> bool:
     :return: True if the name is unique, False if it already exists.
     :rtype: bool
     """
-    return not db.query(Saintpaulia).filter(Saintpaulia.name == name, Saintpaulia.is_deleted == False).first()
+    normalized_name = name.strip().lower()
+    existing_names = db.query(Saintpaulia.name).filter(Saintpaulia.is_deleted == False).all()
+    normalized_existing_names = []
+    for n in existing_names:
+        normalized = n[0].strip().lower()
+        normalized_existing_names.append(normalized)
+    if normalized_name in normalized_existing_names:
+        return False
+    return True
