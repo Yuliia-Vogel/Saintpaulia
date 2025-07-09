@@ -17,7 +17,9 @@
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── PaginationControls.jsx
 │   │   │   ├── PrivateRoute.jsx
-│   │   │   └── VarietyForm.jsx
+│   │   │   ├── TestApiRequests.jsx
+│   │   │   ├── VarietyForm.jsx
+│   │   │   └── VarietyNameField.jsx
 │   │   ├── constants/
 │   │   │   └── fieldOptions.js
 │   │   ├── context/
