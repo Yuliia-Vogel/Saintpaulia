@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 import EmailConfirmationNotice from "./EmailConfirmationNotice";
 
 const Header = () => {
-  console.log("🧢 Rendering Header");
   const { user } = useAuth();
 
   return (
