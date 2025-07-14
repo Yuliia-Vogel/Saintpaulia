@@ -39,7 +39,6 @@ class SaintpauliaBase(BaseModel):
                 raise ValueError(f"Рік селекції має бути між 1892 і {current_year}.")
         return value
 
-
 class SaintpauliaCreate(SaintpauliaBase):
     pass
 
@@ -47,6 +46,7 @@ class SaintpauliaResponse(SaintpauliaBase):
     id: int
     owner_id: int  # автозаповнення з авторизації
     record_creation_date: datetime
+    is_verified: bool  # для перевірки сортів адмінами
     photos: list[PhotoResponce] = []
 
     class Config:

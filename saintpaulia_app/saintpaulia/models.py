@@ -36,8 +36,9 @@ class Saintpaulia(Base):
     owner = relationship("User", back_populates="saintpaulias")
     record_creation_date = Column(DateTime, default=func.now())
     
-    # soft delete
-    is_deleted = Column(Boolean, default=False)  
+    is_verified = Column(Boolean, default=False)  # для перевірки сортів адмінами
+    
+    is_deleted = Column(Boolean, default=False)  # soft delete
 
 
 class SaintpauliaLog(Base):
