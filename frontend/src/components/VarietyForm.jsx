@@ -24,6 +24,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     origin: initialData.origin || '',
     owner_id: initialData.owner_id || '',
     record_creation_date: initialData.record_creation_date || '',
+    is_verified: initialData.is_verified || Boolean,
   });
 
   const [formErrors, setFormErrors] = useState({});
