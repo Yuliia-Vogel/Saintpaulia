@@ -4,6 +4,23 @@ from datetime import datetime
 from photos.schemas import PhotoResponce
 
 
+# Базова модель верифікації сорту
+class VerificationBase(BaseModel):
+    is_verified: bool
+    verified_by: int
+    verification_date: datetime
+    verification_note: Optional[str] = None
+
+# Модель відповіді
+class VerificationResponse(VerificationBase):
+    pass
+
+# Модель для оновлення статусу
+class VerificationUpdate(BaseModel):
+    is_verified: bool
+    verification_note: Optional[str] = None
+
+
 class SaintpauliaBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -49,10 +66,13 @@ class SaintpauliaResponse(SaintpauliaBase):
     is_verified: bool  # для перевірки сортів адмінами
     photos: list[PhotoResponce] = []
 
+    verification: Optional[VerificationResponse] = None
+
     class Config:
         from_attributes = True
 
 
+# Модель для пагінації відповідей
 class PaginatedVarietyResponse(BaseModel):
     items: List[SaintpauliaResponse]
     total: int

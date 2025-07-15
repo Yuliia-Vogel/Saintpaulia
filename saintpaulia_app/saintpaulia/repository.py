@@ -1,4 +1,5 @@
 # функції для роботи з базою даних
+from datetime import datetime
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -314,7 +315,7 @@ def is_name_unique(name: str, db: Session) -> bool:
     return True
 
 
-def verify_variety(name, is_verified, current_user, db):
+def verify_variety(name: str, is_verified: bool, note: Optional[str], current_user, db: Session):
     """
     Verifies or un-verifies a Saintpaulia variety by its exact name.
 
@@ -322,6 +323,8 @@ def verify_variety(name, is_verified, current_user, db):
     :type name: str
     :param is_verified: Boolean indicating whether to verify or un-verify the variety.
     :type is_verified: bool
+    :param note: Optional note for the verification.
+    :type note: Optional[str]
     :param current_user: The user performing the verification.
     :type current_user: User
     :param db: The database session.
@@ -332,13 +335,15 @@ def verify_variety(name, is_verified, current_user, db):
     variety = get_saintpaulia_by_exact_name(name, db)
     if not variety or variety.is_deleted:
         return None
-    
-    if current_user.role.value not in ["admin", "superadmin"]:
-        return current_user.role.value
-    
+
     variety.is_verified = is_verified
+    variety.verification_note = note
+    variety.verified_by = current_user.id
+    variety.verification_date = datetime.utcnow()
+
     db.commit()
     db.refresh(variety)
-    
-    log_action("verify", variety.name, current_user, db)  # логування дій над сортом 
+
+    log_action("verify", variety.name, current_user, db)
+
     return variety

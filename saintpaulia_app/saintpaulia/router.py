@@ -11,7 +11,7 @@ from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.saintpaulia import repository
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate, VerificationBase
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(prefix="/saintpaulias", tags=["Saintpaulias"])
@@ -209,24 +209,37 @@ async def is_name_unique(name: str, db: Session = Depends(get_db)):
         logger.exception(f"Unexpected error during name uniqueness check: {e}")
         raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
     
-
-@router.put("/verify/{name}", response_model=SaintpauliaResponse)
-async def verify_variety(name: str,
-                         is_verified: bool,
-                         db: Session = Depends(get_db),
-                         current_user: User = Depends(get_current_user)):
+    # Перевірка сорту адмінами
+@router.put("/verify/{name}", response_model=VerificationResponse)
+async def verify_variety_route(
+    name: str,
+    data: VerificationUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     user_role = current_user.role.value
     if user_role not in {"admin", "superadmin"}:
-        logger.warning(f"Unauthorized verification attempt by user {current_user.email} with role {user_role}")
         raise HTTPException(status_code=403, detail="У вас немає прав для перевірки цього сорту.")
+
     try:
-        updated_variety = repository.verify_variety(name, is_verified, current_user, db)
+        updated_variety = repository.verify_variety(
+            name=name,
+            is_verified=data.is_verified,
+            note=data.verification_note,
+            current_user=current_user,
+            db=db
+        )
         if not updated_variety:
             raise HTTPException(status_code=404, detail="Сорт не знайдено або вже видалено.")
-        return updated_variety
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during variety verification: {e}")
+
+        return VerificationResponse(
+            is_verified=updated_variety.is_verified,
+            verified_by=updated_variety.verified_by,
+            verification_date=updated_variety.verification_date,
+            verification_note=updated_variety.verification_note
+        )
+
+    except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Помилка при перевірці сорту.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during variety verification: {e}")
+    except Exception:
         raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")

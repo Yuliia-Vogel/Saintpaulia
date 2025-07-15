@@ -27,7 +27,20 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin (superuser)
     confirmed = Column(Boolean, default=False) 
-    saintpaulias = relationship("Saintpaulia", back_populates="owner", cascade="all, delete-orphan")
+     # зв’язки
+    saintpaulias = relationship(
+        "Saintpaulia",
+        back_populates="owner",
+        foreign_keys="[Saintpaulia.owner_id]",
+        cascade="all, delete-orphan"
+    )
+
+    verified_varieties = relationship(
+        "Saintpaulia",
+        back_populates="verifier",
+        foreign_keys="[Saintpaulia.verified_by]"
+    )
+
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"
