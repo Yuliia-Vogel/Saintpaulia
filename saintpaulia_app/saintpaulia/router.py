@@ -208,3 +208,25 @@ async def is_name_unique(name: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.exception(f"Unexpected error during name uniqueness check: {e}")
         raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    
+
+@router.put("/verify/{name}", response_model=SaintpauliaResponse)
+async def verify_variety(name: str,
+                         is_verified: bool,
+                         db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
+    user_role = current_user.role.value
+    if user_role not in {"admin", "superadmin"}:
+        logger.warning(f"Unauthorized verification attempt by user {current_user.email} with role {user_role}")
+        raise HTTPException(status_code=403, detail="У вас немає прав для перевірки цього сорту.")
+    try:
+        updated_variety = repository.verify_variety(name, is_verified, current_user, db)
+        if not updated_variety:
+            raise HTTPException(status_code=404, detail="Сорт не знайдено або вже видалено.")
+        return updated_variety
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during variety verification: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при перевірці сорту.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during variety verification: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
