@@ -33,12 +33,29 @@ class Saintpaulia(Base):
 
     #дані про того, хто вніс запис
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    owner = relationship("User", back_populates="saintpaulias")
+    owner = relationship("User", back_populates="saintpaulias", foreign_keys=[owner_id])
     record_creation_date = Column(DateTime, default=func.now())
     
-    is_verified = Column(Boolean, default=False)  # для перевірки сортів адмінами
-    
+    # soft delete
     is_deleted = Column(Boolean, default=False)  # soft delete
+
+    # верифікація сорту 
+    is_verified = Column(Boolean, default=False)
+    verification_note = Column(Text, nullable=True)
+    verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    verifier = relationship("User", back_populates="verified_varieties", foreign_keys=[verified_by])
+    verification_date = Column(DateTime, nullable=True)
+
+    @property
+    def verification(self):
+        if self.verification_date is None and self.verified_by is None:
+            return None
+        return {
+            "is_verified": self.is_verified,
+            "verified_by": self.verified_by,
+            "verification_date": self.verification_date,
+            "verification_note": self.verification_note,
+        }
 
 
 class SaintpauliaLog(Base):
