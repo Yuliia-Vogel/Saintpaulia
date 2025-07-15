@@ -312,3 +312,33 @@ def is_name_unique(name: str, db: Session) -> bool:
     if normalized_name in normalized_existing_names:
         return False
     return True
+
+
+def verify_variety(name, is_verified, current_user, db):
+    """
+    Verifies or un-verifies a Saintpaulia variety by its exact name.
+
+    :param name: The exact name of the Saintpaulia variety to verify.
+    :type name: str
+    :param is_verified: Boolean indicating whether to verify or un-verify the variety.
+    :type is_verified: bool
+    :param current_user: The user performing the verification.
+    :type current_user: User
+    :param db: The database session.
+    :type db: Session
+    :return: The updated Saintpaulia variety if found, otherwise None.
+    :rtype: Optional[Saintpaulia]
+    """
+    variety = get_saintpaulia_by_exact_name(name, db)
+    if not variety or variety.is_deleted:
+        return None
+    
+    if current_user.role.value not in ["admin", "superadmin"]:
+        return current_user.role.value
+    
+    variety.is_verified = is_verified
+    db.commit()
+    db.refresh(variety)
+    
+    log_action("verify", variety.name, current_user, db)  # логування дій над сортом 
+    return variety
