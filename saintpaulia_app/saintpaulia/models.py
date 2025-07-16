@@ -34,7 +34,7 @@ class Saintpaulia(Base):
     #дані про того, хто вніс запис
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("User", back_populates="saintpaulias", foreign_keys=[owner_id])
-    record_creation_date = Column(DateTime, default=func.now())
+    record_creation_date = Column(DateTime(timezone=True), default=func.now())
     
     # soft delete
     is_deleted = Column(Boolean, default=False)  # soft delete
@@ -44,7 +44,7 @@ class Saintpaulia(Base):
     verification_note = Column(Text, nullable=True)
     verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     verifier = relationship("User", back_populates="verified_varieties", foreign_keys=[verified_by])
-    verification_date = Column(DateTime, nullable=True)
+    verification_date = Column(DateTime(timezone=True), nullable=True)
 
     @property
     def verification(self):

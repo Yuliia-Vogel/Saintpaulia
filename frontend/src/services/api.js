@@ -59,3 +59,8 @@ api.interceptors.request.use(async (config) => {
 });
 
 export default api;
+
+export const verifyVariety = async (name, data) => {
+  const response = await api.put(`/saintpaulia/saintpaulias/verify/${encodeURIComponent(name)}`, data);
+  return response.data;
+};
