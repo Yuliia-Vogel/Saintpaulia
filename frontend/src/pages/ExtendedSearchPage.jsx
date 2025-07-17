@@ -35,7 +35,7 @@ export default function ExtendedSearchPage() {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const response = await api.get("/saintpaulia/saintpaulias/field-options");
+        const response = await api.get("/saintpaulia/field-options");
         setFieldOptions(response.data);
       } catch (err) {
         console.error("Помилка завантаження параметрів:", err);
@@ -69,7 +69,7 @@ export default function ExtendedSearchPage() {
 
     const params = new URLSearchParams(filledFields).toString();
     try {
-      const response = await api.get(`/saintpaulia/saintpaulias/extended_search?${params}`);
+      const response = await api.get(`/saintpaulia/extended_search?${params}`);
       setResults(response.data.items || response.data);
       setParamsSummary(
         Object.entries(filledFields)

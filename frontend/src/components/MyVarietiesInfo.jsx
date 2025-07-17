@@ -13,7 +13,7 @@ const MyVarietiesInfo = () => {
     const fetchTotal = async () => {
       if (!user) return;
       try {
-        const res = await api.get("/saintpaulia/saintpaulias/my-varieties/?limit=1&offset=0");
+        const res = await api.get("/saintpaulia/my-varieties/?limit=1&offset=0");
 
         setTotal(res.data.total);
       } catch (err) {

@@ -14,6 +14,7 @@ from auth.router import router as auth_router
 from photos.router import router as photos_router
 from saintpaulia.router import router as saintpaulia_router
 from auth.dependencies import oauth2_scheme as security_scheme
+# from admin_panel.router import router as admin_router
 
 
 app = FastAPI(
@@ -49,8 +50,9 @@ async def root():
 
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
-app.include_router(saintpaulia_router, prefix="/saintpaulia")
-app.include_router(photos_router)
+app.include_router(saintpaulia_router, prefix="/saintpaulia", tags=["Saintpaulia"])
+app.include_router(photos_router, prefix="/photos", tags=["Photos"])
+# app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 
 # Функція для перевірки підключення
 def check_database_connection():

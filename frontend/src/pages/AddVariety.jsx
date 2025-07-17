@@ -12,7 +12,7 @@ export default function AddVariety() {
     setError("");
 
     try {
-      const response = await api.post("/saintpaulia/saintpaulias/", formData);
+      const response = await api.post("/saintpaulia/", formData);
       const newVariety = response.data;
       navigate(`/variety/${encodeURIComponent(newVariety.name)}`);
     } catch (err) {

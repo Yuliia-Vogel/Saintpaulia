@@ -23,7 +23,7 @@ export default function VarietyDetail() {
   useEffect(() => {
     const fetchVariety = async () => {
       try {
-        const response = await api.get(`/saintpaulia/saintpaulias/by-name/${encodeURIComponent(name)}`);
+        const response = await api.get(`/saintpaulia/by-name/${encodeURIComponent(name)}`);
         setVariety(response.data);
       } catch (err) {
         setError(err.response?.data?.detail || "Не вдалося завантажити дані про сорт.");

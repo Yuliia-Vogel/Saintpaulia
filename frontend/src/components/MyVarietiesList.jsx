@@ -20,7 +20,7 @@ const MyVarietiesList = () => {
       setLoading(true);
       setError("");
 
-      const res = await api.get(`/saintpaulia/saintpaulias/my-varieties/`, {
+      const res = await api.get(`/saintpaulia/my-varieties/`, {
         params: { limit, offset },
       });
 

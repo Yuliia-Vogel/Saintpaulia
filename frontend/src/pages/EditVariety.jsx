@@ -14,7 +14,7 @@ export default function EditVariety() {
   useEffect(() => {
     const fetchVariety = async () => {
       try {
-        const response = await api.get(`/saintpaulia/saintpaulias/by-name/${encodeURIComponent(name)}`);
+        const response = await api.get(`/saintpaulia/by-name/${encodeURIComponent(name)}`);
         setInitialData(response.data);
       } catch (err) {
         console.error("❌ Fetch error:", err);
@@ -27,7 +27,7 @@ export default function EditVariety() {
 
   const handleUpdate = async (updatedData) => {
     try {
-      const response = await api.put(`/saintpaulia/saintpaulias/${encodeURIComponent(name)}`, updatedData);
+      const response = await api.put(`/saintpaulia/${encodeURIComponent(name)}`, updatedData);
 
       const updatedVariety = response.data;
 
