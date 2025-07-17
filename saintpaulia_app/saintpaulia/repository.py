@@ -164,6 +164,33 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
         if key == "selection_year" and updated_data[key] == "":
             updated_data[key] = None
 
+    # 🔄 Перевірка: чи змінено хоча б одне ключове поле (і сорт був підтверджений)
+    fields_to_check = [
+        "name", "description", "size_category", "flower_color", "flower_size",
+        "flower_shape", "flower_doubleness", "ruffles", "ruffles_color",
+        "blooming_features", "leaf_shape", "leaf_variegation",
+        "selectionist", "selection_year", "origin"
+    ]
+
+    was_verified = variety.is_verified  # поточний статус сорту 
+
+    
+    need_reset_verification = False # перевірка, чи треба скидати верифікацію 
+    for field in fields_to_check:
+        if field in updated_data and getattr(variety, field) != updated_data[field]:
+            need_reset_verification = True
+            break
+
+    # Скидаємо верифікацію, якщо були зміни
+    if was_verified and need_reset_verification:
+        variety.is_verified = False
+        variety.verified_by = None
+        variety.verification_note = None
+        variety.verification_date = None
+        updated_data.pop("is_verified", None)  # 🧽 не дозволяємо перезаписати поле "is_verified" вручну
+        print("⚠️ Верифікацію скинуто через зміни у вмісті сорту")
+
+    # Оновлення всіх змін
     for key, value in updated_data.items():
         if hasattr(variety, key):
             setattr(variety, key, value)
