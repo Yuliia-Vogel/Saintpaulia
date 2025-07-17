@@ -14,7 +14,7 @@ from saintpaulia_app.saintpaulia import repository
 from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate, VerificationBase
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
-router = APIRouter(prefix="/saintpaulias", tags=["Saintpaulias"])
+router = APIRouter(tags=["Saintpaulia"])
 
 logger = logging.getLogger(__name__)
 

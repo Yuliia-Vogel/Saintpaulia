@@ -10,7 +10,7 @@ export const fetchFieldOptions = async () => {
   }
 
   try {
-    const res = await api.get("/saintpaulia/saintpaulias/field-options");
+    const res = await api.get("/saintpaulia/field-options");
     console.log("🎯 Отримані опції для форми:", res.data);
     cachedFieldOptions = res.data;
     return res.data;
@@ -23,7 +23,7 @@ export const fetchFieldOptions = async () => {
 // Отримати список усіх назв сортів
 export const fetchVarietiesNames = async () => {
   try {
-    const res = await api.get("/saintpaulia/saintpaulias/get_varieties_names");
+    const res = await api.get("/saintpaulia/get_varieties_names");
     console.log("🌸 Отримані назви сортів:", res.data);
     return res.data.items;
   } catch (error) {
@@ -35,7 +35,7 @@ export const fetchVarietiesNames = async () => {
 // Перевірити унікальність назви сорту
 export const checkNameUnique = async (name) => {
   try {
-    const res = await api.get("/saintpaulia/saintpaulias/name_unique", {
+    const res = await api.get("/saintpaulia/name_unique", {
       params: { name },
     });
     console.log(`🧐 Унікальність назви "${name}":`, res.data);

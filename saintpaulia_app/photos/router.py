@@ -8,20 +8,18 @@ from saintpaulia_app.database import get_db
 from auth.dependencies import get_current_user
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from photos.models import UploadedPhoto
+from photos.schemas import PhotoResponce 
 from photos.cloudinary_config import cloudinary as cl_service
 
 print("Імпорти завершено")
 
-router = APIRouter(
-    prefix="/photos",
-    tags=["Photos"]
-)
+router = APIRouter(tags=["Photos"])
 
 print("Роутер photos створено")
 
-@router.post("/upload")
+@router.post("/upload") # якщо додати "response_model=PhotoResponce)", то падає завантаження фоток - треба розібратися, що там таке і чому
 async def upload_variety_photo(
-    variety_id: int = Form(...),  # Тепер очікується з multipart/form-data
+    variety_id: int = Form(...),
     file: UploadFile = File(...),
     session: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user)
@@ -41,9 +39,6 @@ async def upload_variety_photo(
     # 3. Завантаження через сервіс
     try:
         upload_result = CloudinaryService.upload_image(file, current_user.email)
-        # print("UPLOAD RESULT IN ROUTER:", upload_result)
-        # if "secure_url" not in upload_result:
-        #     raise ValueError(f"secure_url not found in result: {upload_result}")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -58,5 +53,4 @@ async def upload_variety_photo(
     )
     session.add(photo)
     session.commit()
-    # return {"message": "Photo uploaded successfully", "photo_url": photo.file_url}
     return {"file_url": file_url, "public_id": public_id}

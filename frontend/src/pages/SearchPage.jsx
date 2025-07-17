@@ -27,8 +27,8 @@ export default function SearchPage() {
       setIsLoaded(false);
 
       const base = q.trim()
-        ? `/saintpaulia/saintpaulias/search/`
-        : `/saintpaulia/saintpaulias`;
+        ? `/saintpaulia/search/`
+        : `/saintpaulia`;
 
       const params = new URLSearchParams();
       if (q.trim()) params.append("name", q.trim());
