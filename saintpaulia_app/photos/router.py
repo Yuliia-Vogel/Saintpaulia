@@ -1,4 +1,5 @@
 print("Початок імпорту photos.router")
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,9 +8,10 @@ from photos.cloudinary_service import CloudinaryService
 from saintpaulia_app.database import get_db
 from auth.dependencies import get_current_user
 from saintpaulia_app.saintpaulia.models import Saintpaulia
-from photos.models import UploadedPhoto
-from photos.schemas import PhotoResponce 
-from photos.cloudinary_config import cloudinary as cl_service
+from saintpaulia_app.photos.models import UploadedPhoto
+from saintpaulia_app.photos.schemas import PhotoResponce 
+from saintpaulia_app.photos.cloudinary_config import cloudinary as cl_service
+from saintpaulia_app.photos.models import PhotoLog
 
 print("Імпорти завершено")
 
@@ -52,5 +54,16 @@ async def upload_variety_photo(
         uploaded_by=current_user.id
     )
     session.add(photo)
+    session.flush()  # потрібне, щоб згенерувався photo.id
+    # flush() просто "відправляє" INSERT до БД без коміту — після нього photo.id буде доступний
+    log = PhotoLog(
+        photo_id=photo.id,
+        variety_id=photo.variety_id,
+        user_id=current_user.id,
+        action="upload",
+        timestamp=datetime.utcnow()
+    )
+    
+    session.add(log)
     session.commit()
     return {"file_url": file_url, "public_id": public_id}

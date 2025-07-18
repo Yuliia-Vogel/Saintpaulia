@@ -9,8 +9,11 @@ from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 
+from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
+
 router = APIRouter(tags=["Admin"])
 
+router.include_router(photo_logs_router, prefix="/photo-logs", tags=["Admin: Photo Logs"])
 
 def admin_required(current_user: User = Depends(get_current_user)) -> User:
     print(f"Current user: {current_user.role.name}")
