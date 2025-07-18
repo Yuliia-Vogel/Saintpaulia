@@ -65,6 +65,7 @@
 │── saintpaulia_app/
 │   ├── admin_panel/
 │   │   ├── __init__.py
+│   │   ├── photo_logs_router.py
 │   │   ├── repository.py
 │   │   ├── router.py
 │   │   ├── schemas.py   # типи відповіді на фронт
