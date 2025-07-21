@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime
-from photos.schemas import PhotoResponce
+from saintpaulia_app.photos.schemas import PhotoResponce
+from saintpaulia_app.auth.schemas import UserShortInfo
 
 
 # Базова модель верифікації сорту
@@ -83,7 +84,7 @@ class SaintpauliaLogResponse(BaseModel):
     action: str  # e.g., 'create', 'update', 'delete'
     variety_id: int
     variety_name: str  # для зручності
-    user_id: int
+    user: Optional[UserShortInfo]
     timestamp: datetime
 
     class Config:

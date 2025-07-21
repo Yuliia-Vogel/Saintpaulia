@@ -1,6 +1,6 @@
 # admin_panel/router.py
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status   
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from admin_panel import repository as admin_repository
@@ -16,12 +16,6 @@ router = APIRouter(tags=["Admin"])
 
 router.include_router(photo_logs_router, prefix="/photo-logs")
 router.include_router(varieties_router, prefix="/variety-logs")
-
-# def admin_required(current_user: User = Depends(get_current_user)) -> User:
-#     print(f"Current user: {current_user.role.name}")
-#     if current_user.role.name not in ["admin", "superadmin"]:
-#         raise HTTPException(status_code=403, detail="Access forbidden")
-#     return current_user
 
 
 @router.get("/users/{user_id}/varieties", response_model=admin_schemas.UserVarietiesResponse)
@@ -41,3 +35,9 @@ async def get_user_varieties(
     }
 
 
+@router.get("/users", response_model=List[admin_schemas.UserShortInfo])
+async def get_all_users(
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(admin_required),
+):
+    return await admin_repository.get_all_users(db)
