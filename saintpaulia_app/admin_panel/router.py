@@ -8,18 +8,20 @@ from admin_panel import schemas as admin_schemas
 from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
-
+from saintpaulia_app.admin_panel.dependencies import admin_required 
 from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
+from saintpaulia_app.admin_panel.variety_logs_router import router as varieties_router
 
 router = APIRouter(tags=["Admin"])
 
-router.include_router(photo_logs_router, prefix="/photo-logs", tags=["Admin: Photo Logs"])
+router.include_router(photo_logs_router, prefix="/photo-logs")
+router.include_router(varieties_router, prefix="/variety-logs")
 
-def admin_required(current_user: User = Depends(get_current_user)) -> User:
-    print(f"Current user: {current_user.role.name}")
-    if current_user.role.name not in ["admin", "superadmin"]:
-        raise HTTPException(status_code=403, detail="Access forbidden")
-    return current_user
+# def admin_required(current_user: User = Depends(get_current_user)) -> User:
+#     print(f"Current user: {current_user.role.name}")
+#     if current_user.role.name not in ["admin", "superadmin"]:
+#         raise HTTPException(status_code=403, detail="Access forbidden")
+#     return current_user
 
 
 @router.get("/users/{user_id}/varieties", response_model=admin_schemas.UserVarietiesResponse)
@@ -37,3 +39,5 @@ async def get_user_varieties(
         "user": user,
         "varieties": varieties
     }
+
+

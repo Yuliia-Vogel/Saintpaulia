@@ -56,6 +56,15 @@ class Saintpaulia(Base):
             "verification_date": self.verification_date,
             "verification_note": self.verification_note,
         }
+    
+    def __str__(self):
+        return f"Saintpaulia(id={self.id}, name='{self.name}')"
+
+    def __repr__(self):
+        return (
+            f"<Saintpaulia(id={self.id}, name='{self.name}', "
+            f"owner_id={self.owner_id}, is_verified={self.is_verified})>"
+        )
 
 
 class SaintpauliaLog(Base):
@@ -63,8 +72,11 @@ class SaintpauliaLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     action = Column(String, nullable=False)  # e.g., 'create', 'update', 'delete'
-    variety_name = Column(String, nullable=False)
+    variety_id = Column(Integer, ForeignKey("saintpaulia_varieties.id"), nullable=False)
+    variety_name = Column(String, nullable=False)  # для зручності
     user_id = Column(Integer, ForeignKey("users.id"))
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+    variety = relationship("Saintpaulia", backref="saintpaulia_logs")
     user = relationship("User", backref="saintpaulia_logs")
+
