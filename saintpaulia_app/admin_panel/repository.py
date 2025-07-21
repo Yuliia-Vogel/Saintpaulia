@@ -16,3 +16,10 @@ async def get_varieties_by_user(user_id: int, db: AsyncSession):
         select(Saintpaulia).where(Saintpaulia.owner_id == user_id)
     )
     return result.scalars().all()
+
+
+async def get_all_users(db: AsyncSession):
+    result = db.execute(select(User))
+    return result.scalars().all()
+
+

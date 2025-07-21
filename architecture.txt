@@ -26,6 +26,7 @@
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
+│   │   │   ├── AdminUsersPage.jsx
 │   │   │   ├── CabinetPage.jsx
 │   │   │   ├── ConfirmEmail.jsx
 │   │   │   ├── EditVariety.jsx
@@ -37,8 +38,9 @@
 │   │   │   ├── NotFound.jsx
 │   │   │   ├── Register.jsx
 │   │   │   ├── ResetPassword.jsx
-│   │   │   ├── SearchPage.jsx
+│   │   │   ├── SearchPage.jsx 
 │   │   │   ├── UploadPhoto.jsx
+│   │   │   ├── UserVarietiesPage.jsx
 │   │   │   └── VarietyDetail.jsx  
 │   │   ├── services/
 │   │   │   ├── api.js
@@ -63,13 +65,16 @@
 │   ├── tailwind.config.js
 │   └── vite.config.js
 │── saintpaulia_app/
-│   ├── admin_panel/
+│   ├── admin_panel/ 
 │   │   ├── __init__.py
+│   │   ├── dependencies.py
+│   │   ├── photo_logs_repository.py
 │   │   ├── photo_logs_router.py
 │   │   ├── repository.py
 │   │   ├── router.py
-│   │   ├── schemas.py   # типи відповіді на фронт
-│   │   ├── services.py  # опціонально — для логіки перевірки фото, аналітики
+│   │   ├── schemas.py   
+│   │   ├── services.py  # для логіки перевірки фото, аналітики
+│   │   ├── variety_logs_repository.py
 │   │   └── variety_logs_router.py
 │   ├── auth/
 │   │   ├── __init__.py

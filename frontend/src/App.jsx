@@ -18,6 +18,8 @@ import PrivateRoute from './components/PrivateRoute';
 import CabinetPage from './pages/CabinetPage';
 import MyVarietiesPage from "./pages/MyVarietiesPage";
 import ExtendedSearchPage from './pages/ExtendedSearchPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import UserVarietiesPage from './pages/UserVarietiesPage';
 
 
 function App() {
@@ -42,6 +44,8 @@ function App() {
         <Route path="/my-varieties" element={<MyVarietiesPage />} />
         <Route path="/extended-search" element={<ExtendedSearchPage />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/users/:userId/varieties" element={<UserVarietiesPage />} />
       </Routes>
     </ErrorBoundary>
   );

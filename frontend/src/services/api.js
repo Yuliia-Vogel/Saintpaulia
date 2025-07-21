@@ -64,3 +64,13 @@ export const verifyVariety = async (name, data) => {
   const response = await api.put(`/saintpaulia/verify/${encodeURIComponent(name)}`, data);
   return response.data;
 };
+
+export const getAllUsers = async () => {
+  const response = await api.get("/admin/users");
+  return response.data;
+};
+
+export const getUserVarieties = async (userId) => {
+  const response = await api.get(`/admin/users/${userId}/varieties`);
+  return response.data;
+};
