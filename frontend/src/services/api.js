@@ -74,3 +74,8 @@ export const getUserVarieties = async (userId) => {
   const response = await api.get(`/admin/users/${userId}/varieties`);
   return response.data;
 };
+
+export const getVarietyLogs = async (varietyId) => {
+  const response = await api.get(`/admin/variety-logs/variety/${varietyId}`);
+  return response.data;
+};

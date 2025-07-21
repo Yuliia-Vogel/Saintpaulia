@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api, { verifyVariety } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
+import VarietyLogs from "../components/VarietyLogs"; 
 
 export default function VarietyDetail() {
   const { name } = useParams();
@@ -19,6 +20,8 @@ export default function VarietyDetail() {
 
   const fromQuery = location.state?.fromQuery || "";
   const successMessage = location.state?.successMessage;
+
+  const [activeTab, setActiveTab] = useState("info");
 
   useEffect(() => {
     const fetchVariety = async () => {
@@ -92,139 +95,177 @@ export default function VarietyDetail() {
 
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
 
-      <div className="space-y-2 text-lg">
-        {variety.description && <p><strong>Опис:</strong> {variety.description}</p>}
-        <p><strong>Розмір розетки:</strong> {variety.size_category}</p>
-        {variety.flower_color && <p><strong>Колір квітів:</strong> {variety.flower_color}</p>}
-        {variety.flower_size && <p><strong>Розмір квітів:</strong> {variety.flower_size}</p>}
-        {variety.flower_shape && <p><strong>Форма квітів:</strong> {variety.flower_shape}</p>}
-        {variety.flower_doubleness && <p><strong>Наповненість квітів:</strong> {variety.flower_doubleness}</p>}
-        {variety.blooming_features && <p><strong>Характеристики цвітіння:</strong> {variety.blooming_features}</p>}
-        {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles ? "Так" : "Ні"}</p>}
-        {variety.ruffles && variety.ruffles_color && (
-          <p><strong>Колір рюш:</strong> {variety.ruffles_color}</p>
+      {/* Кнопки табів */}
+      <div className="flex space-x-4 mb-4 border-b">
+        <button
+          onClick={() => setActiveTab("info")}
+          className={`pb-2 border-b-2 ${
+            activeTab === "info" ? "border-blue-500 text-blue-600 font-semibold" : "border-transparent text-gray-600"
+          }`}
+        >
+          ℹ️ Інфо
+        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setActiveTab("logs")}
+            className={`pb-2 border-b-2 ${
+              activeTab === "logs" ? "border-blue-500 text-blue-600 font-semibold" : "border-transparent text-gray-600"
+            }`}
+          >
+            📜 Логи
+          </button>
         )}
-        {variety.leaf_shape && <p><strong>Форма листків:</strong> {variety.leaf_shape}</p>}
-        {variety.leaf_variegation && <p><strong>Строкатість листя:</strong> {variety.leaf_variegation}</p>}
-        {variety.selectionist && <p><strong>Селекціонер:</strong> {variety.selectionist}</p>}
-        {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
-        {variety.origin && <p><strong>Походження сорту:</strong> {variety.origin}</p>}
-        <p><strong>Автор запису (ID):</strong> {variety.owner_id}</p>
-        <p><strong>Дата створення запису:</strong> {formatDateLocalized(variety.record_creation_date)}</p>
-        <p><strong>Статус сорту:</strong>{" "}
-          {variety.is_verified ? (
-            <span className="text-green-600 font-semibold">✅ Сорт підтверджено</span>
-          ) : (
-            <span className="text-yellow-600 font-semibold">🕓 Новий сорт (не підтверджено)</span>
-          )}
-        </p>
       </div>
 
-      {isAdmin && (
-        <div className="mt-6 border-t pt-4">
-          <button
-            className="text-sm text-blue-700 underline mb-2"
-            onClick={() => setShowAdminInfo(!showAdminInfo)}
-          >
-            {showAdminInfo ? "▲ Приховати верифікаційну інформацію" : "▼ Інформація про підтвердження сорту (адмінам)"}
-          </button>
-
-          {showAdminInfo && (
-            <div className="bg-gray-50 border rounded-xl p-4 space-y-3">
-              <p><strong>Примітка:</strong> {variety.verification?.verification_note || "—"}</p>
-              <p><strong>Верифікатор (ID):</strong> {variety.verification?.verified_by || "—"}</p>
-              <p><strong>Дата зміни статусу:</strong> {formatDateLocalized(variety.verification?.verification_date)}</p>
-
-              {!editingVerification ? (
-                <button
-                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
-                  onClick={() => {
-                    setEditingVerification(true);
-                    setFormState({
-                      is_verified: variety.is_verified,
-                      verification_note: variety.verification_note || "",
-                    });
-                  }}
-                >
-                  ✏️ Змінити статус верифікації сорту
-                </button>
+      {/* Таб "Інфо" */}
+      {activeTab === "info" && (
+        <div>
+          {/* Інформація про сорт */}
+          <div className="space-y-2 text-lg mb-6">
+            {variety.description && <p><strong>Опис:</strong> {variety.description}</p>}
+            <p><strong>Розмір розетки:</strong> {variety.size_category}</p>
+            {variety.flower_color && <p><strong>Колір квітів:</strong> {variety.flower_color}</p>}
+            {variety.flower_size && <p><strong>Розмір квітів:</strong> {variety.flower_size}</p>}
+            {variety.flower_shape && <p><strong>Форма квітів:</strong> {variety.flower_shape}</p>}
+            {variety.flower_doubleness && <p><strong>Наповненість квітів:</strong> {variety.flower_doubleness}</p>}
+            {variety.blooming_features && <p><strong>Характеристики цвітіння:</strong> {variety.blooming_features}</p>}
+            {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles ? "Так" : "Ні"}</p>}
+            {variety.ruffles && variety.ruffles_color && (
+              <p><strong>Колір рюш:</strong> {variety.ruffles_color}</p>
+            )}
+            {variety.leaf_shape && <p><strong>Форма листків:</strong> {variety.leaf_shape}</p>}
+            {variety.leaf_variegation && <p><strong>Строкатість листя:</strong> {variety.leaf_variegation}</p>}
+            {variety.selectionist && <p><strong>Селекціонер:</strong> {variety.selectionist}</p>}
+            {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
+            {variety.origin && <p><strong>Походження сорту:</strong> {variety.origin}</p>}
+            <p><strong>Автор запису (ID):</strong> {variety.owner_id}</p>
+            <p><strong>Дата створення запису:</strong> {formatDateLocalized(variety.record_creation_date)}</p>
+            {/* Верифікація — якщо є */}
+            <p><strong>Статус сорту:</strong>{" "}
+              {variety.is_verified ? (
+                <span className="text-green-600 font-semibold">✅ Сорт підтверджено</span>
               ) : (
-                <div className="mt-4 space-y-2">
-                  <label className="block">
-                    <span className="text-sm">Примітка до верифікації:</span>
-                    <textarea
-                      className="w-full border rounded p-2 mt-1"
-                      rows={3}
-                      value={formState.verification_note}
-                      onChange={(e) =>
-                        setFormState((prev) => ({ ...prev, verification_note: e.target.value }))
-                      }
-                    />
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formState.is_verified}
-                      onChange={(e) =>
-                        setFormState((prev) => ({ ...prev, is_verified: e.target.checked }))
-                      }
-                    />
-                    <span className="text-sm">Позначити як підтверджений сорт</span>
-                  </label>
+                <span className="text-yellow-600 font-semibold">🕓 Новий сорт (не підтверджено)</span>
+              )}
+            </p>
+          </div>
 
-                  <div className="flex gap-3 mt-2">
+          {/* Кнопки дій - розташовуємо ПІД інформацією про сорт */}
+          {canEdit && (
+            <div className="mb-6 flex gap-4">
+              <button
+                onClick={() => navigate(`/variety/${variety.name}/edit`)}
+                className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded"
+              >
+                ✏️ Редагувати сорт
+              </button>
+              <button
+                onClick={() =>
+                  navigate(`/variety/${variety.id}/upload-photo`, {
+                    state: { varietyName: name },
+                  })
+                }
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+              >
+                📷 Додати фото
+              </button>
+            </div>
+          )}
+
+          {/* Адміністративна інформація про верифікацію */}
+          {isAdmin && (
+            <div className="mb-6 border-t pt-4">
+              <button
+                className="text-sm text-blue-700 underline mb-2"
+                onClick={() => setShowAdminInfo(!showAdminInfo)}>
+                {showAdminInfo ? "▲ Приховати верифікаційну інформацію" : "▼ Інформація про підтвердження сорту (адмінам)"}
+              </button>
+
+              {showAdminInfo && (
+                <div className="bg-gray-50 border rounded-xl p-4 space-y-3">
+                  <p><strong>Примітка:</strong> {variety.verification?.verification_note || "—"}</p>
+                  <p><strong>Верифікатор (ID):</strong> {variety.verification?.verified_by || "—"}</p>
+                  <p><strong>Дата зміни статусу:</strong> {formatDateLocalized(variety.verification?.verification_date)}</p>
+
+                  {!editingVerification ? (
                     <button
-                      onClick={handleVerificationSubmit}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                      disabled={loading}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+                      onClick={() => {
+                        setEditingVerification(true);
+                        setFormState({
+                          is_verified: variety.is_verified,
+                          verification_note: variety.verification_note || "",
+                        });
+                      }}
                     >
-                      💾 Зберегти зміни статусу
+                      ✏️ Змінити статус верифікації сорту
                     </button>
-                    <button
-                      onClick={() => setEditingVerification(false)}
-                      className="text-gray-600 underline"
-                    >
-                      Скасувати
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="mt-4 space-y-2">
+                      <label className="block">
+                        <span className="text-sm">Примітка до верифікації:</span>
+                        <textarea
+                          className="w-full border rounded p-2 mt-1"
+                          rows={3}
+                          value={formState.verification_note}
+                          onChange={(e) =>
+                            setFormState((prev) => ({ ...prev, verification_note: e.target.value }))
+                          }
+                        />
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formState.is_verified}
+                          onChange={(e) =>
+                            setFormState((prev) => ({ ...prev, is_verified: e.target.checked }))
+                          }
+                        />
+                        <span className="text-sm">Позначити як підтверджений сорт</span>
+                      </label>
+
+                      <div className="flex gap-3 mt-2">
+                        <button
+                          onClick={handleVerificationSubmit}
+                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                          disabled={loading}
+                        >
+                          💾 Зберегти зміни статусу
+                        </button>
+                        <button
+                          onClick={() => setEditingVerification(false)}
+                          className="text-gray-600 underline"
+                        >
+                          Скасувати
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Фотографії сорту */}
+          {variety.photos.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {variety.photos.map((photo) => (
+                <img
+                  key={photo.id}
+                  src={photo.file_url}
+                  alt={variety.name}
+                  className="w-full rounded-xl shadow"
+                />
+              ))}
             </div>
           )}
         </div>
       )}
 
-      {canEdit && (
-        <div className="mt-6 flex gap-4">
-          <button
-            onClick={() => navigate(`/variety/${variety.name}/edit`)}
-            className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded"
-          >
-            ✏️ Редагувати сорт
-          </button>
-          <button
-            onClick={() =>
-              navigate(`/variety/${variety.id}/upload-photo`, {
-                state: { varietyName: name },
-              })
-            }
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
-          >
-            📷 Додати фото
-          </button>
-        </div>
-      )}
-
-      {variety.photos.length > 0 && (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {variety.photos.map((photo) => (
-            <img
-              key={photo.id}
-              src={photo.file_url}
-              alt={variety.name}
-              className="w-full rounded-xl shadow"
-            />
-          ))}
+      {/* Таб "Логи" */}
+      {activeTab === "logs" && (
+        <div className="mt-6">
+          <VarietyLogs varietyId={variety.id} />
         </div>
       )}
     </div>

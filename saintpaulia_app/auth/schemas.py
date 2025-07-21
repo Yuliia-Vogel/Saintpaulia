@@ -49,3 +49,11 @@ class RequestPasswordReset(BaseModel):
 class ResetPassword(BaseModel):
     token: str
     new_password: constr(min_length=8)
+
+
+class UserShortInfo(BaseModel):
+    id: int
+    email: str
+
+    class Config:
+        from_attributes = True

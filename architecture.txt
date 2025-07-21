@@ -19,6 +19,7 @@
 │   │   │   ├── PrivateRoute.jsx
 │   │   │   ├── TestApiRequests.jsx
 │   │   │   ├── VarietyForm.jsx
+│   │   │   ├── VarietyLogs.jsx
 │   │   │   └── VarietyNameField.jsx
 │   │   ├── constants/
 │   │   │   └── fieldOptions.js

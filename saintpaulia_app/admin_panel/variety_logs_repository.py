@@ -12,8 +12,9 @@ async def fetch_variety_logs(variety_id: int, session: AsyncSession) -> list[Sai
     try:
         result = session.execute(
             select(SaintpauliaLog)
-            .where(SaintpauliaLog.variety_id == variety_id)
             .options(joinedload(SaintpauliaLog.user))
+            .where(SaintpauliaLog.variety_id == variety_id)
+            .order_by(SaintpauliaLog.timestamp.desc())
         )
         logs = result.scalars().all()
         return logs
