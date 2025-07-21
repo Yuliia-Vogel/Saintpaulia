@@ -11,12 +11,14 @@ from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog
 from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse
 
 
-def log_action(action: str, variety_name: str, user: User, db: Session):
+def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
     log_entry = SaintpauliaLog(
         action=action,
-        variety_name=variety_name,
+        variety_id=variety.id,
+        variety_name=variety.name,
         user_id=user.id
     )
+
     db.add(log_entry)
     db.commit()
 
@@ -59,7 +61,7 @@ def create_saintpaulia_variety(body: SaintpauliaCreate, user: User, db: Session)
     db.add(new_variety)
     db.commit()
     db.refresh(new_variety) 
-    log_action("create", new_variety.name, user, db) # логування дій над сортом 
+    log_action("create", new_variety, user, db) # логування дій над сортом 
     return new_variety 
 
 
@@ -120,20 +122,6 @@ def search_saintpaulias_by_name(name_part: str,
     total = query.count()
     items = query.offset(offset).limit(limit).all()
     return items, total
-
-
-# def get_variety_by_user(user: User, db: Session) -> List[Saintpaulia] | None:
-#     """
-#     Retrieves a list of Saintpaulia varieties for specific user.
-
-#     :param user: The user whose varieties should be retrieved.
-#     :type user: User
-#     :param db: The database session.
-#     :type db: Session
-#     :return: A list of Saintpaulia varieties for specific user.
-#     :rtype: List[Saintpaulia]
-#     """
-#     return db.query(Saintpaulia).filter(Saintpaulia.owner_id == user.id).all()
 
 
 def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Optional[Saintpaulia]:
@@ -197,7 +185,7 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
 
     db.commit()
     db.refresh(variety)
-    log_action("update", variety.name, user, db)  # логування дій над сортом 
+    log_action("update", variety, user, db)  # логування дій над сортом 
     return variety
 
 
@@ -221,7 +209,7 @@ def delete_variety(name: str, user: User, db: Session) -> bool:
 
     variety.is_deleted = True
     db.commit()
-    log_action("delete", variety.name, user, db)  # логування дій над сортом 
+    log_action("delete", variety, user, db)  # логування дій над сортом 
     return True
 
 
@@ -371,6 +359,6 @@ def verify_variety(name: str, is_verified: bool, note: Optional[str], current_us
     db.commit()
     db.refresh(variety)
 
-    log_action("verify", variety.name, current_user, db)
+    log_action("verify", variety, current_user, db)
 
     return variety

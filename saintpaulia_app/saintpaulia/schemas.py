@@ -76,3 +76,15 @@ class SaintpauliaResponse(SaintpauliaBase):
 class PaginatedVarietyResponse(BaseModel):
     items: List[SaintpauliaResponse]
     total: int
+
+
+class SaintpauliaLogResponse(BaseModel):
+    id: int
+    action: str  # e.g., 'create', 'update', 'delete'
+    variety_id: int
+    variety_name: str  # для зручності
+    user_id: int
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True
