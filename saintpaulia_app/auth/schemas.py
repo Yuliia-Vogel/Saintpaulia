@@ -11,6 +11,10 @@ class UserRole(str, Enum):
     superadmin = "superadmin"
 
 
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+
+
 class UserBase(BaseModel):
     email: EmailStr
     first_name: Optional[str] = None

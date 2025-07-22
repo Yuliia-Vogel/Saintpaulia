@@ -1,7 +1,22 @@
 // src/pages/AdminUsersPage.jsx
 import { useEffect, useState } from "react";
 import { getAllUsers } from "../services/api";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+
+const [searchParams] = useSearchParams();
+const roleFilter = searchParams.get("role");
+
+useEffect(() => {
+  getAllUsers()
+    .then(data => {
+      if (roleFilter) {
+        setUsers(data.filter(user => user.role === roleFilter));
+      } else {
+        setUsers(data);
+      }
+    })
+    .catch(console.error);
+}, [roleFilter]);
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -18,7 +33,7 @@ const AdminUsersPage = () => {
           <tr className="bg-gray-200">
             <th className="p-2 border">ID</th>
             <th className="p-2 border">Email</th>
-            <th className="p-2 border">Імʼя</th>
+            <th className="p-2 border">Роль</th>
             <th className="p-2 border">Сорти</th>
           </tr>
         </thead>
@@ -26,8 +41,14 @@ const AdminUsersPage = () => {
           {users.map(user => (
             <tr key={user.id} className="hover:bg-gray-100">
               <td className="p-2 border">{user.id}</td>
-              <td className="p-2 border">{user.email}</td>
-              <td className="p-2 border">{user.name}</td>
+              <td className="p-2 border text-blue-600 underline">
+                <Link to={`/admin/users/${user.id}`}>{user.email}</Link>
+              </td>
+              <td className="p-2 border text-blue-600 underline cursor-pointer">
+                <Link to={`/admin/users?role=${user.role}`}>
+                  {user.role}
+                </Link>
+              </td>
               <td className="p-2 border">
                 <Link
                   to={`/admin/users/${user.id}/varieties`}
