@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import api, { verifyVariety } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
+import PhotoLogs from "../components/PhotoLogs";
 
 export default function VarietyDetail() {
   const { name } = useParams();
@@ -115,6 +116,16 @@ export default function VarietyDetail() {
             📜 Логи
           </button>
         )}
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab("photoLogs")}
+              className={`pb-2 border-b-2 ${
+                activeTab === "photoLogs" ? "border-blue-500 text-blue-600 font-semibold" : "border-transparent text-gray-600"
+              }`}
+            >
+              🖼️ Логи фото
+            </button>
+          )}
       </div>
 
       {/* Таб "Інфо" */}
@@ -264,8 +275,17 @@ export default function VarietyDetail() {
 
       {/* Таб "Логи" */}
       {activeTab === "logs" && (
-        <div className="mt-6">
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold">Логи змін</h2>
           <VarietyLogs varietyId={variety.id} />
+        </div>
+      )}
+            {/* Таб "Логи фото" */}
+            {activeTab === "photoLogs" && (
+        <div className="space-y-6">
+
+          <h2 className="text-lg font-semibold mt-6">Логи фото</h2>
+          <PhotoLogs varietyId={variety.id} />
         </div>
       )}
     </div>
