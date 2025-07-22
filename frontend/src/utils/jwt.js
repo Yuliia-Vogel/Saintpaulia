@@ -24,3 +24,14 @@ export function isTokenExpired(token) {
     return true;
   }
 }
+
+export const extractUserFromToken = (token) => {
+  const decoded = jwtDecode(token);
+  return {
+    id: decoded.user_id,
+    email: decoded.sub,
+    role: decoded.role,
+    confirmed: decoded.confirmed,
+    accessToken: token,
+  };
+};

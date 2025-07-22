@@ -79,3 +79,8 @@ export const getVarietyLogs = async (varietyId) => {
   const response = await api.get(`/admin/variety-logs/variety/${varietyId}`);
   return response.data;
 };
+
+export const getPhotoLogs = async (varietyId) => {
+  const response = await api.get(`/admin/photo-logs/variety/${varietyId}`);
+  return response.data;
+};

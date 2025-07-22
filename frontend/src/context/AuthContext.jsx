@@ -21,20 +21,19 @@ export const AuthProvider = ({ children }) => {
     const refreshToken = localStorage.getItem("refreshToken");
 
     // Перевірка протермінування та оновлення токена
-    // if (token && isTokenExpired(token) && refreshToken) {
-    //   try {
-    //     const response = await api.post("/auth/refresh", {
-    //       refresh_token: refreshToken,
-    //     });
-    //     token = response.data.access_token;
-    //     localStorage.setItem("accessToken", token);
-    //     console.log("AuthContext: ініціалізація завершена, user:", user);
-    //   } catch (error) {
-    //     console.error("Помилка оновлення токена в AuthContext:", error);
-    //     logoutUser();
-    //     return;
-    //   }
-    // }
+    if (token && isTokenExpired(token) && refreshToken) {
+      try {
+        const response = await api.post("/auth/refresh", {
+          refresh_token: refreshToken,
+        });
+        token = response.data.access_token;
+        localStorage.setItem("accessToken", token);
+      } catch (error) {
+        console.error("Помилка оновлення токена в AuthContext:", error);
+        logoutUser();
+        return;
+      }
+    }
 
     // Якщо токен валідний — декодуємо і зберігаємо
     if (token) {

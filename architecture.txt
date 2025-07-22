@@ -16,6 +16,7 @@
 │   │   │   ├── MyVarietiesList.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── PaginationControls.jsx
+│   │   │   ├── PhotoLogs.jsx
 │   │   │   ├── PrivateRoute.jsx
 │   │   │   ├── TestApiRequests.jsx
 │   │   │   ├── VarietyForm.jsx
