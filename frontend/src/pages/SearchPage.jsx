@@ -18,7 +18,6 @@ export default function SearchPage() {
 
   useEffect(() => {
     fetchSearchResults(query);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, currentPage]);
 
   const fetchSearchResults = async (q) => {

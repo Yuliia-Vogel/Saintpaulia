@@ -84,3 +84,8 @@ export const getPhotoLogs = async (varietyId) => {
   const response = await api.get(`/admin/photo-logs/variety/${varietyId}`);
   return response.data;
 };
+
+export const updateUserRole = async (userId, role) => {
+  const response = await api.put(`/admin/users/${userId}/role`, { role });
+  return response.data;
+};
