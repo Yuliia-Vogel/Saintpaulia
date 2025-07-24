@@ -2,11 +2,13 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from saintpaulia_app.auth.models import User
+# from saintpaulia_app.auth.models import User
+from saintpaulia_app.auth.models import User, UserRole
+from saintpaulia_app.auth.schemas import UserOut
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 
 
-async def get_user_by_id(user_id: int, db: AsyncSession) -> User:
+async def get_user_by_id(user_id: int, db: AsyncSession) -> UserOut:
     result = db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
 

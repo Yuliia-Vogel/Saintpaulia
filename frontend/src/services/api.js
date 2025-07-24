@@ -89,3 +89,8 @@ export const updateUserRole = async (userId, role) => {
   const response = await api.put(`/admin/users/${userId}/role`, { role });
   return response.data;
 };
+
+export const getUserById = async (userId) => {
+  const response = await api.get(`/admin/users/${userId}`);
+  return response.data;
+};

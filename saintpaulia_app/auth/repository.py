@@ -26,7 +26,7 @@ def create_user(email: str, password: str, db: Session) -> User:
 
 def update_user_refresh_token(user: User, new_token: str, db: Session) -> None:
     user.refresh_token = new_token
-    db.commit()
+    db.commit() 
 
 def confirm_user_email(email: str, db: Session) -> None:
     user = get_user_by_email(email, db)

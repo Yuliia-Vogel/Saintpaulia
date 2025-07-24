@@ -61,3 +61,17 @@ class UserShortInfo(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    # first_name: Optional[str]
+    # last_name: Optional[str]
+    role: str
+    is_active: bool
+    is_superuser: bool
+    confirmed: bool
+
+    class Config:
+        orm_mode = True
