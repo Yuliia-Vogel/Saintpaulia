@@ -1,8 +1,8 @@
-// src/pages/AdminUsersPage.jsx
+// src/pages/admin/AdminUsersPage.jsx
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import EditRoleModal from "../components/admin/EditRoleModal";
-import { getAllUsers, updateUserRole } from "../services/api"; 
+import EditRoleModal from "../../components/admin/EditRoleModal";
+import { getAllUsers, updateUserRole } from "../../services/api"; 
 import { toast } from "sonner";
 
 export default function AdminUsersPage() {
@@ -65,7 +65,11 @@ export default function AdminUsersPage() {
           {users.map((user) => (
             <tr key={user.id} className="border-b">
               <td className="p-2">{user.id}</td>
-              <td className="p-2">{user.email}</td>
+              <td className="p-2">
+                <Link to={`/admin/users/${user.id}`} className="text-blue-600 underline hover:text-blue-800">
+                  {user.email}
+                </Link>
+              </td>
               <td className="p-2 border">
                 <Link
                   to={`/admin/users/${user.id}/varieties`}

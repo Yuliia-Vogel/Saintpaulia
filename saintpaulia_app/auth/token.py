@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from starlette import status
 from typing import Optional
 from jose import JWTError, jwt
-from auth.config import SECRET_KEY, ALGORITHM, RESET_TOKEN_EXPIRE_MINUTES
+from auth.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_TOKEN_EXPIRE_MINUTES
 
 
 # to generate a new access token
@@ -12,7 +12,7 @@ async def create_access_token(data: dict, expires_delta: Optional[float] = None)
     if expires_delta:
         expire = datetime.utcnow() + timedelta(seconds=expires_delta)
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"})
     encoded_access_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_access_token
