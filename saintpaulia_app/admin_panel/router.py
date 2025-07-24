@@ -12,6 +12,7 @@ from saintpaulia_app.auth.schemas import UserRoleUpdate, UserOut
 from saintpaulia_app.admin_panel.dependencies import admin_required 
 from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
 from saintpaulia_app.admin_panel.variety_logs_router import router as varieties_router
+from saintpaulia_app.utils.permissions import check_role_change_permission
 
 router = APIRouter(tags=["Admin"])
 
@@ -50,10 +51,15 @@ async def update_user_role(
     new_role: UserRoleUpdate,
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(admin_required)):
-
-    updated_user = await admin_repository.update_user_role(user_id, new_role.role, db)
-    if not updated_user:
+    # шукаю юзера в базі 
+    user = await admin_repository.get_user_by_id(user_id, db)
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    # перевірка дозволу на зміну ролі 
+    check_role_change_permission(current_admin, user)
+    # оновлення ролі користувача
+    updated_user = await admin_repository.update_user_role(user_id, new_role.role, db)
+
     return updated_user
 
 
@@ -63,5 +69,6 @@ async def get_user(user_id: int,
                    current_admin: User = Depends(admin_required)):
     user = await admin_repository.get_user_by_id(user_id, db)
     if not user:    
-        raise HTTPException(status_code=404, detail="User not found")   
+        raise HTTPException(status_code=404, detail="User not found")
+
     return user

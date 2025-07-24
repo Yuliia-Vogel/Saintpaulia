@@ -74,4 +74,4 @@ class UserOut(BaseModel):
     confirmed: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
