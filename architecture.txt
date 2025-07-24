@@ -8,6 +8,9 @@
 │   │── src/
 │   │   ├── assets/
 │   │   ├── components/
+│   │   │   ├── admin/
+│   │   │   │   ├── EditRoleModal.jsx 
+│   │   │   │   └── UsersTable.jsx
 │   │   │   ├── CabinetUserInfo.jsx
 │   │   │   ├── EmailConfirmationNotice.jsx
 │   │   │   ├── ErrorBoundary.jsx

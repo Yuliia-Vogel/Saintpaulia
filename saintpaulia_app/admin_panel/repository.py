@@ -23,3 +23,11 @@ async def get_all_users(db: AsyncSession):
     return result.scalars().all()
 
 
+async def update_user_role(user_id: int, new_role: str, db: AsyncSession):
+    user = db.get(User, user_id)
+    if not user:
+        return None
+    user.role = new_role
+    db.commit()
+    db.refresh(user)
+    return user

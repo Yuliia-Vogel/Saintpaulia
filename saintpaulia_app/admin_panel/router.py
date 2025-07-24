@@ -8,6 +8,7 @@ from admin_panel import schemas as admin_schemas
 from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
+from saintpaulia_app.auth.schemas import UserRoleUpdate
 from saintpaulia_app.admin_panel.dependencies import admin_required 
 from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
 from saintpaulia_app.admin_panel.variety_logs_router import router as varieties_router
@@ -41,3 +42,16 @@ async def get_all_users(
     current_admin: User = Depends(admin_required),
 ):
     return await admin_repository.get_all_users(db)
+
+
+@router.put("/users/{user_id}/role", response_model=admin_schemas.UserShortInfo)
+async def update_user_role(
+    user_id: int,
+    new_role: UserRoleUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(admin_required)):
+
+    updated_user = await admin_repository.update_user_role(user_id, new_role.role, db)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return updated_user
