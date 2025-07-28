@@ -362,3 +362,17 @@ def verify_variety(name: str, is_verified: bool, note: Optional[str], current_us
     log_action("verify", variety, current_user, db)
 
     return variety
+
+
+def get_saintpaulia_by_id(id: int, db: Session) -> Optional[Saintpaulia]:
+    """
+    Retrieves a Saintpaulia variety by its ID.
+
+    :param id: The ID of the Saintpaulia variety to retrieve.
+    :type id: int
+    :param db: The database session.
+    :type db: Session
+    :return: The Saintpaulia variety with the specified ID, or None if it does not exist.
+    :rtype: Optional[Saintpaulia]
+    """ 
+    return db.query(Saintpaulia).filter(Saintpaulia.id == id, Saintpaulia.is_deleted == False).first()

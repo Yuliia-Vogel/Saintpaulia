@@ -33,3 +33,12 @@ async def update_user_role(user_id: int, new_role: str, db: AsyncSession):
     db.commit()
     db.refresh(user)
     return user
+
+
+async def delete_variety(variety_id: int, db: AsyncSession):
+    variety = db.get(Saintpaulia, variety_id)
+    if not variety:
+        return None
+    db.delete(variety)
+    db.commit()
+    return variety
