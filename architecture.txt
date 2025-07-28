@@ -110,6 +110,8 @@
 │   │   │   ├── confirmation_email.html
 │   │   ├── __init__.py    
 │   │   └── email.py
+│   ├── utils/
+│   │   └── permissions.py
 │   ├── database.py
 │   └── main.py
 ├── venv/
