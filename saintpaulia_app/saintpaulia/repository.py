@@ -1,5 +1,5 @@
 # функції для роботи з базою даних
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,11 +12,15 @@ from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCrea
 
 
 def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
+    if variety is None:
+        raise ValueError("log_action called with variety=None")
+    
     log_entry = SaintpauliaLog(
         action=action,
         variety_id=variety.id,
         variety_name=variety.name,
-        user_id=user.id
+        user_id=user.id,
+        timestamp=datetime.now(timezone.utc)
     )
 
     db.add(log_entry)

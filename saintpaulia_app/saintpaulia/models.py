@@ -26,7 +26,12 @@ class Saintpaulia(Base):
     leaf_variegation = Column(String, nullable=True)  # варіації листя
 
     # Додаткові поля
-    photos = relationship("UploadedPhoto", back_populates="variety", cascade="all, delete")
+    # photos = relationship("UploadedPhoto", back_populates="variety", cascade="all, delete")
+    photos = relationship(
+        "UploadedPhoto",
+        back_populates="variety",
+        primaryjoin="Saintpaulia.id == foreign(UploadedPhoto.variety_id)"
+    )
     origin = Column(String, nullable=True) # походження сорту
     selectionist = Column(String, nullable=True)
     selection_year = Column(Integer, nullable=True)
@@ -42,7 +47,8 @@ class Saintpaulia(Base):
     # верифікація сорту 
     is_verified = Column(Boolean, default=False)
     verification_note = Column(Text, nullable=True)
-    verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    # verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    verified_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     verifier = relationship("User", back_populates="verified_varieties", foreign_keys=[verified_by])
     verification_date = Column(DateTime(timezone=True), nullable=True)
 
@@ -72,11 +78,12 @@ class SaintpauliaLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     action = Column(String, nullable=False)  # e.g., 'create', 'update', 'delete'
-    variety_id = Column(Integer, ForeignKey("saintpaulia_varieties.id"), nullable=False)
-    variety_name = Column(String, nullable=False)  # для зручності
+    # variety_id = Column(Integer, ForeignKey("saintpaulia_varieties.id"), nullable=False) # для зв'язку з сортом - але це блокує видалення сорту, тому що на нього посилаються
+    variety_id = Column(Integer)  # для зв'язку з сортом, але вже без посилання на ForeignKey 
+    variety_name = Column(String)  # для зручності
     user_id = Column(Integer, ForeignKey("users.id"))
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
-    variety = relationship("Saintpaulia", backref="saintpaulia_logs")
+    # variety = relationship("Saintpaulia", backref="saintpaulia_logs")
     user = relationship("User", backref="saintpaulia_logs")
 

@@ -82,7 +82,7 @@ async def delete_variety(
     current_admin: User = Depends(admin_required)
 ):
     
-    variety = await admin_repository.delete_variety(variety_id, db)
+    variety = await admin_repository.delete_variety(variety_id, db, current_admin)
     if not variety:
         raise HTTPException(status_code=404, detail="Variety not found")
     
