@@ -1,5 +1,5 @@
 # функції для роботи з базою даних
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,11 +12,15 @@ from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCrea
 
 
 def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
+    if variety is None:
+        raise ValueError("log_action called with variety=None")
+    
     log_entry = SaintpauliaLog(
         action=action,
         variety_id=variety.id,
         variety_name=variety.name,
-        user_id=user.id
+        user_id=user.id,
+        timestamp=datetime.now(timezone.utc)
     )
 
     db.add(log_entry)
@@ -362,3 +366,17 @@ def verify_variety(name: str, is_verified: bool, note: Optional[str], current_us
     log_action("verify", variety, current_user, db)
 
     return variety
+
+
+def get_saintpaulia_by_id(id: int, db: Session) -> Optional[Saintpaulia]:
+    """
+    Retrieves a Saintpaulia variety by its ID.
+
+    :param id: The ID of the Saintpaulia variety to retrieve.
+    :type id: int
+    :param db: The database session.
+    :type db: Session
+    :return: The Saintpaulia variety with the specified ID, or None if it does not exist.
+    :rtype: Optional[Saintpaulia]
+    """ 
+    return db.query(Saintpaulia).filter(Saintpaulia.id == id, Saintpaulia.is_deleted == False).first()

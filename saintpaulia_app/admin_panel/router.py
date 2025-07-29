@@ -12,6 +12,7 @@ from saintpaulia_app.auth.schemas import UserRoleUpdate, UserOut
 from saintpaulia_app.admin_panel.dependencies import admin_required 
 from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
 from saintpaulia_app.admin_panel.variety_logs_router import router as varieties_router
+from saintpaulia_app.saintpaulia.repository import get_saintpaulia_by_id 
 from saintpaulia_app.utils.permissions import check_role_change_permission
 
 router = APIRouter(tags=["Admin"])
@@ -72,3 +73,17 @@ async def get_user(user_id: int,
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+# повне видалення сорту з бази даних
+@router.delete("/varieties/{variety_id}", status_code=status.HTTP_200_OK)
+async def delete_variety(
+    variety_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(admin_required)
+):
+    
+    variety = await admin_repository.delete_variety(variety_id, db, current_admin)
+    if not variety:
+        raise HTTPException(status_code=404, detail="Variety not found")
+    
+    return {"detail": f"Variety {variety.name} deleted successfully"}
