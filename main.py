@@ -10,11 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 
 import database
-from auth.router import router as auth_router
-from photos.router import router as photos_router
-from saintpaulia.router import router as saintpaulia_router
-from admin_panel.router import router as admin_router
-from auth.dependencies import oauth2_scheme as security_scheme
+from saintpaulia_app.auth.router import router as auth_router
+from saintpaulia_app.photos.router import router as photos_router
+from saintpaulia_app.saintpaulia.router import router as saintpaulia_router
+from saintpaulia_app.admin_panel.router import router as admin_router
+from saintpaulia_app.auth.dependencies import oauth2_scheme as security_scheme
 
 
 app = FastAPI(

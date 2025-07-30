@@ -88,11 +88,11 @@ def get_all_varieties(db: Session,
         all()
     )
 
-# Пошук сорту за точною назвою - використовується в функціях 'update_variety' та 'delete_variety'
+# Пошук сорту за точною назвою - використовується в функціях 'update_variety' та 'soft_delete_variety'
 def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpaulia] | None:
     """
     Retrieves a single Saintpaulia variety with the exact name. 
-    For internal usage only: for repository functions 'update_variety' and 'delete_variety'.
+    For internal usage only: for repository functions 'update_variety' and 'soft_delete_variety'.
 
     :param name: The Saintpaulia variety name to retrieve.
     :type name: str
@@ -147,7 +147,7 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
     if not variety or variety.is_deleted:
         return None
     
-    print("👤 user.role.value:", user.role.value, type(user.role))
+    print("👤 user.role.value:", user.role.value, type(user.role)) 
     if variety.owner_id != user.id and user.role.value not in ["admin", "superadmin"]:
         raise HTTPException(status_code=403, detail="У вас немає прав для редагування цього сорту.")
     
@@ -194,7 +194,7 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
 
 
 # Видалення сорту
-def delete_variety(name: str, user: User, db: Session) -> bool:
+def soft_delete_variety(name: str, user: User, db: Session) -> bool:
     """
     Deletes a Saintpaulia variety by its exact name.
 
@@ -208,7 +208,8 @@ def delete_variety(name: str, user: User, db: Session) -> bool:
     variety = get_saintpaulia_by_exact_name(name, db)
     if not variety or variety.is_deleted:
         return False
-    if variety.owner_id != user.id and user.role not in ["admin", "superadmin"]:
+    if variety.owner_id != user.id and user.role.value not in ["admin", "superadmin"]:
+        print("У вас нема прав")
         raise HTTPException(status_code=403, detail="У вас немає прав на видалення цього сорту.")
 
     variety.is_deleted = True

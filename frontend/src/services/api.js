@@ -94,3 +94,8 @@ export const getUserById = async (userId) => {
   const response = await api.get(`/admin/users/${userId}`);
   return response.data;
 };
+
+export const deleteVariety = async (name) => {
+  const response = await api.delete(`/saintpaulia/${encodeURIComponent(name)}`);
+  return response.data;
+};

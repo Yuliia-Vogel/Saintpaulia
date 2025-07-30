@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import api, { verifyVariety } from "../services/api";
+import api, { verifyVariety, deleteVariety } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
 import PhotoLogs from "../components/PhotoLogs";
+import { toast } from 'sonner';
+
 
 export default function VarietyDetail() {
   const { name } = useParams();
@@ -80,6 +82,40 @@ export default function VarietyDetail() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSoftDelete = () => {
+    toast("Ти справді хочеш видалити цей сорт?", {
+      action: {
+        label: "Так, я впевнена",
+        onClick: () => {
+          console.log ("Soft delete initiated by:", currentUser.role),
+          toast("Це остаточне підтвердження. Видалити сорт безповоротно?", {
+            action: {
+              label: "Видалити",
+              onClick: async () => {
+                try {
+                  await deleteVariety(variety.name);
+                  toast.success("Сорт успішно позначено як видалений");
+                  navigate("/");
+                } catch (error) {
+                  toast.error("Не вдалося видалити сорт");
+                  console.error(error);
+                }
+              },
+            },
+            cancel: {
+              label: "Скасувати",
+            },
+            duration: 8000,
+          });
+        },
+      },
+      cancel: {
+        label: "Скасувати",
+      },
+      duration: 8000,
+    });
   };
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -179,6 +215,12 @@ export default function VarietyDetail() {
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
               >
                 📷 Додати фото
+              </button>
+              <button
+                onClick={handleSoftDelete}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+              >
+                🗑️ Видалити сорт
               </button>
             </div>
           )}

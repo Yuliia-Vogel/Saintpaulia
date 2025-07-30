@@ -13,6 +13,8 @@ export default function AdminUsersPage() {
     // 🔧 Крок 1: Стан для фільтрів
   const [roleFilter, setRoleFilter] = useState({
     user: true,
+    exrert: true,
+    breeder: true,
     admin: true,
     superadmin: true,
   });
@@ -74,7 +76,7 @@ export default function AdminUsersPage() {
       {/* 📋 Крок 2: UI для фільтра ролей */}
       <div className="mb-4 flex gap-4 items-center">
         <span className="font-semibold">Фільтр за ролями:</span>
-        {["user", "admin", "superadmin"].map((role) => (
+        {["user", "expert", "breeder", "admin", "superadmin"].map((role) => (
           <label key={role} className="flex items-center gap-1">
             <input
               type="checkbox"
