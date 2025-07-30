@@ -90,13 +90,13 @@ def update_variety(name: str,
 
 # Видалити сорт
 @router.delete("/{name}")
-def delete_variety(name: str, 
+def soft_delete_variety(name: str, 
                    current_user: User = Depends(get_current_user), 
                    db: Session = Depends(get_db)):
-    success = repository.delete_variety(name, current_user, db)
+    success = repository.soft_delete_variety(name, current_user, db)
     if not success:
         raise HTTPException(status_code=404, detail="Сорт не знайдено або вже видалено.")
-    return {"message": f"Сорт '{name}' успішно позначено як видалений."}
+    return {"message": f"Сорт '{name}' успішно позначено як видалений."} 
 
 
 @router.get("/logs/")
