@@ -3,7 +3,7 @@ import { staticOptions } from "../constants/fieldOptions";
 import { fetchFieldOptions } from "../services/fieldOptionsService";
 import VarietyNameField from "./VarietyNameField";
 
-export function VarietyForm({ initialData = {}, onSubmit }) {
+export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
   console.log("🪄 render VarietyForm, initialData:", initialData);
  
   const [formData, setFormData] = useState({
@@ -15,7 +15,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     main_flower_color: initialData.main_flower_color || '',
     flower_color_type: initialData.flower_color_type || '',
     flower_edge_color: initialData.flower_edge_color || '',
-    ruffles: initialData.ruffles ?? '',
+    ruffles: initialData.ruffles === true || initialData.ruffles === 'true',
     ruffles_color: initialData.ruffles_color || '',
     flower_colors_all: initialData.flower_colors_all || '', 
     flower_size: initialData.flower_size || '',
@@ -67,7 +67,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     const { name, value } = e.target;
 
     if (name === "ruffles") {
-      const rufflesBool = value === "true" ? true : value === "false" ? false : null;
+      const rufflesBool = value === "true";
 
       setFormData((prev) => ({
         ...prev,
@@ -315,9 +315,10 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
 
       <button
         type="submit"
+        disabled={isSaving}
         className="bg-violet-600 text-white px-4 py-2 rounded-xl hover:bg-violet-700 transition"
       >
-        Зберегти
+        {isSaving ? "Збереження..." : "Зберегти"}
       </button>
     </form>
   );
