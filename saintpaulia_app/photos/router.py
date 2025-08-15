@@ -9,7 +9,7 @@ from saintpaulia_app.database import get_db
 from auth.dependencies import get_current_user
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.photos.models import UploadedPhoto
-from saintpaulia_app.photos.schemas import PhotoResponce 
+from saintpaulia_app.photos.schemas import PhotoResponse 
 from saintpaulia_app.photos.cloudinary_config import cloudinary as cl_service
 from saintpaulia_app.photos.models import PhotoLog
 
@@ -19,7 +19,7 @@ router = APIRouter(tags=["Photos"])
 
 print("Роутер photos створено")
 
-@router.post("/upload") # якщо додати "response_model=PhotoResponce)", то падає завантаження фоток - треба розібратися, що там таке і чому
+@router.post("/upload") # якщо додати "response_model=PhotoResponse)", то падає завантаження фоток - треба розібратися, що там таке і чому
 async def upload_variety_photo(
     variety_id: int = Form(...),
     file: UploadFile = File(...),

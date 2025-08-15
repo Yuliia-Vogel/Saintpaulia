@@ -11,7 +11,7 @@ from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.saintpaulia import repository
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate, VerificationBase
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(tags=["Saintpaulia"])
@@ -79,12 +79,21 @@ def search_varieties(name: str,
 # Оновити дані про сорт
 @router.put("/{name}", response_model=SaintpauliaResponse)
 def update_variety(name: str, 
-                   updated_data: dict,
+                   updated_data: SaintpauliaUpdate,
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
-    updated = repository.update_variety(name, updated_data, current_user, db)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Сорт не знайдено або видалено.")
+    print(f"Оновлення сорту: {name} з даними: {updated_data.dict()}")  # для відладки
+    try:
+        print("Починаю оновлення сорту:", name)
+        updated = repository.update_variety(name, updated_data, current_user, db)
+        if not updated:
+            raise HTTPException(status_code=404, detail="Сорт не знайдено або видалено.")
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during variety update: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при оновленні сорту.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during variety update: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
     return updated
 
 
@@ -224,8 +233,8 @@ async def verify_variety_route(
     try:
         updated_variety = repository.verify_variety(
             name=name,
-            is_verified=data.is_verified,
-            note=data.verification_note,
+            verification_status=data.verification_status,
+            verification_note=data.verification_note,
             current_user=current_user,
             db=db
         )
@@ -233,7 +242,7 @@ async def verify_variety_route(
             raise HTTPException(status_code=404, detail="Сорт не знайдено або вже видалено.")
 
         return VerificationResponse(
-            is_verified=updated_variety.is_verified,
+            verification_status="verified" if updated_variety.verification_status else "unverified",
             verified_by=updated_variety.verified_by,
             verification_date=updated_variety.verification_date,
             verification_note=updated_variety.verification_note

@@ -3,28 +3,42 @@ import { staticOptions } from "../constants/fieldOptions";
 import { fetchFieldOptions } from "../services/fieldOptionsService";
 import VarietyNameField from "./VarietyNameField";
 
-export function VarietyForm({ initialData = {}, onSubmit }) {
+export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
   console.log("🪄 render VarietyForm, initialData:", initialData);
-
+ 
   const [formData, setFormData] = useState({
     name: initialData.name || '',
     description: initialData.description || '',
     size_category: initialData.size_category || '',
-    flower_color: initialData.flower_color || '',
+    growth_type: initialData.growth_type || '',
+
+    main_flower_color: initialData.main_flower_color || '',
+    flower_color_type: initialData.flower_color_type || '',
+    flower_edge_color: initialData.flower_edge_color || '',
+    ruffles: initialData.ruffles === true || initialData.ruffles === 'true',
+    ruffles_color: initialData.ruffles_color || '',
+    flower_colors_all: initialData.flower_colors_all || '', 
     flower_size: initialData.flower_size || '',
     flower_shape: initialData.flower_shape || '',
+    petals_shape: initialData.petals_shape || '',
     flower_doubleness: initialData.flower_doubleness || '',
     blooming_features: initialData.blooming_features || '',
-    ruffles: initialData.ruffles ?? '',
-    ruffles_color: initialData.ruffles_color || '',
+    
     leaf_shape: initialData.leaf_shape || '',
     leaf_variegation: initialData.leaf_variegation || '',
-    selectionist: initialData.selectionist || '',
-    selection_year: initialData.selection_year || '',
+    leaf_color_type: initialData.leaf_color_type || '',
+    leaf_features: initialData.leaf_features || '',
+
     origin: initialData.origin || '',
+    breeder: initialData.breeder || '',
+    breeder_origin_country: initialData.breeder_origin_country || '',
+    selection_year: initialData.selection_year || '',
+    data_source: initialData.data_source || '', 
+    
     owner_id: initialData.owner_id || '',
     record_creation_date: initialData.record_creation_date || '',
-    is_verified: initialData.is_verified || Boolean,
+    verification_status: initialData.verification_status || false,
+    verified_by: initialData.verified_by || '',
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -53,7 +67,7 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     const { name, value } = e.target;
 
     if (name === "ruffles") {
-      const rufflesBool = value === "true" ? true : value === "false" ? false : null;
+      const rufflesBool = value === "true";
 
       setFormData((prev) => ({
         ...prev,
@@ -251,18 +265,32 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
     ["name", "Назва сорту"],
     ["description", "Опис"],
     ["size_category", "Розмір розетки"],
-    ["flower_color", "Колір квітів"],
+    ["growth_type" , "Тип росту"],
+
+    ["main_flower_color", "Основний колір квітки"],
+    ["flower_color_type", "Тип окрасу квітки"],
+    ["flower_edge_color", "Облямівка квітки"],
+    ["ruffles", "Рюші"],
+    ["ruffles_color", "Колір рюш"],
+    ["flower_colors_all", "Всі кольори квітки"],
+    ["petals_shape", "Форма пелюсток"],
     ["flower_size", "Розмір квітів"],
     ["flower_shape", "Форма квітів"],
     ["flower_doubleness", "Наповненість квітів"],
     ["blooming_features", "Характеристики цвітіння"],
-    ["ruffles", "Рюші"],
-    ["ruffles_color", "Колір рюш"],
+
     ["leaf_shape", "Форма листків"],
     ["leaf_variegation", "Строкатість листя"],
-    ["selectionist", "Селекціонер"],
-    ["selection_year", "Рік селекції"],
+    ["leaf_color_type", "Тип окрасу листка"],
+    ["leaf_features", "Характеристики листя"],
+
     ["origin", "Походження сорту"],
+
+    ["breeder", "Селекціонер"],
+    ["breeder_origin_country", "-"],
+    ["selection_year", "Рік селекції"],
+    
+    ["data_source", "Джерело даних"],
     ["owner_id", "Автор запису"],
     ["record_creation_date", "Дата створення запису"],
   ];
@@ -287,9 +315,10 @@ export function VarietyForm({ initialData = {}, onSubmit }) {
 
       <button
         type="submit"
+        disabled={isSaving}
         className="bg-violet-600 text-white px-4 py-2 rounded-xl hover:bg-violet-700 transition"
       >
-        Зберегти
+        {isSaving ? "Збереження..." : "Зберегти"}
       </button>
     </form>
   );

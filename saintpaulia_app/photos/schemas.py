@@ -9,7 +9,7 @@ class PhotoCreate(BaseModel):
     uploaded_by: int
 
 
-class PhotoResponce(BaseModel):
+class PhotoResponse(BaseModel):
     id: int
     file_url: str
     public_id: str

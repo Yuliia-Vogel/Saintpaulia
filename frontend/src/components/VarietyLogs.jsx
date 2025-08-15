@@ -14,7 +14,7 @@ const VarietyLogs = ({ varietyId }) => {
       .then(setLogs)
       .catch((err) => {
       console.error("❌ Помилка при завантаженні логів:", err);
-      console.log("↪️ Код статусу:", err.response?.status);
+      console.log("↪️ Код статусу:", err.response?.verification_status);
       console.log("↪️ Тіло відповіді:", err.response?.data);
         setError("Не вдалося завантажити логи.");
       })

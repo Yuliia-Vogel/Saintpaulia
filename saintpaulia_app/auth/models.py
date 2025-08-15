@@ -31,14 +31,14 @@ class User(Base):
     saintpaulias = relationship(
         "Saintpaulia",
         back_populates="owner",
-        foreign_keys="[Saintpaulia.owner_id]",
+        foreign_keys="Saintpaulia.owner_id",
         cascade="all, delete-orphan"
     )
 
     verified_varieties = relationship(
         "Saintpaulia",
         back_populates="verifier",
-        foreign_keys="[Saintpaulia.verified_by]"
+        foreign_keys="Saintpaulia.verified_by"
     )
 
 
