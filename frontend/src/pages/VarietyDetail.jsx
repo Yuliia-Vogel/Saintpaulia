@@ -18,7 +18,7 @@ export default function VarietyDetail() {
   const [error, setError] = useState("");
   const [showAdminInfo, setShowAdminInfo] = useState(false);
   const [editingVerification, setEditingVerification] = useState(false);
-  const [formState, setFormState] = useState({ is_verified: false, verification_note: "" });
+  const [formState, setFormState] = useState({ verification_status: false, verification_note: "" });
   const [loading, setLoading] = useState(false);
 
   const fromQuery = location.state?.fromQuery || "";
@@ -64,18 +64,18 @@ export default function VarietyDetail() {
     try {
       setLoading(true);
       const dataToSend = {
-        is_verified: formState.is_verified,
+        verification_status: formState.verification_status,
         verification_note: formState.verification_note
       };
 
-      const updated = await verifyVariety(name, dataToSend);
-      setVariety((prev) => ({
-        ...prev,
-        is_verified: updated.is_verified,
-        verification_note: updated.verification_note,
-        verification_date: updated.verification_date,
-        verified_by: updated.verified_by,
-      }));
+      const updatedVerificationData = await verifyVariety(name, dataToSend);
+        setVariety((prev) => ({
+          ...prev, // Копіюємо всі старі властивості сорту
+          verification: { // Повністю оновлюємо об'єкт верифікації
+            ...prev.verification, // Можна зберегти старі дані, якщо API повертає не все
+            ...updatedVerificationData, // І перезаписуємо їх свіжими даними з відповіді API
+          },
+        }));
       setEditingVerification(false);
     } catch (err) {
       alert("Не вдалося оновити статус верифікації.");
@@ -170,26 +170,38 @@ export default function VarietyDetail() {
           {/* Інформація про сорт */}
           <div className="space-y-2 text-lg mb-6">
             {variety.description && <p><strong>Опис:</strong> {variety.description}</p>}
-            <p><strong>Розмір розетки:</strong> {variety.size_category}</p>
-            {variety.flower_color && <p><strong>Колір квітів:</strong> {variety.flower_color}</p>}
-            {variety.flower_size && <p><strong>Розмір квітів:</strong> {variety.flower_size}</p>}
-            {variety.flower_shape && <p><strong>Форма квітів:</strong> {variety.flower_shape}</p>}
-            {variety.flower_doubleness && <p><strong>Наповненість квітів:</strong> {variety.flower_doubleness}</p>}
-            {variety.blooming_features && <p><strong>Характеристики цвітіння:</strong> {variety.blooming_features}</p>}
+            {variety.size_category && <p><strong>Розмір розетки:</strong> {variety.size_category}</p>}
+            {variety.growth_type && <p><strong>Тип росту:</strong> {variety.growth_type}</p>}
+            
+            {variety.main_flower_color && <p><strong>Основний колір квітки:</strong> {variety.main_flower_color}</p>}
+            {variety.flower_color_type && <p><strong>Тип окрасу квітки:</strong> {variety.flower_color_type}</p>}
+            {variety.flower_edge_color && <p><strong>Облямівка квітки:</strong> {variety.flower_edge_color}</p>}
             {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles ? "Так" : "Ні"}</p>}
             {variety.ruffles && variety.ruffles_color && (
               <p><strong>Колір рюш:</strong> {variety.ruffles_color}</p>
             )}
+            {variety.flower_colors_all && <p><strong>Всі кольори квітки:</strong> {variety.flower_colors_all}</p>}
+            {variety.flower_size && <p><strong>Розмір квітів:</strong> {variety.flower_size}</p>}
+            {variety.flower_shape && <p><strong>Форма квітів:</strong> {variety.flower_shape}</p>}
+            {variety.petals_shape && <p><strong>Форма пелюсток:</strong> {variety.petals_shape}</p>}
+            {variety.flower_doubleness && <p><strong>Наповненість квітів:</strong> {variety.flower_doubleness}</p>}
+            {variety.blooming_features && <p><strong>Характеристики цвітіння:</strong> {variety.blooming_features}</p>}
+            
             {variety.leaf_shape && <p><strong>Форма листків:</strong> {variety.leaf_shape}</p>}
             {variety.leaf_variegation && <p><strong>Строкатість листя:</strong> {variety.leaf_variegation}</p>}
-            {variety.selectionist && <p><strong>Селекціонер:</strong> {variety.selectionist}</p>}
-            {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
+            {variety.leaf_color_type && <p><strong>Тип окрасу листка:</strong> {variety.leaf_color_type}</p>}
+            {variety.leaf_features && <p><strong>Характеристики листя:</strong> {variety.leaf_features}</p>}
+            
             {variety.origin && <p><strong>Походження сорту:</strong> {variety.origin}</p>}
+            {variety.breeder && <p><strong>Селекціонер:</strong> {variety.breeder}</p>}
+            {variety.breeder_origin_country && <p>- {variety.breeder_origin_country}</p>}
+            {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
+            
             <p><strong>Автор запису (ID):</strong> {variety.owner_id}</p>
             <p><strong>Дата створення запису:</strong> {formatDateLocalized(variety.record_creation_date)}</p>
             {/* Верифікація — якщо є */}
             <p><strong>Статус сорту:</strong>{" "}
-              {variety.is_verified ? (
+              {variety.verification?.verification_status === 'verified' ? ( 
                 <span className="text-green-600 font-semibold">✅ Сорт підтверджено</span>
               ) : (
                 <span className="text-yellow-600 font-semibold">🕓 Новий сорт (не підтверджено)</span>
@@ -246,8 +258,11 @@ export default function VarietyDetail() {
                       onClick={() => {
                         setEditingVerification(true);
                         setFormState({
-                          is_verified: variety.is_verified,
-                          verification_note: variety.verification_note || "",
+                          // ✅ Правильно звертаємось до вкладеного об'єкта `verification`
+                          // ✅ Конвертуємо статус "verified" у boolean `true` для чекбокса
+                          verification_status: variety.verification.verification_status === 'verified',
+                          // ✅ Правильно звертаємось до вкладеної нотатки
+                          verification_note: variety.verification.verification_note || "",
                         });
                       }}
                     >
@@ -269,9 +284,9 @@ export default function VarietyDetail() {
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={formState.is_verified}
+                          checked={formState.verification_status}
                           onChange={(e) =>
-                            setFormState((prev) => ({ ...prev, is_verified: e.target.checked }))
+                            setFormState((prev) => ({ ...prev, verification_status: e.target.checked }))
                           }
                         />
                         <span className="text-sm">Позначити як підтверджений сорт</span>

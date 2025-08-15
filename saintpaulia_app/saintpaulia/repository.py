@@ -2,13 +2,13 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, distinct
 from typing import List, Optional, Dict
 
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate
 
 
 def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
@@ -101,7 +101,7 @@ def get_saintpaulia_by_exact_name(name: str, db: Session) -> Optional[Saintpauli
     :return: The Saintpaulia variety with the specified name, or None if it does not exist.
     :rtype: Saintpaulia | None
     """
-    result = db.query(Saintpaulia).filter(Saintpaulia.name == name).first()
+    result = db.query(Saintpaulia).options(joinedload(Saintpaulia.verifier)).filter(Saintpaulia.name == name).first()
     return result
 
 
@@ -120,7 +120,7 @@ def search_saintpaulias_by_name(name_part: str,
     :return: The Saintpaulia variety list with the provided name part, or None if no one exists.
     :rtype: List [Saintpaulia] | None
     """
-    query = db.query(Saintpaulia).filter(
+    query = db.query(Saintpaulia).options(joinedload(Saintpaulia.verifier)).filter(
         Saintpaulia.name.ilike(f"%{name_part}%"),
         Saintpaulia.is_deleted == False)
     total = query.count()
@@ -128,7 +128,7 @@ def search_saintpaulias_by_name(name_part: str,
     return items, total
 
 
-def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Optional[Saintpaulia]:
+def update_variety(name: str, updated_data: SaintpauliaUpdate, user: User, db: Session) -> Optional[Saintpaulia]:
     """
     Updates a Saintpaulia variety by its exact name.
 
@@ -143,47 +143,52 @@ def update_variety(name: str, updated_data: dict, user: User, db: Session) -> Op
     :return: The updated Saintpaulia variety if found, otherwise None.
     :rtype: Optional[Saintpaulia]
     """
+    # Спочатку шукаємо потрібний сорт 
     variety = get_saintpaulia_by_exact_name(name, db)
     if not variety or variety.is_deleted:
         return None
     
-    print("👤 user.role.value:", user.role.value, type(user.role)) 
+    # Перевіряємо роль користувача, чи має він право на редагування сорту 
     if variety.owner_id != user.id and user.role.value not in ["admin", "superadmin"]:
         raise HTTPException(status_code=403, detail="У вас немає прав для редагування цього сорту.")
     
-    # якщо раптом користувач не вніс рік селекції:
-    for key in updated_data:
-        if key == "selection_year" and updated_data[key] == "":
-            updated_data[key] = None
+    # Перетворюємо Pydantic-модель на словник.
+    # exclude_unset=True - це КЛЮЧОВИЙ момент! Він включає в словник тільки ті поля, які були реально передані з фронтенду.
+    update_dict = updated_data.dict(exclude_unset=True)
 
-    # 🔄 Перевірка: чи змінено хоча б одне ключове поле (і сорт був підтверджений)
+    # якщо раптом користувач не вніс рік селекції:
+    for key in update_dict:
+        if key == "selection_year" and update_dict[key] == "":
+            update_dict[key] = None
+
+    was_verified = variety.verification_status  # поточний статус сорту 
+    need_reset_verification = False # перевірка, чи треба скидати верифікацію 
+
+    # Перевірка: чи змінено хоча б одне ключове поле
     fields_to_check = [
-        "name", "description", "size_category", "flower_color", "flower_size",
-        "flower_shape", "flower_doubleness", "ruffles", "ruffles_color",
-        "blooming_features", "leaf_shape", "leaf_variegation",
-        "selectionist", "selection_year", "origin"
+        "name", "description", "size_category", "growth_type", "main_flower_color", "flower_color_type", 
+        "flower_edge_color", "ruffles", "ruffles_color", "flower_colors_all", "flower_size", "flower_shape",
+        "petals_shape", "flower_doubleness", "blooming_features",
+        "leaf_shape", "leaf_variegation", "leaf_color_type", "leaf_features", 
+        "origin", "breeder", "breeder_origin_country", "selection_year", "data_source"
     ]
 
-    was_verified = variety.is_verified  # поточний статус сорту 
-
-    
-    need_reset_verification = False # перевірка, чи треба скидати верифікацію 
     for field in fields_to_check:
-        if field in updated_data and getattr(variety, field) != updated_data[field]:
+        if field in update_dict and getattr(variety, field) != update_dict[field]:
             need_reset_verification = True
             break
 
     # Скидаємо верифікацію, якщо були зміни
     if was_verified and need_reset_verification:
-        variety.is_verified = False
+        variety.verification_status = False
         variety.verified_by = None
         variety.verification_note = None
         variety.verification_date = None
-        updated_data.pop("is_verified", None)  # 🧽 не дозволяємо перезаписати поле "is_verified" вручну
+        # updated_data.pop("verification_status", None)  # 🧽 не дозволяємо перезаписати поле "verification_status" вручну
         print("⚠️ Верифікацію скинуто через зміни у вмісті сорту")
 
     # Оновлення всіх змін
-    for key, value in updated_data.items():
+    for key, value in update_dict.items():
         if hasattr(variety, key):
             setattr(variety, key, value)
 
@@ -209,7 +214,6 @@ def soft_delete_variety(name: str, user: User, db: Session) -> bool:
     if not variety or variety.is_deleted:
         return False
     if variety.owner_id != user.id and user.role.value not in ["admin", "superadmin"]:
-        print("У вас нема прав")
         raise HTTPException(status_code=403, detail="У вас немає прав на видалення цього сорту.")
 
     variety.is_deleted = True
@@ -245,8 +249,15 @@ def get_varieties_by_user(db: Session,
 
 def get_field_options(db: Session) -> Dict[str, List[str]]:
     fields = [
-        "flower_color", "selectionist", "ruffles_color",
-        "origin", "blooming_features", "selection_year"
+        "main_flower_color", 
+        "flower_color_type", 
+        "flower_edge_color",  
+        "ruffles_color",
+        "blooming_features", 
+        "origin", 
+        "breeder", 
+        "breeder_origin_country",
+        "selection_year"
     ]
     result = {}
 
@@ -335,14 +346,14 @@ def is_name_unique(name: str, db: Session) -> bool:
     return True
 
 
-def verify_variety(name: str, is_verified: bool, note: Optional[str], current_user, db: Session):
+def verify_variety(name: str, verification_status: bool, verification_note: Optional[str], current_user, db: Session):
     """
     Verifies or un-verifies a Saintpaulia variety by its exact name.
 
     :param name: The exact name of the Saintpaulia variety to verify.
     :type name: str
-    :param is_verified: Boolean indicating whether to verify or un-verify the variety.
-    :type is_verified: bool
+    :param verification_status: Boolean indicating whether to verify or un-verify the variety.
+    :type verification_status: bool
     :param note: Optional note for the verification.
     :type note: Optional[str]
     :param current_user: The user performing the verification.
@@ -356,8 +367,8 @@ def verify_variety(name: str, is_verified: bool, note: Optional[str], current_us
     if not variety or variety.is_deleted:
         return None
 
-    variety.is_verified = is_verified
-    variety.verification_note = note
+    variety.verification_status = verification_status
+    variety.verification_note = verification_note
     variety.verified_by = current_user.id
     variety.verification_date = datetime.utcnow()
 
@@ -380,4 +391,4 @@ def get_saintpaulia_by_id(id: int, db: Session) -> Optional[Saintpaulia]:
     :return: The Saintpaulia variety with the specified ID, or None if it does not exist.
     :rtype: Optional[Saintpaulia]
     """ 
-    return db.query(Saintpaulia).filter(Saintpaulia.id == id, Saintpaulia.is_deleted == False).first()
+    return db.query(Saintpaulia).options(joinedload(Saintpaulia.verifier)).filter(Saintpaulia.id == id, Saintpaulia.is_deleted == False).first()

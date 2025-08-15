@@ -18,7 +18,7 @@ class UserShortInfo(BaseModel):
 class SaintpauliaShortInfo(BaseModel):
     id: int
     name: str
-    is_verified: bool
+    verification_status: bool
     record_creation_date: datetime
     owner_id: int
 
