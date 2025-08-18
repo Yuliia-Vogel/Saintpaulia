@@ -108,9 +108,9 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
 
   const errors = {};
 
-  if (formData.ruffles !== true && formData.ruffles !== false) {
-    errors.ruffles = "Будь ласка, вкажіть, чи є рюші у квітів.";
-  }
+  // if (formData.ruffles !== true && formData.ruffles !== false) {
+  //   errors.ruffles = "Будь ласка, вкажіть, чи є рюші у квітів.";
+  // }
 
   setFormErrors(errors);
 

@@ -176,7 +176,7 @@ export default function VarietyDetail() {
             {variety.main_flower_color && <p><strong>Основний колір квітки:</strong> {variety.main_flower_color}</p>}
             {variety.flower_color_type && <p><strong>Тип окрасу квітки:</strong> {variety.flower_color_type}</p>}
             {variety.flower_edge_color && <p><strong>Облямівка квітки:</strong> {variety.flower_edge_color}</p>}
-            {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles ? "Так" : "Ні"}</p>}
+            {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles}</p>}
             {variety.ruffles && variety.ruffles_color && (
               <p><strong>Колір рюш:</strong> {variety.ruffles_color}</p>
             )}

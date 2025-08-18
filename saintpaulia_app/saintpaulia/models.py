@@ -3,6 +3,9 @@ from sqlalchemy import Column, Integer, String, Boolean, Text, text, DateTime, f
 from sqlalchemy.orm import relationship
 from saintpaulia_app.database import Base
 from saintpaulia_app.saintpaulia.schemas import VerificationResponse
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from saintpaulia_app.photos.models import UploadedPhoto
 
 
 class Saintpaulia(Base):
@@ -39,6 +42,7 @@ class Saintpaulia(Base):
         back_populates="variety",
         primaryjoin="Saintpaulia.id == foreign(UploadedPhoto.variety_id)"
     )
+    # photos = relationship("UploadedPhoto", back_populates="variety")
     origin = Column(String, nullable=True) # походження сорту
     breeder = Column(String, nullable=True)
     breeder_origin_country = Column(String, nullable=True)  # країна походженя селекціонера
@@ -85,7 +89,7 @@ class Saintpaulia(Base):
             f"<Saintpaulia(id={self.id}, name='{self.name}', "
             f"owner_id={self.owner_id}, verification_status={self.verification_status})>"
         )
-
+    
 
 class SaintpauliaLog(Base):
     __tablename__ = "saintpaulia_logs"
@@ -101,3 +105,5 @@ class SaintpauliaLog(Base):
     # variety = relationship("Saintpaulia", backref="saintpaulia_logs")
     user = relationship("User", backref="saintpaulia_logs")
 
+
+from saintpaulia_app.photos.models import UploadedPhoto 

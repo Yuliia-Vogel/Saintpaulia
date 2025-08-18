@@ -138,11 +138,11 @@ async def logout(current_user: User = Depends(get_current_user), db: Session = D
 
 # лише для локальної розробки:
 
-# from auth.repository import create_superuser
+from auth.repository import create_superuser
 
-# @router.post("/create-superuser") 
-# def create_superuser_endpoint(db: Session = Depends(get_db)):
-#     return create_superuser("juliya.naukma@gmail.com", "juliya_pass", db)
+@router.post("/create-superuser") 
+def create_superuser_endpoint(db: Session = Depends(get_db)):
+    return create_superuser("juliya.naukma@gmail.com", "juliya_pass", db)
 
 
 @router.post("/forgot-password")

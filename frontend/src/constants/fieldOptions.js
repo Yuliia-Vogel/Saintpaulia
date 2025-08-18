@@ -1,6 +1,5 @@
 export const staticOptions = {
   size_category: [
-    "-",
     "Мікроміні (до 7 см)",
     "Міні (7–15 см)",
     "Напівміні (15–20 см)",
@@ -9,14 +8,12 @@ export const staticOptions = {
     "Інший варіант",
   ],
   growth_type: [
-    "-",
     "Стандарт (Single crown)",
     "Ампельний (Trailer)", 
     "Букетний (Bouquet)", 
     "Інший варіант",
   ],
   flower_size: [
-    "-",
     "Дрібноквіткові (до 2 см)",
     "Середні (3–4 см)",
     "Великоквіткові (4–6 см)",
@@ -24,7 +21,6 @@ export const staticOptions = {
     "Інший варіант",
   ],
   flower_shape: [
-    "-",
     "Округла (Rounded)",
     "Зіркчаста (Star)",
     "Дзвіночки (Bell-shaped)",
@@ -36,34 +32,27 @@ export const staticOptions = {
     "Оси (Wasp)",
     "Голчаста (Needle)",
     "Інший варіант",
-
   ],
   flower_color_type: [
-    "-",
     "Квіткова химера (Flower chimera)",
   ],
   petals_shape: [
-    "-",
     "Пелюстки в трубочку (Quilled)",
     "Хвилясті пелюстки (Fluted / Wavy)",
     "Загострені пелюстки (Pointed)",
     "Зморшкуваті, відтиснуті пелюстки (Thumbprint)", 
     "Інший варіант",
   ],
-  ruffles: [
-    "-",  
-    "Ні", 
+  ruffles: [ 
     "Гофрованість", 
     "Хвилястість", 
     "Рюші"],
   flower_doubleness: [
-    "-",
     "Прості",
     "Напівмахрові",
     "Махрові",
   ],
   blooming_features: [
-    "-",
     "Одночасне цвітіння (Single-blooming)",
     "Періодичне цвітіння (Periodic-blooming)",
     "Цвітіння протягом усього року (Year-round-blooming)",
@@ -85,7 +74,6 @@ export const staticOptions = {
     "Інший варіант",
   ],
   leaf_shape: [
-    "-",
     "Звичайні (Plain)",
     "Довгі (Longifolia)",
     "Павукоподібні (Spider)",
@@ -101,11 +89,9 @@ export const staticOptions = {
     "Інший варіант",
   ],
     leaf_color_type: [
-    "-",
     "Листкова химера (Leaf chimera)",
   ],
   leaf_variegation: [
-    "-",
     "Без строкатості (None)",
     "Біла облямівка (White edge)",
     "Біла серединка (White crown)", 
@@ -119,7 +105,6 @@ export const staticOptions = {
     "Інший варіант",
   ],
   leaf_features: [
-    "-",
     "Опушене листя (Hairy)",
     "Блискуче (Glossy)", 
     "Товсте (Thick)", 

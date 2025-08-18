@@ -34,4 +34,3 @@ def get_db():
     finally:
         db.close()
 
-# from photos.models import UploadedPhoto # щоб Alembic точно побачив модель

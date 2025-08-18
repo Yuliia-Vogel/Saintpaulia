@@ -38,20 +38,20 @@ def confirm_user_email(email: str, db: Session) -> None:
 
 # лише для локальної розробки
 
-# from saintpaulia_app.auth.models import UserRole
-# from auth.security import hash_password
+from saintpaulia_app.auth.models import UserRole
+from auth.security import hash_password
 
-# def create_superuser(email: str, password: str, db: Session):
-#     hashed_pw = hash_password(password)
-#     superuser = User(
-#         email=email,
-#         hashed_password=hashed_pw,
-#         is_active=True,
-#         is_superuser=True,
-#         confirmed=True,
-#         role=UserRole.superadmin
-#     )
-#     db.add(superuser)
-#     db.commit()
-#     db.refresh(superuser)
-#     return superuser
+def create_superuser(email: str, password: str, db: Session):
+    hashed_pw = hash_password(password)
+    superuser = User(
+        email=email,
+        hashed_password=hashed_pw,
+        is_active=True,
+        is_superuser=True,
+        confirmed=True,
+        role=UserRole.superadmin
+    )
+    db.add(superuser)
+    db.commit()
+    db.refresh(superuser)
+    return superuser
