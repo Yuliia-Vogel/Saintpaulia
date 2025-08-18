@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select, distinct
+from sqlalchemy import select, distinct, func
 from typing import List, Optional, Dict
 
 from saintpaulia_app.auth.models import User
@@ -83,6 +83,7 @@ def get_all_varieties(db: Session,
     return (
         db.query(Saintpaulia)
         .filter(Saintpaulia.is_deleted == False)
+        .order_by(func.lower(Saintpaulia.name).asc())
         .offset(offset).
         limit(limit).
         all()
@@ -122,7 +123,7 @@ def search_saintpaulias_by_name(name_part: str,
     """
     query = db.query(Saintpaulia).options(joinedload(Saintpaulia.verifier)).filter(
         Saintpaulia.name.ilike(f"%{name_part}%"),
-        Saintpaulia.is_deleted == False)
+        Saintpaulia.is_deleted == False).order_by(func.lower(Saintpaulia.name).asc())
     total = query.count()
     items = query.offset(offset).limit(limit).all()
     return items, total
