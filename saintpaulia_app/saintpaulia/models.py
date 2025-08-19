@@ -14,7 +14,7 @@ class Saintpaulia(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
     description = Column(Text, nullable=True)
-
+ 
     # Загальні параметри
     size_category = Column(String, nullable=False)  # стандарт, напівміні, міні
     growth_type = Column(String, nullable=True)  # тип росту: одиночна розетка (стандарт, single-crowned), багатокоронна (multi-crowned), ампельна (trailing)

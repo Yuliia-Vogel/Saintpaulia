@@ -1,5 +1,5 @@
 export const staticOptions = {
-  size_category: [
+  size_category: [ 
     "Мікроміні (до 7 см)",
     "Міні (7–15 см)",
     "Напівміні (15–20 см)",
@@ -88,7 +88,7 @@ export const staticOptions = {
     "Турнюрні (Leafy leaves)",
     "Інший варіант",
   ],
-    leaf_color_type: [
+  leaf_color_type: [
     "Листкова химера (Leaf chimera)",
   ],
   leaf_variegation: [

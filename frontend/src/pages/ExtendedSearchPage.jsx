@@ -1,31 +1,46 @@
 // src/pages/ExtendedSearchPage.jsx
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { staticOptions } from "../constants/fieldOptions";
 import { Link } from "react-router-dom";
+
+// додаємо рисочку першим елементом
+const buildOptions = (options) => ["-", ...options];
 
 const fieldLabels = {
   name: "Назва сорту",
   description: "Опис",
   size_category: "Розмір розетки",
-  flower_color: "Колір квітів",
+  growth_type: "Тип росту",
+
+  main_flower_color: "Основний колір квітів",
+  flower_color_type: "Тип кольору квітів",
+  flower_edge_color: "Облямівка квітки",
+  ruffles: "Рюші",
+  ruffles_color: "Колір рюш",
+  flower_colors_all: "Всі кольори квітів",
+  petals_shape: "Форма пелюсток",
   flower_size: "Розмір квітів",
   flower_shape: "Форма квітів",
   flower_doubleness: "Наповненість квітів",
   blooming_features: "Характеристики цвітіння",
-  ruffles: "Рюші",
-  ruffles_color: "Колір рюш",
+  
   leaf_shape: "Форма листків",
   leaf_variegation: "Строкатість листя",
-  selectionist: "Селекціонер",
-  selection_year: "Рік селекції",
+  leaf_color_type: "Тип кольору листя",
+  leaf_features: "Особливості листя",
+
   origin: "Походження сорту",
+  
+  breeder: "Селекціонер",
+  breeder_origin_country: "Країна селекціонера",
+  selection_year: "Рік селекції",
+
   owner_id: "Автор запису",
   record_creation_date: "Дата створення запису",
 };
 
 export default function ExtendedSearchPage() {
-  const [fieldOptions, setFieldOptions] = useState({});
+  const [allOptions, setAllOptions] = useState({});
   const [formData, setFormData] = useState({});
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +51,7 @@ export default function ExtendedSearchPage() {
     const fetchOptions = async () => {
       try {
         const response = await api.get("/saintpaulia/field-options");
-        setFieldOptions(response.data);
+        setAllOptions(response.data);
       } catch (err) {
         console.error("Помилка завантаження параметрів:", err);
       }
@@ -70,7 +85,7 @@ export default function ExtendedSearchPage() {
     const params = new URLSearchParams(filledFields).toString();
     try {
       const response = await api.get(`/saintpaulia/extended_search?${params}`);
-      setResults(response.data.items || response.data);
+      setResults(response.data.items || []);
       setParamsSummary(
         Object.entries(filledFields)
           .map(([key, value]) => `${fieldLabels[key] || key}: ${value}`)
@@ -89,46 +104,31 @@ export default function ExtendedSearchPage() {
       <h2 className="text-xl mb-4 font-semibold">Розширений пошук сортів</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {Object.entries(staticOptions).map(([field, options]) => (
-          <div key={field}>
-            <label className="block font-medium mb-1">
-              {fieldLabels[field] || field.replace(/_/g, " ")}
-            </label>
-            <select
-              name={field}
-              value={formData[field] || ""}
-              onChange={handleChange}
-              className="w-full border px-2 py-1 rounded"
-            >
-              {options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
-
-        {fieldOptions && Object.entries(fieldOptions).map(([field, options]) => (
-          <div key={field}>
-            <label className="block font-medium mb-1">
-              {fieldLabels[field] || field.replace(/_/g, " ")}
-            </label>
-            <select
-              name={field}
-              value={formData[field] || ""}
-              onChange={handleChange}
-              className="w-full border px-2 py-1 rounded"
-            >
-              <option value="">-</option>
-              {options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
+        {/* статичні опції */}
+        {Object.keys(allOptions).length > 0 ? (
+          Object.entries(allOptions).map(([field, options]) => (
+            <div key={field}>
+              <label className="block font-medium mb-1">
+                {fieldLabels[field] || field.replace(/_/g, " ")}
+              </label>
+              <select
+                name={field}
+                value={formData[field] || ""}
+                onChange={handleChange}
+                className="w-full border px-2 py-1 rounded"
+              >
+                {buildOptions(options).map((opt) => (
+                  // Унікальний ключ для уникнення помилок
+                  <option key={`${field}-${opt}`} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))
+        ) : (
+          <p>Завантаження параметрів для пошуку...</p>
+        )}
 
         <button
           type="submit"
@@ -152,7 +152,10 @@ export default function ExtendedSearchPage() {
           <ul className="list-disc ml-6">
             {results.map((variety) => (
               <li key={variety.id}>
-                <Link to={`/variety/${encodeURIComponent(variety.name)}`} className="text-blue-700 hover:underline">
+                <Link
+                  to={`/variety/${encodeURIComponent(variety.name)}`}
+                  className="text-blue-700 hover:underline"
+                >
                   {variety.name}
                 </Link>
               </li>
@@ -169,3 +172,4 @@ export default function ExtendedSearchPage() {
     </div>
   );
 }
+ 

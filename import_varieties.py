@@ -51,7 +51,7 @@ def import_varieties(file_path: str):
                 leaf_shape=row["Форма листків"],
                 leaf_variegation=row["Строкатість листя"],
                 leaf_color_type=row["Тип забарвлення листка (химера)"],
-                leaf_features=row["Додаткові характеристики листка"],
+                leaf_features=row["Особливості листя"],
                 origin=row["Походження (батьківські сорти)"],
                 breeder=row["Селекціонер"],
                 selection_year=int(row["Рік селекції"]) if str(row["Рік селекції"]).isdigit() else None,

@@ -4,11 +4,11 @@ from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, distinct, func
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Set, Any
 
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate, SaintpauliaSearchCriteria
 
 
 def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
@@ -248,67 +248,88 @@ def get_varieties_by_user(db: Session,
 
 
 
-def get_field_options(db: Session) -> Dict[str, List[str]]:
-    fields = [
-        "main_flower_color", 
-        "flower_color_type", 
-        "flower_edge_color",  
-        "ruffles_color",
-        "blooming_features", 
-        "origin", 
-        "breeder", 
-        "breeder_origin_country",
-        "selection_year"
-    ]
-    result = {}
-
-    for field in fields:
-        column = getattr(Saintpaulia, field)
-        res = db.execute(select(distinct(column)))
-        values = [r[0] for r in res if r[0] is not None]
-        result[field] = sorted(values)
-
-    return result
-
-
-def extended_search(
-    db: Session,
-    size_category: Optional[str] = None,
-    flower_color: Optional[str] = None,
-    flower_size: Optional[str] = None,
-    flower_shape: Optional[str] = None,
-    flower_doubleness: Optional[str] = None,
-    ruffles: Optional[bool] = None,
-    ruffles_color: Optional[str] = None,
-    leaf_shape: Optional[str] = None,
-    leaf_variegation: Optional[str] = None,
-    selectionist: Optional[str] = None,
-    selection_year: Optional[int] = None,
-    origin: Optional[str] = None,
-        ) -> List[Saintpaulia]:
-    query = select(Saintpaulia).where(Saintpaulia.is_deleted == False)
-
-    filters = {
-        "size_category": size_category,
-        "flower_color": flower_color,
-        "flower_size": flower_size,
-        "flower_shape": flower_shape,
-        "flower_doubleness": flower_doubleness,
-        "ruffles": ruffles,
-        "ruffles_color": ruffles_color,
-        "leaf_shape": leaf_shape,
-        "leaf_variegation": leaf_variegation,
-        "selectionist": selectionist,
-        "selection_year": selection_year,
-        "origin": origin,
+def get_all_field_options(db: Session) -> Dict[str, List[str]]:
+    """
+    Дістає ВСІ унікальні та відсортовані опції для полів фільтрації.
+    Список полів береться динамічно з моделі SaintpauliaSearchCriteria.
+    """
+     # 1. Визначаємо статичні опції, які не потрібно брати з бази
+    static_options = { 
+        # ТУТ ПІЗНІШЕ ДОДАТИ ЕНАМИ (!)
+        # 'size_category': sorted([e.value for e in SizeCategoryEnum]),
+        # 'flower_doubleness': sorted([e.value for e in FlowerDoublenessEnum]),
+        # 'ruffles': sorted([e.value for e in RufflesTypesEnum])
     }
 
-    for field, value in filters.items():
-        if value is not None:
-            query = query.where(getattr(Saintpaulia, field) == value)
+    options_map = static_options.copy() # Починаємо з наших статичних опцій
 
-    results = db.execute(query).scalars().all()
-    return results
+    # 2. Динамічно отримуємо список полів з Pydantic-моделі
+    # `model_fields.keys()` дає нам імена всіх полів: 'size_category', 'breeder' і т.д.
+    all_searchable_fields = SaintpauliaSearchCriteria.model_fields.keys()
+
+    for field in all_searchable_fields:
+        if field in options_map: # Якщо поле вже оброблено як статичне, пропускаємо його
+            continue
+        # Перевіряємо, чи є таке поле в моделі бази даних Saintpaulia
+        if hasattr(Saintpaulia, field):
+            column = getattr(Saintpaulia, field)
+            
+            db_result = db.execute(select(distinct(column))).scalars().all()
+
+            unique_values: Set[Any] = set()
+            for value in db_result:
+                if value is None:
+                    continue
+                cleaned_value = str(value).strip()
+                if cleaned_value and cleaned_value != '-':
+                    unique_values.add(cleaned_value)
+            
+            # Додаємо в результат, тільки якщо є хоч одне значення
+            if unique_values:
+                options_map[field] = sorted(list(unique_values))
+
+    return options_map
+
+
+def extended_search(db: Session, criteria: SaintpauliaSearchCriteria) -> List[Saintpaulia]:
+    """
+    Виконує розширений пошук сортів на основі динамічних критеріїв,
+    застосовуючи різну логіку для різних типів полів.
+    """
+    query = db.query(Saintpaulia)
+    filters = criteria.dict(exclude_unset=True)
+
+    # Список полів, де ми хочемо шукати за ЧАСТИННИМ входженням (підрядком)
+    substring_search_fields = [
+        "description", 
+        "blooming_features", 
+        "leaf_features", 
+        "breeder", 
+        "origin"
+    ]
+
+    for field, value in filters.items():
+        if not value:
+            continue
+
+        if hasattr(Saintpaulia, field):
+            column = getattr(Saintpaulia, field)
+
+            # 1. Обробляємо ОСОБЛИВИЙ випадок: 'selection_year'
+            # Йому потрібен точний числовий збіг.
+            if field == "selection_year":
+                query = query.filter(column == value)
+
+            # 2. Обробляємо поля для гнучкого пошуку (за підрядком)
+            elif field in substring_search_fields:
+                query = query.filter(column.ilike(f"%{value}%"))
+
+            # 3. Для ВСІХ ІНШИХ полів застосовуємо логіку за замовчуванням
+            # Це буде точний збіг, але без урахування регістру (ідеально для категорій).
+            else:
+                query = query.filter(column.ilike(str(value)))
+
+    return query.all()
 
 
 def get_varieties_names(db: Session) -> List[str]:

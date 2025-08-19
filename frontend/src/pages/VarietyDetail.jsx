@@ -176,7 +176,7 @@ export default function VarietyDetail() {
             {variety.main_flower_color && <p><strong>Основний колір квітки:</strong> {variety.main_flower_color}</p>}
             {variety.flower_color_type && <p><strong>Тип окрасу квітки:</strong> {variety.flower_color_type}</p>}
             {variety.flower_edge_color && <p><strong>Облямівка квітки:</strong> {variety.flower_edge_color}</p>}
-            {variety.ruffles !== null && <p><strong>Рюші:</strong> {variety.ruffles}</p>}
+            {variety.ruffles && <p><strong>Рюші:</strong> {variety.ruffles}</p>}
             {variety.ruffles && variety.ruffles_color && (
               <p><strong>Колір рюш:</strong> {variety.ruffles_color}</p>
             )}
@@ -190,7 +190,7 @@ export default function VarietyDetail() {
             {variety.leaf_shape && <p><strong>Форма листків:</strong> {variety.leaf_shape}</p>}
             {variety.leaf_variegation && <p><strong>Строкатість листя:</strong> {variety.leaf_variegation}</p>}
             {variety.leaf_color_type && <p><strong>Тип окрасу листка:</strong> {variety.leaf_color_type}</p>}
-            {variety.leaf_features && <p><strong>Характеристики листя:</strong> {variety.leaf_features}</p>}
+            {variety.leaf_features && <p><strong>Особливості листя:</strong> {variety.leaf_features}</p>}
             
             {variety.origin && <p><strong>Походження сорту:</strong> {variety.origin}</p>}
             {variety.breeder && <p><strong>Селекціонер:</strong> {variety.breeder}</p>}

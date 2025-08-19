@@ -97,7 +97,7 @@ class SaintpauliaUpdate(SaintpauliaBase):
     main_flower_color: Optional[str] = None
     flower_color_type: Optional[str] = None 
     flower_edge_color: Optional[str] = None  
-    ruffles: Optional[bool] = None  
+    ruffles: Optional[str] = None  
     ruffles_color: Optional[str] = None
     flower_colors_all: Optional[str] = None  
     flower_size: Optional[str] = None
@@ -134,6 +134,35 @@ class SaintpauliaUpdate(SaintpauliaBase):
             if value < 1892 or value > current_year:
                 raise ValueError(f"Рік селекції має бути між 1892 і {current_year}.")
         return value
+
+
+class SaintpauliaSearchCriteria(BaseModel):
+    size_category: Optional[str] = None
+    growth_type: Optional[str] = None
+
+    main_flower_color: Optional[str] = None
+    flower_color_type: Optional[str] = None
+    flower_edge_color: Optional[str] = None
+    ruffles: Optional[str] = None
+    ruffles_color: Optional[str] = None
+    flower_size: Optional[str] = None
+    flower_shape: Optional[str] = None
+    flower_doubleness: Optional[str] = None
+    blooming_features: Optional[str] = None
+    
+    leaf_shape: Optional[str] = None
+    leaf_variegation: Optional[str] = None
+    leaf_color_type: Optional[str] = None
+    leaf_features: Optional[str] = None
+
+    origin: Optional[str] = None
+
+    breeder: Optional[str] = None
+    breeder_origin_country: Optional[str] = None
+    selection_year: Optional[int] = None
+    
+    class Config:
+        from_attributes = True
 
 
 # Модель для пагінації відповідей
