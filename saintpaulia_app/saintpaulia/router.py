@@ -1,6 +1,6 @@
 import logging
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, HTTPException, Depends, status, Query, Request
 from sqlalchemy import select, distinct
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,7 +11,7 @@ from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.saintpaulia import repository
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, SaintpauliaSearchCriteria, SaintpauliaUpdate, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(tags=["Saintpaulia"])
@@ -23,9 +23,16 @@ logger = logging.getLogger(__name__)
 def create_variety(data: SaintpauliaCreate, 
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
-    print(data) # для відладки фронту   
-    return repository.create_saintpaulia_variety(data, current_user, db)
-
+    print(data) # для відладки фронту
+    try:
+        new_variety = repository.create_saintpaulia_variety(data, current_user, db)
+        return SaintpauliaResponse.from_orm(new_variety)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during variety creation: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при створенні сорту.")
+    except Exception as e:
+        logger.exception(f"Unexpected error during variety creation: {e}")
+        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
 
 # Отримати всі сорти
 @router.get("/", response_model=PaginatedVarietyResponse)
@@ -82,9 +89,7 @@ def update_variety(name: str,
                    updated_data: SaintpauliaUpdate,
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
-    print(f"Оновлення сорту: {name} з даними: {updated_data.dict()}")  # для відладки
     try:
-        print("Починаю оновлення сорту:", name)
         updated = repository.update_variety(name, updated_data, current_user, db)
         if not updated:
             raise HTTPException(status_code=404, detail="Сорт не знайдено або видалено.")
@@ -135,10 +140,11 @@ def get_my_varieties(db: Session = Depends(get_db),
     return {"items": serialized_items, "total": total}
 
 # роут для отримання даних для випадаючих списків на фронтенді
-@router.get("/field-options")
-async def get_field_options(db: Session = Depends(get_db)):
+@router.get("/field-options", response_model=Dict[str, List[str]])
+async def get_all_field_options(db: Session = Depends(get_db)):
     try:
-        return repository.get_field_options(db)
+        options = repository.get_all_field_options(db)
+        return options
     except SQLAlchemyError as e:
         logger.error(f"Database error during field options fetch: {e}")
         raise HTTPException(status_code=500, detail="Помилка при отриманні даних з бази.")
@@ -146,53 +152,36 @@ async def get_field_options(db: Session = Depends(get_db)):
         logger.exception(f"Unexpected error during field options fetch: {e}")
         raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
 
-
+# Розширений пошук сортів    
 @router.get("/extended_search")
 async def search_varieties(
-    size_category: Optional[str] = None,
-    flower_color: Optional[str] = None,
-    flower_size: Optional[str] = None,
-    flower_shape: Optional[str] = None,
-    flower_doubleness: Optional[str] = None,
-    ruffles: Optional[bool] = None,
-    ruffles_color: Optional[str] = None,
-    leaf_shape: Optional[str] = None,
-    leaf_variegation: Optional[str] = None,
-    selectionist: Optional[str] = None,
-    selection_year: Optional[int] = None,
-    origin: Optional[str] = None,
-    db: Session = Depends(get_db),
-    ):
+    criteria: SaintpauliaSearchCriteria = Depends(),
+    db: Session = Depends(get_db)
+):
+    """
+    Ендпоінт для розширеного пошуку сортів.
+    Приймає параметри фільтрації через Pydantic модель SaintpauliaSearchCriteria.
+    """
     try:
-        results = repository.extended_search(
-            db,
-            size_category,
-            flower_color,
-            flower_size,
-            flower_shape,
-            flower_doubleness,
-            ruffles,
-            ruffles_color,
-            leaf_shape,
-            leaf_variegation,
-            selectionist,
-            selection_year,
-            origin,
-        )
+        results = repository.extended_search(db, criteria)
+        
         response = {
             "items": results,
             "total": len(results),
-            "message": "Сортів за цими критеріями не знайдено." if not results else None,
+            "message": "Сортів за цими критеріями не знайдено." if not results else "Пошук успішно виконано."
         }
-        logger.info(f"Знайдено {len(results)} результатів.")
+        # logger.info(f"Критерії: {criteria.dict(exclude_unset=True)}") 
+        # logger.info(f"Знайдено {len(results)} сортів")
         return response
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during extended search: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при виконанні запиту до бази.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during extended search: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка під час обробки запиту.")
     
+    except SQLAlchemyError as e:
+        logger.error(f"Помилка бази даних під час розширеного пошуку: {e}")
+        raise HTTPException(status_code=500, detail="Помилка при виконанні запиту до бази даних.")
+    
+    except Exception as e:
+        logger.exception(f"Неочікувана помилка під час розширеного пошуку: {e}")
+        raise HTTPException(status_code=500, detail="Сталася невідома помилка.")
+
 
 @router.get("/get_varieties_names")
 async def get_varieties_names(db: Session = Depends(get_db)):

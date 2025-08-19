@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { staticOptions } from "../constants/fieldOptions";
 import { fetchFieldOptions } from "../services/fieldOptionsService";
 import VarietyNameField from "./VarietyNameField";
 
@@ -15,7 +14,7 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
     main_flower_color: initialData.main_flower_color || '',
     flower_color_type: initialData.flower_color_type || '',
     flower_edge_color: initialData.flower_edge_color || '',
-    ruffles: initialData.ruffles === true || initialData.ruffles === 'true',
+    ruffles: initialData.ruffles || '',
     ruffles_color: initialData.ruffles_color || '',
     flower_colors_all: initialData.flower_colors_all || '', 
     flower_size: initialData.flower_size || '',
@@ -66,35 +65,23 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
 
-    if (name === "ruffles") {
-      const rufflesBool = value === "true";
-
-      setFormData((prev) => ({
-        ...prev,
-        [name]: rufflesBool,
-        ...(rufflesBool === false ? { ruffles_color: "" } : {}),
-      }));
-
-      if (rufflesBool === false) {
-        setCustomFields((prev) => {
-          const newCustom = { ...prev };
-          delete newCustom.ruffles_color;
-          return newCustom;
-        });
-      }
+    if (value === "__custom__") {
+      setCustomFields((prev) => ({ ...prev, [name]: "" }));
+      setFormData((prev) => ({ ...prev, [name]: "" }));
     } else {
-      if (value === "__custom__") {
-        setCustomFields((prev) => ({ ...prev, [name]: "" }));
-        setFormData((prev) => ({ ...prev, [name]: "" }));
-      } else {
-        setCustomFields((prev) => {
-          const newCustom = { ...prev };
-          delete newCustom[name];
-          return newCustom;
-        });
-        setFormData((prev) => ({ ...prev, [name]: value }));
-      }
+      setCustomFields((prev) => {
+        const newCustom = { ...prev };
+        delete newCustom[name];
+        return newCustom;
+      });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
+    
+    // Якщо користувач очистив поле 'ruffles', також очищуємо 'ruffles_color'
+    if (name === 'ruffles' && !value) {
+      setFormData(prev => ({ ...prev, ruffles_color: '' }));
+    }
+
   }, []);
 
   const handleCustomChange = useCallback((e) => {
@@ -106,122 +93,33 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-  const errors = {};
-
-  // if (formData.ruffles !== true && formData.ruffles !== false) {
-  //   errors.ruffles = "Будь ласка, вкажіть, чи є рюші у квітів.";
-  // }
-
-  setFormErrors(errors);
-
-  if (Object.keys(errors).length > 0) {
-    return; // Не надсилаємо форму, якщо є помилки
-  }
-
-    onSubmit(formData);
+   // Перед відправкою очищуємо дані
+    const cleanedData = Object.fromEntries(
+        Object.entries(formData).filter(([, value]) => value !== null && value !== '')
+    );
+    
+    onSubmit(cleanedData);
   };
 
   const renderField = (field, label) => {
     if (field === "name") {
-      return (
-        <VarietyNameField
-          value={formData.name}
-          onChange={handleNameChange}
-        />
-      );
+      return <VarietyNameField value={formData.name} onChange={handleNameChange} />;
     }
 
-    const staticOpts = staticOptions[field];
     const dynamicOpts = fieldOptions[field];
-    console.log(`🧪 renderField(${field}):`, {
-      hasStatic: !!staticOpts,
-      hasDynamic: !!dynamicOpts,
-    });
-
-    if (field === "ruffles") {
-      return (
-        <>
-          <select
-            name={field}
-            value={formData[field] === true ? "true" : formData[field] === false ? "false" : ""}
-            onChange={handleChange}
-            className={`w-full border px-3 py-2 rounded-xl text-sm ${
-              formErrors.ruffles ? "border-red-500" : ""
-            }`}
-          >
-            <option value="">-</option>
-            <option value="true">Так</option>
-            <option value="false">Ні</option>
-          </select>
-
-          {formErrors.ruffles && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.ruffles}</p>
-          )}
-        </>
-      );
-    }
-
-    if (field === "ruffles_color") {
-      return (
-        <>
-          <select
-            name={field}
-            value={formData[field] ? formData[field] : "__custom__"}
-            onChange={handleChange}
-            disabled={formData.ruffles !== true}
-            className="w-full border px-3 py-2 rounded-xl text-sm"
-          >
-            <option value="">-</option>
-            {(fieldOptions[field] || []).map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-            <option value="__custom__">Інший варіант...</option>
-          </select>
-
-          {customFields[field] !== undefined && (
-            <input
-              type="text"
-              name={field}
-              value={customFields[field]}
-              onChange={handleCustomChange}
-              placeholder="Введіть власне значення"
-              disabled={formData.ruffles !== true}
-              className="mt-2 w-full border px-3 py-2 rounded-xl text-sm"
-            />
-          )}
-        </>
-      );
-    }
-
-    if (field === "selection_year") {
-      return (
-        <input
-          type="number"
-          name={field}
-          value={formData[field]}
-          onChange={handleChange}
-          min="1800"
-          max={new Date().getFullYear()}
-          placeholder="Введіть рік селекції"
-          className="w-full border px-3 py-2 rounded-xl text-sm"
-        />
-      );
-    }
-
-    if (staticOpts || dynamicOpts) {
-      const options = [...(staticOpts || []), ...(dynamicOpts || [])]
-        .filter((v, i, a) => a.indexOf(v) === i && v !== "")
-        .sort();
-
+    // --- ОСНОВНА ЛОГІКА ДЛЯ ВСІХ ВИПАДАЮЧИХ СПИСКІВ ---
+    // (включаючи `ruffles` та `ruffles_color`)
+    if (dynamicOpts) { 
+      const options = [...dynamicOpts].filter((v, i, a) => a.indexOf(v) === i && v !== "").sort();
+      const isDisabled = field === 'ruffles_color' && !formData.ruffles;
       return (
         <>
           <select
             name={field}
             value={options.includes(String(formData[field])) ? formData[field] : (customFields[field] !== undefined ? "__custom__" : "")}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded-xl text-sm"
+            disabled={isDisabled}
+            className={`w-full border px-3 py-2 rounded-xl text-sm ${isDisabled ? 'bg-gray-100' : ''}`}
           >
             <option value="">-</option>
             {options.map((opt) => (
@@ -239,6 +137,7 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
               value={customFields[field]}
               onChange={handleCustomChange}
               placeholder="Введіть власне значення"
+              disabled={isDisabled}
               className="mt-2 w-full border px-3 py-2 rounded-xl text-sm"
             />
           )}
@@ -246,6 +145,23 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
       );
     }
 
+    // 3. Логіка для поля року
+    if (field === "selection_year") {
+      return (
+        <input
+          type="number"
+          name={field}
+          value={formData[field]}
+          onChange={handleChange}
+          min="1800"
+          max={new Date().getFullYear()}
+          placeholder="Введіть рік селекції"
+          className="w-full border px-3 py-2 rounded-xl text-sm"
+        />
+      );
+    }
+
+    // 4. Логіка за замовчуванням для всіх інших полів (звичайний текстовий ввід)
     const isReadOnlyField = field === "owner_id" || field === "record_creation_date";
     return (
       <input
@@ -260,7 +176,6 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
       />
     );
   };
-
   const fields = [
     ["name", "Назва сорту"],
     ["description", "Опис"],
@@ -282,7 +197,7 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
     ["leaf_shape", "Форма листків"],
     ["leaf_variegation", "Строкатість листя"],
     ["leaf_color_type", "Тип окрасу листка"],
-    ["leaf_features", "Характеристики листя"],
+    ["leaf_features", "Особливості листя"],
 
     ["origin", "Походження сорту"],
 
