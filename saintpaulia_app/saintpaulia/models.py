@@ -48,6 +48,7 @@ class Saintpaulia(Base):
     breeder_origin_country = Column(String, nullable=True)  # країна походженя селекціонера
     selection_year = Column(Integer, nullable=True)
     data_source = Column(String, nullable=True)  # джерело даних про сорт 
+    photo_source = Column(String, nullable=True) # джерело фото сорту
 
     #дані про того, хто вніс запис
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)

@@ -19,7 +19,7 @@ postgres_db_name = os.getenv("POSTGRESQL_DB_NAME")
 if not all([postgres_user, postgres_password, postgres_db_name]):
     raise ValueError("Потрібно задати всі змінні середовища для підключення до бази даних.")
 
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:fialka_db_pass@localhost:5433/postgres"
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{postgres_db_name}:{postgres_password}@localhost:5433/{postgres_user}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
