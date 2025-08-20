@@ -33,7 +33,8 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
     breeder_origin_country: initialData.breeder_origin_country || '',
     selection_year: initialData.selection_year || '',
     data_source: initialData.data_source || '', 
-    
+    photo_source: initialData.photo_source || '',
+
     owner_id: initialData.owner_id || '',
     record_creation_date: initialData.record_creation_date || '',
     verification_status: initialData.verification_status || false,
@@ -206,6 +207,7 @@ export function VarietyForm({ initialData = {}, onSubmit, isSaving = false }) {
     ["selection_year", "Рік селекції"],
     
     ["data_source", "Джерело даних"],
+    ["photo_source", "Джерело фото"],
     ["owner_id", "Автор запису"],
     ["record_creation_date", "Дата створення запису"],
   ];

@@ -171,7 +171,7 @@ def update_variety(name: str, updated_data: SaintpauliaUpdate, user: User, db: S
         "flower_edge_color", "ruffles", "ruffles_color", "flower_colors_all", "flower_size", "flower_shape",
         "petals_shape", "flower_doubleness", "blooming_features",
         "leaf_shape", "leaf_variegation", "leaf_color_type", "leaf_features", 
-        "origin", "breeder", "breeder_origin_country", "selection_year", "data_source"
+        "origin", "breeder", "breeder_origin_country", "selection_year", "data_source", "photo_source"
     ]
 
     for field in fields_to_check:

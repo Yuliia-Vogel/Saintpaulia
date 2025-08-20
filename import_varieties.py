@@ -57,6 +57,7 @@ def import_varieties(file_path: str):
                 selection_year=int(row["Рік селекції"]) if str(row["Рік селекції"]).isdigit() else None,
                 breeder_origin_country=row["Країна селекціонер"],
                 data_source=row["Джерело"],
+                photo_source=row["Джерело фото"],
                 owner_id=1
             )
             db.add(variety)

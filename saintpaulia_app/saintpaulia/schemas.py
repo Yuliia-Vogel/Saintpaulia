@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, HttpUrl
 from typing import Optional, List
 from datetime import datetime
 from saintpaulia_app.photos.schemas import PhotoResponse 
@@ -47,6 +47,7 @@ class SaintpauliaBase(BaseModel):
     breeder_origin_country: Optional[str] = None  # країна походженя селекціонера
     selection_year: Optional[int] = None
     data_source: Optional[str] = None  # джерело даних про сорт
+    photo_source: Optional[HttpUrl] = None  # джерело фото сорту
 
     @validator("selection_year", pre=True)
     def validate_selection_year(cls, value):
@@ -116,6 +117,7 @@ class SaintpauliaUpdate(SaintpauliaBase):
     breeder_origin_country: Optional[str] = None  
     selection_year: Optional[int] = None
     data_source: Optional[str] = None  
+    photo_source: Optional[str] = None
 
     @validator("selection_year", pre=True)
     def validate_selection_year(cls, value):
