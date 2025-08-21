@@ -21,6 +21,7 @@
 │   │   │   ├── PaginationControls.jsx
 │   │   │   ├── PhotoLogs.jsx
 │   │   │   ├── PrivateRoute.jsx
+│   │   │   ├── Sidebar.jsx
 │   │   │   ├── TestApiRequests.jsx
 │   │   │   ├── VarietyForm.jsx
 │   │   │   ├── VarietyLogs.jsx
@@ -29,6 +30,8 @@
 │   │   │   └── fieldOptions.js
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
+│   │   ├── layouts/
+│   │   │   └── MainLayout.jsx
 │   │   ├── pages/
 │   │   │   ├── AddVariety.jsx
 │   │   │   ├── AdminUsersPage.jsx

@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Header from "./components/Header"
 import Navbar from './components/Navbar'
+import MainLayout from './layouts/MainLayout'
 import ErrorBoundary from "./components/ErrorBoundary";
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -30,24 +31,28 @@ function App() {
       <Header />
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/add" element={<AddVariety />} />
-        <Route path="/variety/:name" element={<VarietyDetail />} />
-        <Route path="/variety/:name/edit" element={<EditVariety />} />
-        <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
-        <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
-        <Route path="/my-varieties" element={<MyVarietiesPage />} />
-        <Route path="/extended-search" element={<ExtendedSearchPage />} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/users/:userId/varieties" element={<UserVarietiesPage />} />
-        <Route path="/admin/users/:id" element={<AdminUserPage />} />
+
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/add" element={<AddVariety />} />
+          <Route path="/variety/:name" element={<VarietyDetail />} />
+          <Route path="/variety/:name/edit" element={<EditVariety />} />
+          <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
+          <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
+          <Route path="/my-varieties" element={<MyVarietiesPage />} />
+          <Route path="/extended-search" element={<ExtendedSearchPage />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/users/:userId/varieties" element={<UserVarietiesPage />} />
+          <Route path="/admin/users/:id" element={<AdminUserPage />} />
+        </Route>
+
       </Routes>
     </ErrorBoundary>
   );
