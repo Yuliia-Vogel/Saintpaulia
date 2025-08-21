@@ -1,48 +1,17 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+// src/pages/Home.jsx
 
 export default function Home() {
-  const [query, setQuery] = useState("");
-  const navigate = useNavigate();
-
-  const handleSearch = () => {
-    if (query.trim()) {
-      navigate(`/search?query=${encodeURIComponent(query.trim())}`);
-    } else {
-      navigate("/search");
-    }
-  };
-
-  const handleShowAll = () => {
-    navigate("/search");
-  };
-
   return (
-    <>
-      <div style={{ padding: "20px" }}>
-        <h1>Вітаємо у світі сенполій!</h1>
-        <p>Спробуйте знайти сорт фіалки або перегляньте весь список:</p>
-
-        <input
-          type="text"
-          placeholder="Введіть назву сорту"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ marginRight: "10px", padding: "5px", width: "300px" }}
-        />
-        <button onClick={handleSearch} style={{ marginRight: "10px" }}>
-          Пошук
-        </button>
-        <button onClick={handleShowAll}>Вивести всі сорти</button>
-      </div>
-      <div className="mt-4">
-        <Link
-          to="/extended-search"
-          className="text-blue-600 hover:underline"
-        >
-          Перейти до розширеного пошуку →
-        </Link>
-      </div>
-    </>
+    <div>
+      <h1 className="text-3xl font-bold mb-4">Вітаємо у світі сенполій!</h1>
+      <p className="text-lg">
+        Використовуйте панель праворуч, щоб знайти сорт, який вас цікавить,
+        або переглянути повний каталог.
+      </p>
+      <p className="mt-4">
+        Тут може бути будь-яка корисна інформація: новини, популярні сорти,
+        останні додані фотографії тощо.
+      </p>
+    </div>
   );
 }
