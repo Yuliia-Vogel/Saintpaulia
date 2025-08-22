@@ -34,6 +34,7 @@ const fieldLabels = {
   breeder: "Селекціонер",
   breeder_origin_country: "Країна селекціонера",
   selection_year: "Рік селекції",
+  data_source: "Джерела",
 
   owner_id: "Автор запису",
   record_creation_date: "Дата створення запису",

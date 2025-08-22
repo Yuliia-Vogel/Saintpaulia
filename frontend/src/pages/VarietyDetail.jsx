@@ -252,13 +252,7 @@ export default function VarietyDetail() {
             {variety.breeder && <p><strong>Селекціонер:</strong> {variety.breeder}</p>}
             {variety.breeder_origin_country && <p>- {variety.breeder_origin_country}</p>}
             {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
-            {variety.photo_source && (<p><strong>Джерело фото: </strong>
-              {/^https?:\/\//.test(variety.photo_source) ? (<a href={variety.photo_source}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline">
-                {variety.photo_source}</a>) : (variety.photo_source)}
-                </p>)}
+            {variety.data_source && <p><strong>Джерела: </strong> {variety.data_source}</p>}
             
             <p><strong>Автор запису (ID):</strong> {variety.owner_id}</p>
             <p><strong>Дата створення запису:</strong> {formatDateLocalized(variety.record_creation_date)}</p>
