@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Header from "./components/Header"
 import Navbar from './components/Navbar'
 import MainLayout from './layouts/MainLayout'
+import NoSidebarLayout from './layouts/NoSidebarLayout'
 import ErrorBoundary from "./components/ErrorBoundary";
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -31,11 +32,13 @@ function App() {
       <Header />
       <Navbar />
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/confirm-email" element={<ConfirmEmail />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route element={<NoSidebarLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/confirm-email" element={<ConfirmEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
