@@ -6,6 +6,7 @@ import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
 import PhotoLogs from "../components/PhotoLogs";
 import { toast } from 'sonner';
+import { ChevronDown, ChevronUp } from "lucide-react"; // гарні іконки
 
 
 export default function VarietyDetail() {
@@ -25,6 +26,7 @@ export default function VarietyDetail() {
   const successMessage = location.state?.successMessage;
 
   const [activeTab, setActiveTab] = useState("info");
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     const fetchVariety = async () => {
@@ -132,6 +134,39 @@ export default function VarietyDetail() {
 
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
 
+      {/* Фото сорту у верхній частині */}
+      {variety.photos.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          {variety.photos.map((photo) => (
+            <div key={photo.id} className="flex flex-col">
+              <img
+                src={photo.file_url}
+                alt={variety.name}
+                className="w-full rounded-xl shadow"
+              />
+              {variety.photo_source && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Матеріали подані лише з інформаційною метою та з повагою до авторів.{" "}
+                  Джерело фото:{" "}
+                  {/https?:\/\//.test(variety.photo_source) ? (
+                    <a
+                      href={variety.photo_source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {variety.photo_source}
+                    </a>
+                  ) : (
+                    variety.photo_source
+                  )}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Кнопки табів */}
       <div className="flex space-x-4 mb-4 border-b">
         <button
@@ -167,9 +202,30 @@ export default function VarietyDetail() {
       {/* Таб "Інфо" */}
       {activeTab === "info" && (
         <div>
-          {/* Інформація про сорт */}
+
           <div className="space-y-2 text-lg mb-6">
             {variety.description && <p><strong>Опис:</strong> {variety.description}</p>}
+          </div>
+          
+      {/* Кнопка для розгортання */}
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        className="flex items-center gap-2 text-blue-600 hover:underline mb-4"
+      >
+        {showDetails ? (
+          <>
+            <ChevronUp size={18} /> Сховати деталі
+          </>
+        ) : (
+          <>
+            <ChevronDown size={18} /> Показати деталі
+          </>
+        )}
+      </button>
+
+      {/* Прихована детальна інформація */}
+      {showDetails && (
+          <div className="space-y-2 text-lg mb-6">
             {variety.size_category && <p><strong>Розмір розетки:</strong> {variety.size_category}</p>}
             {variety.growth_type && <p><strong>Тип росту:</strong> {variety.growth_type}</p>}
             
@@ -215,6 +271,7 @@ export default function VarietyDetail() {
               )}
             </p>
           </div>
+      )}
 
           {/* Кнопки дій - розташовуємо ПІД інформацією про сорт */}
           {canEdit && (
@@ -318,20 +375,6 @@ export default function VarietyDetail() {
                   )}
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Фотографії сорту */}
-          {variety.photos.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {variety.photos.map((photo) => (
-                <img
-                  key={photo.id}
-                  src={photo.file_url}
-                  alt={variety.name}
-                  className="w-full rounded-xl shadow"
-                />
-              ))}
             </div>
           )}
         </div>
