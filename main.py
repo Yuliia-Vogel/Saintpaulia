@@ -14,6 +14,7 @@ from saintpaulia_app.auth.router import router as auth_router
 from saintpaulia_app.photos.router import router as photos_router
 from saintpaulia_app.saintpaulia.router import router as saintpaulia_router
 from saintpaulia_app.admin_panel.router import router as admin_router
+from saintpaulia_app.router import router
 from saintpaulia_app.auth.dependencies import oauth2_scheme as security_scheme
 
 
@@ -49,6 +50,7 @@ async def root():
     return {"message" : "Welcome to the Saintpaulia app!"}
 
 
+app.include_router(router)
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(saintpaulia_router, prefix="/saintpaulia", tags=["Saintpaulia"])
 app.include_router(photos_router, prefix="/photos", tags=["Photos"])

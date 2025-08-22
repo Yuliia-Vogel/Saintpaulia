@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api, { verifyVariety, deleteVariety } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
@@ -27,6 +27,21 @@ export default function VarietyDetail() {
 
   const [activeTab, setActiveTab] = useState("info");
   const [showDetails, setShowDetails] = useState(false);
+   // Safe guard для Link
+  const SafeLink = ({ to, children, ...props }) => {
+    if (RouterLink) {
+      return (
+        <RouterLink to={to} {...props}>
+          {children}
+        </RouterLink>
+      );
+    }
+    return (
+      <a href={to} {...props}>
+        {children}
+      </a>
+    );
+  };
 
   useEffect(() => {
     const fetchVariety = async () => {
@@ -135,37 +150,35 @@ export default function VarietyDetail() {
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
 
       {/* Фото сорту у верхній частині */}
-      {variety.photos.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          {variety.photos.map((photo) => (
-            <div key={photo.id} className="flex flex-col">
-              <img
-                src={photo.file_url}
-                alt={variety.name}
-                className="w-full rounded-xl shadow"
-              />
-              {variety.photo_source && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Матеріали подані лише з інформаційною метою та з повагою до авторів.{" "}
-                  Джерело фото:{" "}
-                  {/https?:\/\//.test(variety.photo_source) ? (
-                    <a
-                      href={variety.photo_source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {variety.photo_source}
-                    </a>
-                  ) : (
-                    variety.photo_source
-                  )}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {variety.photos.length > 0 && ( 
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"> {
+          variety.photos.map((photo) => ( 
+          <div key={photo.id} className="flex flex-col"> 
+          <img 
+            src={photo.file_url} 
+            alt={variety.name} 
+            className="w-full rounded-xl shadow" /> 
+            {variety.photo_source && ( 
+            <p className="mt-2 text-xs text-gray-600 leading-tight">
+              Матеріали подані лише з інформаційною метою та з повагою до авторів. 
+              Джерело фото:{" "} 
+              {/https?:\/\//.test(variety.photo_source) ? ( 
+                <SafeLink 
+                  to={variety.photo_source} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-blue-600 hover:underline font-normal" // Додали font-normal
+                >
+                  {variety.photo_source} 
+                </SafeLink> 
+              ) : ( 
+                variety.photo_source 
+              )
+            } 
+            </p>
+            )} 
+            </div> ))} 
+        </div> )}
 
       {/* Кнопки табів */}
       <div className="flex space-x-4 mb-4 border-b">
@@ -252,13 +265,7 @@ export default function VarietyDetail() {
             {variety.breeder && <p><strong>Селекціонер:</strong> {variety.breeder}</p>}
             {variety.breeder_origin_country && <p>- {variety.breeder_origin_country}</p>}
             {variety.selection_year && <p><strong>Рік селекції:</strong> {variety.selection_year}</p>}
-            {variety.photo_source && (<p><strong>Джерело фото: </strong>
-              {/^https?:\/\//.test(variety.photo_source) ? (<a href={variety.photo_source}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline">
-                {variety.photo_source}</a>) : (variety.photo_source)}
-                </p>)}
+            {variety.data_source && <p><strong>Джерела: </strong> {variety.data_source}</p>}
             
             <p><strong>Автор запису (ID):</strong> {variety.owner_id}</p>
             <p><strong>Дата створення запису:</strong> {formatDateLocalized(variety.record_creation_date)}</p>
@@ -269,6 +276,10 @@ export default function VarietyDetail() {
               ) : (
                 <span className="text-yellow-600 font-semibold">🕓 Новий сорт (не підтверджено)</span>
               )}
+            </p>
+            <p> 
+              Питання по верифікації сорту? Звертайтесь через{" "} 
+              <SafeLink to="/contact-info" className="text-purple-600 hover:underline"> сторінку контактів </SafeLink>. 
             </p>
           </div>
       )}

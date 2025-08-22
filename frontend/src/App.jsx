@@ -23,6 +23,7 @@ import ExtendedSearchPage from './pages/ExtendedSearchPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import UserVarietiesPage from './pages/UserVarietiesPage';
 import AdminUserPage from './pages/admin/AdminUserPage'; 
+import Contacts from './pages/Contacts';
 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/contact-info" element={<Contacts />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/add" element={<AddVariety />} />
           <Route path="/variety/:name" element={<VarietyDetail />} />
