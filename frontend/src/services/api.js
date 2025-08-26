@@ -99,3 +99,18 @@ export const deleteVariety = async (name) => {
   const response = await api.delete(`/saintpaulia/${encodeURIComponent(name)}`);
   return response.data;
 };
+
+export const finalDeleteVariety = async (varietyId) => {
+  try {
+    const response = await api.delete(`/admin/varieties/${varietyId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Помилка при остаточному видаленні сорту:", error.response?.data || error);
+    throw error;
+  }
+};
+
+export const getDeletedVarieties = async () => {
+  const response = await api.get("/admin/varieties/deleted");
+  return response.data;
+};

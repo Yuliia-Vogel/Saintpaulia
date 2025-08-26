@@ -12,6 +12,7 @@ from saintpaulia_app.auth.schemas import UserRoleUpdate, UserOut
 from saintpaulia_app.admin_panel.dependencies import admin_required 
 from saintpaulia_app.admin_panel.photo_logs_router import router as photo_logs_router
 from saintpaulia_app.admin_panel.variety_logs_router import router as varieties_router
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaResponse 
 from saintpaulia_app.saintpaulia.repository import get_saintpaulia_by_id 
 from saintpaulia_app.utils.permissions import check_role_change_permission
 
@@ -87,3 +88,15 @@ async def delete_variety(
         raise HTTPException(status_code=404, detail="Variety not found")
     
     return {"detail": f"Variety {variety.name} deleted successfully"}
+
+
+
+@router.get("/varieties/deleted", response_model=List[SaintpauliaResponse],
+    dependencies=[Depends(admin_required)])
+def get_all_soft_deleted_varieties(db: AsyncSession = Depends(get_db)):
+    """
+    Отримує список всіх сортів, що були "м'яко видалені".
+    Доступно лише для адміністраторів.
+    """
+    deleted_varieties = admin_repository.get_soft_deleted_varieties(db)
+    return deleted_varieties

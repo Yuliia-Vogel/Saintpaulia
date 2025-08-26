@@ -45,3 +45,10 @@ async def delete_variety(variety_id: int, db: AsyncSession, user: User):
     db.commit()
     
     return variety
+
+
+def get_soft_deleted_varieties(db: AsyncSession):
+    """
+    Повертає список сортів, які були позначені як видалені (soft deleted).
+    """
+    return db.query(Saintpaulia).filter(Saintpaulia.is_deleted == True).all()

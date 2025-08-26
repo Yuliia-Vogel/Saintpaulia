@@ -71,9 +71,17 @@ export default function AdminUsersPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Користувачі</h1>
+      
+      <div className="flex justify-between items-center mb-4">
+        <Link
+          to="/admin/varieties/deleted"
+          className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded font-semibold"
+        >
+          🗑️ Архів сортів (видалені)
+        </Link>
+      </div>
 
-      {/* 📋 Крок 2: UI для фільтра ролей */}
+      <h1 className="text-2xl font-bold mb-4">Користувачі</h1>
       <div className="mb-4 flex gap-4 items-center">
         <span className="font-semibold">Фільтр за ролями:</span>
         {["user", "expert", "breeder", "admin", "superadmin"].map((role) => (
@@ -146,44 +154,3 @@ export default function AdminUsersPage() {
     </div>
   );
 }
-          {/* {users.map((user) => (
-            <tr key={user.id} className="border-b">
-              <td className="p-2">{user.id}</td>
-              <td className="p-2">
-                <Link to={`/admin/users/${user.id}`} className="text-blue-600 underline hover:text-blue-800">
-                  {user.email}
-                </Link>
-              </td>
-              <td className="p-2 border">
-                <Link
-                  to={`/admin/users/${user.id}/varieties`}
-                  className="text-blue-600 underline"
-                >
-                  Переглянути сорти
-                </Link>
-              </td>
-              <td className="p-2">{user.role}</td>
-              <td className="p-2">
-                <button
-                  className="text-blue-600 hover:underline text-sm"
-                  onClick={() => handleOpenModal(user)}
-                >
-                  Редагувати роль
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <EditRoleModal
-        user={selectedUser}
-        onClose={handleCloseModal}
-        
-        onSave={handleSaveRole}
-        loading={loading}
-      />
-    </div>
-  );
-} */}
-

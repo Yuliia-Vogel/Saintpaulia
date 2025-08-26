@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import api, { verifyVariety, deleteVariety } from "../services/api";
+import api, { verifyVariety, deleteVariety, finalDeleteVariety } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
 import PhotoLogs from "../components/PhotoLogs";
@@ -133,6 +133,41 @@ export default function VarietyDetail() {
         label: "Скасувати",
       },
       duration: 8000,
+    });
+  };
+
+  const handleFinalDelete = () => {
+    // Використовуємо sonner/toast для багатокрокового підтвердження
+    toast.error("Це НЕЗВОРОТНА дія! Сорт буде видалено НАЗАВЖДИ.", {
+      action: {
+        label: "Я розумію, продовжити",
+        onClick: () => {
+          toast.error("Останнє попередження: Ви впевнені, що хочете видалити цей сорт з бази даних?", {
+            action: {
+              label: "Так, видалити НАЗАВЖДИ",
+              onClick: async () => {
+                try {
+                  // Викликаємо нашу нову функцію з api.js
+                  await finalDeleteVariety(variety.id); // <-- ВИКОРИСТОВУЄМО ID
+                  toast.success(`Сорт "${variety.name}" було остаточно видалено.`);
+                  navigate("/"); // Перенаправляємо на головну
+                } catch (error) {
+                  toast.error("Не вдалося остаточно видалити сорт.");
+                  console.error(error);
+                }
+              },
+            },
+            cancel: {
+              label: "Скасувати",
+            },
+            duration: 10000, // Даємо більше часу на роздуми
+          });
+        },
+      },
+      cancel: {
+        label: "Скасувати",
+      },
+      duration: 10000,
     });
   };
 
@@ -387,6 +422,18 @@ export default function VarietyDetail() {
                       </div>
                     </div>
                   )}
+                    <div className="mt-6 border-t border-red-300 pt-4">
+                      <h3 className="text-md font-semibold text-red-700">Небезпечна зона</h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Ця дія остаточно видалить сорт з бази даних без можливості відновлення.
+                      </p>
+                      <button
+                        onClick={handleFinalDelete}
+                        className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded"
+                      >
+                        🔥 Остаточно видалити сорт
+                      </button>
+                    </div>
                 </div>
               )}
             </div>
