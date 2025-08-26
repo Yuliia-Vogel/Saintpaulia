@@ -45,7 +45,7 @@ const MyVarietiesList = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-3">🌱 Мої сорти</h2>
+      {/* <h2 className="text-xl font-semibold mb-3">🌱Ку-ку! Мої сорти</h2> */}
       <ul className="space-y-2">
         {varieties.map((v) => (
           <li
@@ -56,7 +56,7 @@ const MyVarietiesList = () => {
               {v.name}
             </Link>
             {v.description && <p className="text-sm text-gray-600">{v.description}</p>}
-          </li>
+          </li> 
         ))}
       </ul>
       <PaginationControls
