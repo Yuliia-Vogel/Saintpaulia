@@ -24,6 +24,7 @@ export default function VarietyDetail() {
 
   const fromQuery = location.state?.fromQuery || "";
   const successMessage = location.state?.successMessage;
+  const [lightboxPhoto, setLightboxPhoto] = useState(null); // Стан для URL фото в лайтбоксі
 
   const [activeTab, setActiveTab] = useState("info");
   const [showDetails, setShowDetails] = useState(false);
@@ -154,20 +155,22 @@ export default function VarietyDetail() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"> {
           variety.photos.map((photo) => ( 
           <div key={photo.id} className="flex flex-col"> 
-          <img 
-            src={photo.file_url} 
-            alt={variety.name} 
-            className="w-full rounded-xl shadow" /> 
+          <img
+            src={photo.file_url}
+            alt={variety.name}
+            className="w-full rounded-xl shadow cursor-pointer aspect-square object-cover"
+            onClick={() => setLightboxPhoto(photo.file_url)}
+          />
             {variety.photo_source && ( 
             <p className="mt-2 text-xs text-gray-600 leading-tight">
-              Матеріали подані лише з інформаційною метою та з повагою до авторів. 
+              * Матеріали подані лише з інформаційною метою та з повагою до авторів. 
               Джерело фото:{" "} 
               {/https?:\/\//.test(variety.photo_source) ? ( 
                 <SafeLink 
                   to={variety.photo_source} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-blue-600 hover:underline font-normal" // Додали font-normal
+                  className="text-blue-600 hover:underline font-normal"
                 >
                   {variety.photo_source} 
                 </SafeLink> 
@@ -404,6 +407,19 @@ export default function VarietyDetail() {
 
           <h2 className="text-lg font-semibold mt-6">Логи фото</h2>
           <PhotoLogs varietyId={variety.id} />
+        </div>
+      )}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <img
+            src={lightboxPhoto}
+            alt="Збільшене фото сорту"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>
