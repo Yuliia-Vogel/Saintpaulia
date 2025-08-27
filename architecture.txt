@@ -34,16 +34,18 @@
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── layouts/
-│   │   │   └── MainLayout.jsx
+│   │   │   ├── MainLayout.jsx
+│   │   │   └── NoSidebarLayout.jsx
 │   │   ├── pages/
 │   │   │   ├── admin/
+│   │   │   │   ├── AdminPanel.jsx
 │   │   │   │   ├── AdminUserPage.jsx
 │   │   │   │   ├── AdminUsersPage.jsx
 │   │   │   │   └── DeletedVarietiesPage.jsx
 │   │   │   ├── AddVariety.jsx
-│   │   │   ├── AdminUsersPage.jsx
 │   │   │   ├── CabinetPage.jsx
 │   │   │   ├── ConfirmEmail.jsx
+│   │   │   ├── Contacts.jsx
 │   │   │   ├── EditVariety.jsx
 │   │   │   ├── ExtendedSearchPage.jsx
 │   │   │   ├── ForgotPassword.jsx
