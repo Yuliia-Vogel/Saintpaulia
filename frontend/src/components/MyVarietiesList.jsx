@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import PaginationControls from "./PaginationControls";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import VarietyListItem from "./VarietyListItem";
 
 const MyVarietiesList = () => {
   const { user } = useAuth();
@@ -46,19 +47,15 @@ const MyVarietiesList = () => {
   return (
     <div>
       {/* <h2 className="text-xl font-semibold mb-3">🌱Ку-ку! Мої сорти</h2> */}
-      <ul className="space-y-2">
-        {varieties.map((v) => (
-          <li
-            key={v.id}
-            className="p-3 rounded border hover:shadow bg-white"
-          >
-            <Link to={`/variety/${v.name}`} className="text-blue-600 hover:underline">
-              {v.name}
-            </Link>
-            {v.description && <p className="text-sm text-gray-600">{v.description}</p>}
-          </li> 
-        ))}
-      </ul>
+      <ul className="space-y-4">
+      {varieties.length > 0 ? (
+        varieties.map(variety => (
+          <VarietyListItem key={variety.id} variety={variety} />
+        ))
+      ) : (
+        <p>Ви ще не додали жодного сорту.</p>
+      )}
+    </ul>
       <PaginationControls
         currentPage={Math.floor(offset / limit) + 1}
         totalItems={total}

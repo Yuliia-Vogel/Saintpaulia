@@ -1,6 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PaginationControls from "../components/PaginationControls";
+import VarietyListItem from "../components/VarietyListItem";
 import api from "../services/api";
 
 export default function SearchPage() {
@@ -58,7 +59,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4">
       <div className="flex space-x-2 mb-4">
         <input
           value={query}
@@ -82,17 +83,9 @@ export default function SearchPage() {
         <p className="text-gray-700 mb-4">Сортів не знайдено.</p>
       )}
 
-      <ul className="space-y-2">
+      <ul className="space-y-4">
         {results.map((variety) => (
-          <li key={variety.name}>
-            <Link
-              to={`/variety/${encodeURIComponent(variety.name)}`}
-              state={{ fromQuery: query }}
-              className="text-blue-700 hover:underline"
-            >
-              {variety.name}
-            </Link>
-          </li>
+          <VarietyListItem key={variety.id} variety={variety} />
         ))}
       </ul>
 

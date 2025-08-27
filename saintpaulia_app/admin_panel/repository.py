@@ -2,6 +2,7 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
 from saintpaulia_app.auth.models import User, UserRole
 from saintpaulia_app.auth.schemas import UserOut
@@ -16,9 +17,11 @@ async def get_user_by_id(user_id: int, db: AsyncSession) -> UserOut:
 
 async def get_varieties_by_user(user_id: int, db: AsyncSession):
     result = db.execute(
-        select(Saintpaulia).where(Saintpaulia.owner_id == user_id)
+        select(Saintpaulia)
+        .options(joinedload(Saintpaulia.photos))
+        .where(Saintpaulia.owner_id == user_id)
     )
-    return result.scalars().all()
+    return result.scalars().unique().all()
 
 
 async def get_all_users(db: AsyncSession):

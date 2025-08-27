@@ -7,6 +7,8 @@
 │   │── public
 │   │── src/
 │   │   ├── assets/
+│   │   │   ├── placeholder.png 
+│   │   │   └── react.svg
 │   │   ├── components/
 │   │   │   ├── admin/
 │   │   │   │   ├── EditRoleModal.jsx 

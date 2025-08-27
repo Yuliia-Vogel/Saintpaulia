@@ -296,7 +296,7 @@ def extended_search(db: Session, criteria: SaintpauliaSearchCriteria) -> List[Sa
     Виконує розширений пошук сортів на основі динамічних критеріїв,
     застосовуючи різну логіку для різних типів полів.
     """
-    query = db.query(Saintpaulia)
+    query = db.query(Saintpaulia).options(joinedload(Saintpaulia.photos))
     filters = criteria.dict(exclude_unset=True)
 
     # Список полів, де ми хочемо шукати за ЧАСТИННИМ входженням (підрядком)
