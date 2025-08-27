@@ -24,6 +24,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import UserVarietiesPage from './pages/UserVarietiesPage';
 import AdminUserPage from './pages/admin/AdminUserPage'; 
 import Contacts from './pages/Contacts';
+import DeletedVarietiesPage from "./pages/admin/DeletedVarietiesPage";
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/users/:userId/varieties" element={<UserVarietiesPage />} />
           <Route path="/admin/users/:id" element={<AdminUserPage />} />
+          <Route path="/admin/varieties/deleted" element={<DeletedVarietiesPage />} />
         </Route>
 
       </Routes>

@@ -7,6 +7,8 @@
 │   │── public
 │   │── src/
 │   │   ├── assets/
+│   │   │   ├── placeholder.png 
+│   │   │   └── react.svg
 │   │   ├── components/
 │   │   │   ├── admin/
 │   │   │   │   ├── EditRoleModal.jsx 
@@ -24,6 +26,7 @@
 │   │   │   ├── Sidebar.jsx
 │   │   │   ├── TestApiRequests.jsx
 │   │   │   ├── VarietyForm.jsx
+│   │   │   ├── VarietyListItem.jsx
 │   │   │   ├── VarietyLogs.jsx
 │   │   │   └── VarietyNameField.jsx
 │   │   ├── constants/
@@ -33,6 +36,10 @@
 │   │   ├── layouts/
 │   │   │   └── MainLayout.jsx
 │   │   ├── pages/
+│   │   │   ├── admin/
+│   │   │   │   ├── AdminUserPage.jsx
+│   │   │   │   ├── AdminUsersPage.jsx
+│   │   │   │   └── DeletedVarietiesPage.jsx
 │   │   │   ├── AddVariety.jsx
 │   │   │   ├── AdminUsersPage.jsx
 │   │   │   ├── CabinetPage.jsx
@@ -123,6 +130,7 @@
 │── .gitignore 
 │── alembic.ini
 │── architecture.txt
+│── import_photos.py 
 │── import_varieties.py 
 │── LICENSE
 │── main.py

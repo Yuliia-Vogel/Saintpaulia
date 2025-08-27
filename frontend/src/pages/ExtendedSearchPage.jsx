@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
+import VarietyListItem from "../components/VarietyListItem";
 
 // додаємо рисочку першим елементом
 const buildOptions = (options) => ["-", ...options];
@@ -144,22 +145,11 @@ export default function ExtendedSearchPage() {
 
       {paramsSummary && (
         <div className="mt-6">
-          <p className="mb-2">
-            <strong>Ваші параметри:</strong> {paramsSummary}
-          </p>
-          <p className="mb-2">
-            <strong>За вашим запитом знайдено:</strong> {results.length} сортів:
-          </p>
-          <ul className="list-disc ml-6">
+          <p className="mb-2"><strong>Ваші параметри:</strong> {paramsSummary}</p>
+          <p className="mb-2"><strong>За вашим запитом знайдено:</strong> {results.length} сортів: </p>
+          <ul className="space-y-4 mt-4">
             {results.map((variety) => (
-              <li key={variety.id}>
-                <Link
-                  to={`/variety/${encodeURIComponent(variety.name)}`}
-                  className="text-blue-700 hover:underline"
-                >
-                  {variety.name}
-                </Link>
-              </li>
+              <VarietyListItem key={variety.id} variety={variety} />
             ))}
           </ul>
         </div>
