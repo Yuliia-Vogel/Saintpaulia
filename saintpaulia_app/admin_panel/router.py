@@ -75,6 +75,22 @@ async def get_user(user_id: int,
 
     return user
 
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_200_OK)
+async def delete_user(user_id: int,
+                      db: AsyncSession = Depends(get_db),
+                      current_admin: User = Depends(admin_required)):
+    user = await admin_repository.get_user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # перевірка дозволу на видалення користувача
+    check_role_change_permission(current_admin, user)
+
+    await admin_repository.delete_user(user_id, db)
+    return {"detail": f"User {user.email} deleted successfully"}
+
+
 # повне видалення сорту з бази даних
 @router.delete("/varieties/{variety_id}", status_code=status.HTTP_200_OK)
 async def delete_variety(

@@ -38,6 +38,16 @@ async def update_user_role(user_id: int, new_role: str, db: AsyncSession):
     db.refresh(user)
     return user
 
+
+async def delete_user(user_id: int, db: AsyncSession):
+    user = db.get(User, user_id)
+    if not user:
+        return None
+    db.delete(user)
+    db.commit()
+    return user
+
+
 # повне видалення сорту адмінами
 async def delete_variety(variety_id: int, db: AsyncSession, user: User):
     variety = db.get(Saintpaulia, variety_id)

@@ -114,3 +114,7 @@ export const getDeletedVarieties = async () => {
   const response = await api.get("/admin/varieties/deleted");
   return response.data;
 };
+
+export const deleteUser = async (userId) => {
+  return await api.delete(`/admin/users/${userId}`);
+};
