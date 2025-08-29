@@ -1,3 +1,4 @@
+import PlaceholderImage from '../assets/placeholder.png';
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -8,6 +9,16 @@ import PhotoLogs from "../components/PhotoLogs";
 import { toast } from 'sonner';
 import { ChevronDown, ChevronUp } from "lucide-react"; // гарні іконки
 
+
+// Допоміжна функція для перевірки URL (ця ф-ція є в компоненті VarietyListItem, можна винести в utils)
+function isValidHttpUrl(string) {
+  try {
+    const url = new URL(string);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+}
 
 export default function VarietyDetail() {
   const { name } = useParams();
@@ -185,38 +196,62 @@ export default function VarietyDetail() {
 
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
 
-      {/* Фото сорту у верхній частині */}
-      {variety.photos.length > 0 && ( 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"> {
-          variety.photos.map((photo) => ( 
-          <div key={photo.id} className="flex flex-col"> 
-          <img
-            src={photo.file_url}
-            alt={variety.name}
-            className="w-full rounded-xl shadow cursor-pointer aspect-square object-cover"
-            onClick={() => setLightboxPhoto(photo.file_url)}
-          />
-            {variety.photo_source && ( 
+{/* Фото сорту у верхній частині або заглушка */}
+      <div className="mb-6">
+        {/* 1. Блок з фотографіями або заглушкою */}
+        <div className="mb-2"> {/* Додаємо невеликий відступ знизу */}
+          {variety.photos && variety.photos.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {variety.photos.map((photo) => (
+                <div key={photo.id} className="flex flex-col">
+                  <img
+                    src={photo.file_url}
+                    alt={variety.name}
+                    className="w-full rounded-xl shadow cursor-pointer aspect-square object-cover"
+                    onClick={() => setLightboxPhoto(photo.file_url)}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Блок для відображення заглушки
+            <div className="flex justify-center items-center w-48 h-48 bg-gray-100 rounded-xl shadow overflow-hidden aspect-square">
+              <img
+                src={PlaceholderImage}
+                alt="Фото відсутнє"
+                className="w-48 h-48 object-contain opacity-75"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 2. Блок з інформацією про джерело фото (ЗАВЖДИ ПОЗА УМОВОЮ) */}
+        {(() => {
+          const sourceText = variety.photo_source ? variety.photo_source.trim() : '';
+          if (!sourceText) return null; // Якщо тексту немає, нічого не відображаємо
+
+          const isSourceUrl = isValidHttpUrl(sourceText);
+
+          return (
             <p className="mt-2 text-xs text-gray-600 leading-tight">
-              * Матеріали подані лише з інформаційною метою та з повагою до авторів. 
-              Джерело фото:{" "} 
-              {/https?:\/\//.test(variety.photo_source) ? ( 
-                <SafeLink 
-                  to={variety.photo_source} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+              * Матеріали подані лише з інформаційною метою та з повагою до авторів.
+              Джерело фото:{" "}
+              {isSourceUrl ? (
+                <SafeLink
+                  to={sourceText}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-blue-600 hover:underline font-normal"
                 >
-                  {variety.photo_source} 
-                </SafeLink> 
-              ) : ( 
-                variety.photo_source 
-              )
-            } 
+                  {sourceText}
+                </SafeLink>
+              ) : (
+                <span>{sourceText}</span>
+              )}
             </p>
-            )} 
-            </div> ))} 
-        </div> )}
+          );
+        })()}
+      </div>
 
       {/* Кнопки табів */}
       <div className="flex space-x-4 mb-4 border-b">
