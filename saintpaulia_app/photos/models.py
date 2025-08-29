@@ -15,15 +15,12 @@ class UploadedPhoto(Base):
     file_url = Column(String, nullable=False)
     public_id = Column(String, nullable=False)  # для видалення з Cloudinary
     variety_id = Column(Integer)  # для зв'язку з сортом
-    # variety = relationship("Saintpaulia", primaryjoin="UploadedPhoto.variety_id==Saintpaulia.id", viewonly=True)
     variety = relationship(
         "Saintpaulia",
         primaryjoin="foreign(UploadedPhoto.variety_id) == Saintpaulia.id",
         back_populates="photos",
         remote_side="Saintpaulia.id", # показую, що Saintpaulia.id є "віддаленим ключем" у зв’язку MANY-TO-ONE (але вже без ForeignKey))
     )
-    # variety_id = Column(Integer, ForeignKey("saintpaulia_varieties.id", ondelete="SET NULL"), nullable=True)
-    # variety = relationship("Saintpaulia", back_populates="photos")
     uploaded_at = Column(DateTime, default=func.now())
     
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -35,7 +32,6 @@ class PhotoLog(Base):
 
     id = Column(Integer, primary_key=True)
     photo_id = Column(Integer, ForeignKey("uploaded_photos.id"))
-    # variety_id = Column(Integer, ForeignKey("saintpaulia_varieties.id", ondelete="SET NULL"), nullable=True)
     variety_id = Column(Integer)  # для зв'язку з сортом, але вже без посилання на ForeignKey 
     user_id = Column(Integer, ForeignKey("users.id"))
     action = Column(String, nullable=False)  # 'upload', 'delete'
@@ -43,7 +39,6 @@ class PhotoLog(Base):
 
     user = relationship("User")
     photo = relationship("UploadedPhoto")
-    # variety = relationship("Saintpaulia", backref="photo_logs")
 
 
 from saintpaulia_app.saintpaulia.models import Saintpaulia

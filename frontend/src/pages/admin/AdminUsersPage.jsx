@@ -1,9 +1,11 @@
 // src/pages/admin/AdminUsersPage.jsx
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import React, { useState, useEffect } from "react";
 import EditRoleModal from "../../components/admin/EditRoleModal";
 import { getAllUsers, updateUserRole } from "../../services/api"; 
 import { toast } from "sonner";
+import { deleteUser } from "../../services/api";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -31,6 +33,23 @@ export default function AdminUsersPage() {
       acc[role] = false;
       return acc;
     }, {}));
+  };
+
+  const { user: currentUser } = useAuth();
+
+  const handleDeleteUser = (user) => {
+    if (window.confirm(`Ви впевнені, що хочете видалити користувача ${user.email}?`)) {
+      if (window.confirm("Ця дія незворотна. Ви точно впевнені?")) {
+        deleteUser(user.id)
+          .then(() => {
+            toast.success(`Користувача ${user.email} успішно видалено`);
+            fetchUsers(); // оновлюємо список
+          })
+          .catch((error) => {
+            toast.error(error.response?.data?.detail || "Помилка при видаленні користувача");
+          });
+      }
+    }
   };
 
     // 🔧 Крок 1: Стан для фільтрів
@@ -167,6 +186,16 @@ export default function AdminUsersPage() {
                   >
                     Редагувати роль
                   </button>
+                  
+                  {(currentUser.role === "superadmin" && currentUser.id !== user.id) ||
+                  (currentUser.role === "admin" && user.role !== "superadmin" && currentUser.id !== user.id) ? (
+                    <button
+                      className="text-red-600 hover:underline text-sm"
+                      onClick={() => handleDeleteUser(user)}
+                    >
+                      Видалити користувача
+                    </button>
+                  ) : null}
                 </td>
               </tr>
             ))

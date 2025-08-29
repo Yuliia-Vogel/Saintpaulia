@@ -47,7 +47,7 @@ class SaintpauliaBase(BaseModel):
     breeder_origin_country: Optional[str] = None  # країна походженя селекціонера
     selection_year: Optional[int] = None
     data_source: Optional[str] = None  # джерело даних про сорт
-    photo_source: Optional[HttpUrl] = None  # джерело фото сорту
+    photo_source: Optional[str] = None  # джерело фото сорту
 
     @validator("selection_year", pre=True)
     def validate_selection_year(cls, value):
