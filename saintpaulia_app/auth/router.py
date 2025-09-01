@@ -138,7 +138,7 @@ async def logout(current_user: User = Depends(get_current_user), db: Session = D
 
 # лише для локальної розробки:
 
-from auth.repository import create_superuser
+from saintpaulia_app.auth.repository import create_superuser
 
 @router.post("/create-superuser") 
 def create_superuser_endpoint(db: Session = Depends(get_db)):
