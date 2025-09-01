@@ -6,7 +6,7 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 from starlette.status import HTTP_200_OK
 
-from database import get_db
+from saintpaulia_app.database import get_db
 from auth.config import SECRET_KEY, ALGORITHM
 from auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token, create_reset_password_token, verify_reset_password_token
 from auth.dependencies import get_current_user
