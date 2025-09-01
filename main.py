@@ -27,7 +27,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:4173"],  # дозволяємо запити з фронта
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:4173",  # дозволяємо запити з фронта
+        "https://saintpaulia.vercel.app",   # фронт на Vercel
+        "https://saintpaulia.onrender.com", # ще залишаю фронт і на Render
+        ], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
