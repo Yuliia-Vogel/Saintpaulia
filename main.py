@@ -9,7 +9,7 @@ from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 
-import database
+import saintpaulia_app.database
 from saintpaulia_app.auth.router import router as auth_router
 from saintpaulia_app.photos.router import router as photos_router
 from saintpaulia_app.saintpaulia.router import router as saintpaulia_router
