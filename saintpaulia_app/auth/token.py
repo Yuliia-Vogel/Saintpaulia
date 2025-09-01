@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from starlette import status
 from typing import Optional
 from jose import JWTError, jwt
-from auth.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_TOKEN_EXPIRE_MINUTES
+from saintpaulia_app.auth.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_TOKEN_EXPIRE_MINUTES
 
 
 # to generate a new access token
