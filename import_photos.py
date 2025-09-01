@@ -109,7 +109,7 @@ def import_photos_for_varieties(folder_path: str):
             print(f"⏩ Пропущено: фото вже існує.")
             continue
 
-        # 3. Завантажуємо фото через існуючий сервіс
+        # 3. Завантажуємо фото, створюємо запис і лог
         try:
             with open(file_path, "rb") as file:
                 # Створюємо імітацію UploadFile
@@ -143,7 +143,6 @@ def import_photos_for_varieties(folder_path: str):
             print(f"✅ Успішно завантажено '{variety_name}'.")
 
         except Exception as e:
-            db.rollback()
             error_count += 1
             error_info.append(f"'{variety_name}' -> помилка: {e}")
             print(f"❌ ПОМИЛКА: {e}")
