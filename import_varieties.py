@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from saintpaulia_app.database import SessionLocal, engine
 from saintpaulia_app.saintpaulia.models import Saintpaulia
-
+from saintpaulia_app.auth.models import User
+from saintpaulia_app.saintpaulia.repository import log_action
 
 def import_varieties(file_path: str):
     # Читаємо Excel, пропускаючи перший рядок (англомовні заголовки)
@@ -14,6 +15,15 @@ def import_varieties(file_path: str):
     df = df.fillna("")  # замінюємо NaN на порожній рядок
 
     db: Session = SessionLocal()
+
+    # ЗНАХОДИМО "СИСТЕМНОГО" КОРИСТУВАЧА, ВІД ІМЕНІ ЯКОГО БУДУТЬ ЛОГИ
+    system_user = db.query(User).filter(User.id == 1).first()
+    if not system_user:
+        system_user = db.query(User).filter(User.role == "superadmin").first()
+        if not system_user:
+            print("❌ Помилка: Користувач з ID=1 не знайдений у базі даних. Логування неможливе.")
+            db.close()
+            return
 
     added_count = 0
     skipped_count = 0
@@ -61,6 +71,8 @@ def import_varieties(file_path: str):
                 owner_id=1
             )
             db.add(variety)
+            db.flush()  # щоб отримати ID сорту для логування
+            log_action(action="bulk variety create", variety=variety, user=system_user, db=db)
             added_count += 1
         except Exception as e:
             skipped_count += 1

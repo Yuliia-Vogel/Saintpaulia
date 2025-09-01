@@ -225,7 +225,7 @@ export default function VarietyDetail() {
           )}
         </div>
 
-        {/* 2. Блок з інформацією про джерело фото (ЗАВЖДИ ПОЗА УМОВОЮ) */}
+        {/* Блок з інформацією про джерело фото */}
         {(() => {
           const sourceText = variety.photo_source ? variety.photo_source.trim() : '';
           if (!sourceText) return null; // Якщо тексту немає, нічого не відображаємо
