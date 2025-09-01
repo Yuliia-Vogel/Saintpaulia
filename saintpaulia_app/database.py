@@ -10,18 +10,19 @@ Base = declarative_base()
 
 load_dotenv()
 
-postgres_user = os.getenv("POSTGRESQL_USER")
-postgres_password = os.getenv("POSTGRESQL_PASS")
-postgres_db_name = os.getenv("POSTGRESQL_DB_NAME")
-
+database_url = os.getenv("DATABASE_URL")
 
 # Перевірка наявності даних для підключення
-if not all([postgres_user, postgres_password, postgres_db_name]):
-    raise ValueError("Потрібно задати всі змінні середовища для підключення до бази даних.")
+if not database_url:
+    raise ValueError("Не знайдено DATABASE_URL у змінних середовища")
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{postgres_db_name}:{postgres_password}@localhost:5433/{postgres_user}"
+# Для psycopg2 іноді треба замінити postgresql:// на postgresql+psycopg2://
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(database_url)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
