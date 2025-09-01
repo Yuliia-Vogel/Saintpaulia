@@ -1,6 +1,6 @@
 import logging  
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.exceptions import RequestValidationError
@@ -48,6 +48,11 @@ oauth2_scheme = security_scheme
 @app.get("/")
 async def root():
     return {"message" : "Welcome to the Saintpaulia app!"}
+
+
+@app.head("/", include_in_schema=False)
+async def head_root():
+    return Response(status_code=200)
 
 
 app.include_router(router)
