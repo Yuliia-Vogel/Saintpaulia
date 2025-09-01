@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from starlette import status
 from sqlalchemy.orm import Session
 
-from auth.config import SECRET_KEY, ALGORITHM
+from saintpaulia_app.auth.config import SECRET_KEY, ALGORITHM
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.database import get_db
 

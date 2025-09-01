@@ -6,7 +6,7 @@ from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr
 from dotenv import load_dotenv
 
-from auth.token import create_email_token, create_reset_password_token  # ф-ція створення токена
+from saintpaulia_app.auth.token import create_email_token, create_reset_password_token  # ф-ція створення токена
 
 load_dotenv()
 

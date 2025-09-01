@@ -7,18 +7,18 @@ from pydantic import BaseModel
 from starlette.status import HTTP_200_OK
 
 from saintpaulia_app.database import get_db
-from auth.config import SECRET_KEY, ALGORITHM
-from auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token, create_reset_password_token, verify_reset_password_token
-from auth.dependencies import get_current_user
+from saintpaulia_app.auth.config import SECRET_KEY, ALGORITHM
+from saintpaulia_app.auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token, create_reset_password_token, verify_reset_password_token
+from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
-from auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword
-from auth.repository import get_user_by_email, create_user, update_user_refresh_token, confirm_user_email
-from auth.service import Hash
-from auth.security import verify_password
-from services.email import send_confirmation_email, send_password_reset_email
+from saintpaulia_app.auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword
+from saintpaulia_app.auth.repository import get_user_by_email, create_user, update_user_refresh_token, confirm_user_email
+from saintpaulia_app.auth.service import Hash
+from saintpaulia_app.auth.security import verify_password
+from saintpaulia_app.services.email import send_confirmation_email, send_password_reset_email
 
 from dotenv import load_dotenv
-from auth.token import create_access_token, get_email_form_refresh_token
+from saintpaulia_app.auth.token import create_access_token, get_email_form_refresh_token
 
 router = APIRouter()
 hash_handler = Hash()

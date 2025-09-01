@@ -3,8 +3,8 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status   
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from admin_panel import repository as admin_repository
-from admin_panel import schemas as admin_schemas
+from saintpaulia_app.admin_panel import repository as admin_repository
+from saintpaulia_app.admin_panel import schemas as admin_schemas
 from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User

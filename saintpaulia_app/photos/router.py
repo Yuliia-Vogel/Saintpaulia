@@ -3,9 +3,9 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from photos.cloudinary_service import CloudinaryService
+from saintpaulia_app.photos.cloudinary_service import CloudinaryService
 from saintpaulia_app.database import get_db
-from auth.dependencies import get_current_user
+from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.photos.models import UploadedPhoto
 from saintpaulia_app.photos.schemas import PhotoResponse 
