@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 from typing import BinaryIO
+from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -20,7 +21,7 @@ from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.photos.models import UploadedPhoto
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.photos.cloudinary_service import CloudinaryService
-
+from saintpaulia_app.photos.models import PhotoLog
 
 # Допоміжний клас для імітації об'єкта UploadFile від FastAPI
 class ScriptUploadFile:
@@ -79,6 +80,15 @@ def import_photos_for_varieties(folder_path: str):
     total_files = len(files_to_process)
     print(f"Знайдено {total_files} файлів для обробки.")
 
+    # ЗНАХОДИМО "СИСТЕМНОГО" КОРИСТУВАЧА, ВІД ІМЕНІ ЯКОГО БУДУТЬ ЛОГИ
+    system_user = db.query(User).filter(User.id == 1).first()
+    if not system_user:
+        system_user = db.query(User).filter(User.role == "superadmin").first()
+        if not system_user:
+            print("❌ Помилка: Користувач з ID=1 не знайдений у базі даних. Логування неможливе.")
+            db.close()
+            return
+
     for i, file_path in enumerate(files_to_process):
         variety_name = file_path.stem  # Назва файлу без розширення
         print(f"🔄 Обробка [{i+1}/{total_files}]: {file_path.name} (для сорту '{variety_name}')...")
@@ -119,7 +129,15 @@ def import_photos_for_varieties(folder_path: str):
                     uploaded_by=current_user.id
                 )
                 db.add(new_photo)
-                db.commit()
+                db.flush()  # щоб отримати ID фото для логування
+                log = PhotoLog(
+                    photo_id=new_photo.id,
+                    variety_id=new_photo.variety_id,
+                    user_id=current_user.id,
+                    action="bulk photo upload",
+                    timestamp=datetime.utcnow()
+                )
+                db.add(log)
 
             added_count += 1
             print(f"✅ Успішно завантажено '{variety_name}'.")
@@ -130,7 +148,17 @@ def import_photos_for_varieties(folder_path: str):
             error_info.append(f"'{variety_name}' -> помилка: {e}")
             print(f"❌ ПОМИЛКА: {e}")
 
-    db.close()
+    # --- Зберігаємо ВСІ зміни в базі ОДНИМ ЗАПИТОМ ---
+    try:
+        print("\n💾 Збереження всіх змін у базі даних...")
+        db.commit() # 2. РОБИМО ОДИН КОМІТ ПІСЛЯ ЗАВЕРШЕННЯ ЦИКЛУ
+        print("🎉 Всі зміни успішно збережено!")
+    except Exception as e:
+        print(f"❌ Критична помилка під час збереження в базу: {e}")
+        db.rollback()
+        print("🔄 Всі зміни було скасовано.")
+    finally:
+        db.close()
 
     # --- Логування результатів ---
     print("\n" + "="*30)

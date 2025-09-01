@@ -1,4 +1,3 @@
-print("Початок імпорту photos.router")
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
@@ -13,11 +12,8 @@ from saintpaulia_app.photos.schemas import PhotoResponse
 from saintpaulia_app.photos.cloudinary_config import cloudinary as cl_service
 from saintpaulia_app.photos.models import PhotoLog
 
-print("Імпорти завершено")
-
 router = APIRouter(tags=["Photos"])
 
-print("Роутер photos створено")
 
 @router.post("/upload") # якщо додати "response_model=PhotoResponse)", то падає завантаження фоток - треба розібратися, що там таке і чому
 async def upload_variety_photo(
