@@ -31,7 +31,7 @@ app.add_middleware(
         "http://localhost:5173", 
         "http://localhost:4173",  # дозволяємо запити з фронта
         "https://saintpaulia.vercel.app",   # фронт на Vercel
-        "https://saintpaulia.onrender.com", # ще залишаю фронт і на Render
+        "https://saintpaulia.onrender.com", # ще залишаю і на Render
         ], 
     allow_credentials=True,
     allow_methods=["*"],
