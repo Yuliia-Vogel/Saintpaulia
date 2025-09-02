@@ -3,8 +3,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "./authService";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
+const API_URL = import.meta.env.VITE_API_URL;
+ 
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,  // Загальний таймаут 10 секунд для будь-якого запиту
