@@ -1,3 +1,7 @@
+___________
+DEVELOPMENT
+___________
+
 # Saintpaulias
 A web-based application for saintpaulia varieties management.
 
@@ -51,3 +55,71 @@ python import_photos.py "D:\Yuliia\saintpaulia photos"
 де "D:\Yuliia\saintpaulia photos I-net" - це адреса, де локально лежить папка з фотографіями сорту.
 Скрипт завантажує по 1 фото для кожного сорту в базі, якщо в сорту вже є фото - він пропускає фото.
 Назва фото мусить бути знак в знак точно такою самою, як і сорту в базі, тоді скрипт успішно знайде фото для сорту.
+
+
+
+
+__________
+PRODUCTION
+__________
+ЯК ЛОКАЛЬНО (ЗІ СВОГО КОМПА) ПІДКЛЮЧИТИСЯ ДО БАЗИ ПОСТГРЕС НА RENDER.COM
+________________________________________________________________________
+
+1. Зайти в папку fialka (місце, де зберігається файл alembic.ini)
+2. Правою кнопкою миші по фону -> Git Bush Here
+3. Далі працюємо у Bash. Тут ми через термінал, використовуючи наші файли локально на комп"ютері, 
+   підключимося до бази даних Postgres на сайті Render.com і, використовуючи знову ж таки файли і скрипти 
+   локально на комп"ютері здійснимо міграції в базі на Render.com та завантажимо сорти і до них фотки з мого локального комп"ютера.
+4. Активуємо віртуальне середовище проекту:
+   venv/Scripts/activate
+   Після цього перед рядком з локацією Bash має з"явитися "(venv)"
+5. Тепер в активному віртуальному середовищі підключаємося до бази даних на Render.com, використовуючи External URL і модифікувавши його під нашу базу 
+   (додаємо +psycopg2 на початку та ?sslmode=require в самому кінці лінка):
+   export DATABASE_URL="postgresql+psycopg2://yuliia:HcRWLqFR6dnD65cFFfY8Lts7rIqJWDrm@dpg-d2qp0if5r7bs73b1ic4g-a.frankfurt-postgres.render.com/fialka_db?sslmode=require"
+6. Перевіряємо стан міграцій на даний момент:
+   alembic current
+6a. На цьому етапі я отримала помилку:
+
+Traceback (most recent call last):
+......
+  File "D:\Yuliia\fialka\alembic\env.py", line 7, in <module>
+    from saintpaulia_app.database import SQLALCHEMY_DATABASE_URL as Database_url
+ImportError: cannot import name 'SQLALCHEMY_DATABASE_URL' from 'saintpaulia_app.database' (D:\Yuliia\fialka\saintpaulia_app\database.py)
+6b. Я пішла в файл env.py (всередині папки alembic) і зробила так, щоб SQLALCHEMY_DATABASE_URL тут діставався напряму з файлу .env, 
+а не імпортувався з якихось інших модулів, які не працюють в момент наших спроб міграції на хостингу Render.com.
+6c. Повторила команду для отримання поточних міграцій і тепер отримала адекватну відповідь:
+   (venv)
+   Serhii@DESKTOP-A1TA4LG MINGW64 /d/Yuliia/fialka (varieties)
+   $ alembic current
+   INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+   INFO  [alembic.runtime.migration] Will assume transactional DDL.
+7. Виконую міграції:
+   alembic upgrade head
+   Міграції відбулися.
+
+Тепер - завантаження даних так само з мого компа на базу на хостингу, тому продовжую тут же в терміналі Bash в вірт.середовищі.
+
+8. Завантажую сорти фіалок із ексель-файлика з доп.скрипта:
+   python import_varieties.py "Varieties_table_1Sep.xlsx"
+8a. Але наразі отримую помилку:
+Traceback (most recent call last):
+  File "D:\Yuliia\fialka\import_varieties.py", line 104, in <module>
+    import_varieties(sys.argv[1])
+  File "D:\Yuliia\fialka\import_varieties.py", line 24, in import_varieties
+    print("\u274c ▒▒▒▒▒▒▒: ▒▒▒▒▒▒▒▒▒▒ ▒ ID=1 ▒▒ ▒▒▒▒▒▒▒▒▒ ▒ ▒▒▒ ▒▒▒▒▒. ▒▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒▒▒▒.")
+  File "C:\Users\Serhii\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1251.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+(venv)
+
+8b. Це якась шляпа з шифруваннями, зараз її пофіксимо примусовим застосуванням сучасного шифрування:
+   export PYTHONUTF8=1
+8c. І тепер знов запускаємо скрипт завантаження сортів, і тепер все пройшло Ок:
+   python import_varieties.py "Varieties_table_1Sep.xlsx"
+
+9. Завантажую фотки з папки на компі:
+   python import_photos.py "D:\Yuliia\saintpaulia photos"
+
+Все готово, йдемо на сайт saintpaulia.vercel.app і перевіряємо, що там сорти завантажені і гарненько ивідображаються. 
+
