@@ -58,6 +58,22 @@ export const getAccessToken = () => {
   return localStorage.getItem("accessToken");
 };
 
+
+export const register = async (email, password) => {
+  try {
+    // Використовуємо наш налаштований 'api', який знає правильний baseURL
+    const response = await api.post("/auth/signup", {
+      email,
+      password,
+    });
+    return response.data; // Повертаємо дані у випадку успіху
+  } catch (error) {
+    console.error("Помилка реєстрації:", error);
+    // Прокидаємо помилку далі, щоб компонент міг її обробити
+    throw error;
+  }
+};
+
 // Очистити всі токени
 export const logout = () => {
   localStorage.removeItem("accessToken");

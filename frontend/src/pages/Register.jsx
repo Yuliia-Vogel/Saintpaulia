@@ -1,7 +1,6 @@
+// src/pages/Register.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-console.log(import.meta.env.VITE_API_URL);
+import { register } from "../services/authService";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -12,10 +11,12 @@ function Register() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const navigate = useNavigate();
+  // НЕ ПОТРІБЕН: const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Скидаємо помилку на початку
+    setMessage(""); // Скидаємо повідомлення на початку
 
     if (password !== confirmPassword) {
       setError("Паролі не збігаються");
@@ -23,27 +24,23 @@ function Register() {
     }
 
     try {
-      const response = await fetch("/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // Викликаємо нашу централізовану функцію з authService
+      const data = await register(email, password);
 
-      const data = await response.json();
+      // Якщо реєстрація пройшла успішно
+      setMessage(data.message || "Реєстрація успішна! Перевірте пошту для підтвердження.");
+      setError("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
 
-      if (response.ok) {
-        setMessage("Реєстрація успішна! Перевірте пошту для підтвердження.");
-        setError("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-      } else {
-        setError(data.detail || "Помилка реєстрації");
-      }
     } catch (err) {
-      setError("Проблема з сервером або мережею");
+      // Обробляємо помилки, що прийшли з бекенду
+      if (err.response && err.response.data && err.response.data.detail) {
+        setError(err.response.data.detail);
+      } else {
+        setError("Проблема з сервером або мережею. Спробуйте пізніше.");
+      }
     }
   };
 
