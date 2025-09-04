@@ -34,7 +34,7 @@ async def send_confirmation_email(email: EmailStr, username: str):
         confirm_link_host = os.getenv("FRONTEND_URL") 
 
         message = MessageSchema(
-            subject="Confirm your email",
+            subject="Saintpaulia: Підтвердження реєстрації",
             recipients=[email],
             template_body={
                 "host": confirm_link_host,
@@ -55,7 +55,7 @@ async def send_password_reset_email(email: EmailStr, username: str, reset_link: 
     try:
         token = create_reset_password_token({"sub": email})
         message = MessageSchema(
-            subject="Ви запросили відновлення пароля на сайті Saintpaulia",
+            subject="Saintpaulia: Запит на відновлення пароля",
             recipients=[email],
             template_body={"username": username, "reset_link": reset_link},
             subtype=MessageType.html
