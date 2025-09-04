@@ -6,9 +6,9 @@ import enum
 
 
 class UserRole(enum.Enum):
-    user = "user"
-    expert = "expert"
-    breeder = "breeder"
+    user = "user" # звичайний користувач
+    expert = "expert" # експерт, який вже може додавати
+    breeder = "breeder" # селекціонер, який може додавати сорти, а також верифікувати свої сорти
     admin = "admin"
     superadmin = "superadmin"
 
@@ -25,7 +25,7 @@ class User(Base):
     refresh_token = Column(String(512), nullable=True)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin (superuser)
+    role = Column(SqlEnum(UserRole, name="userrole"), default=UserRole.user, nullable=False)  # user, expert, breeder, admin, superuser
     confirmed = Column(Boolean, default=False) 
      # зв’язки
     saintpaulias = relationship(

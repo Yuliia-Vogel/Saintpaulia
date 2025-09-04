@@ -1,14 +1,83 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <h2>Hello, {{ username }}!</h2>
-    <p>Your email was used for registration on site saintpaulia.ua.</p>
-    <p>---</p>
-    <p>If you don't know anything about the registration, please ignore this email.</p>
-    <p>---</p>
-    <p>If it was you, please confirm your email for the signup.</p>
-    <p> </p>
-    <p>To confirm your email, click the link below:</p>
-    <a href="{{ host }}/confirm-email?token={{ token }}">Confirm Email</a>
-  </body>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Підтвердження реєстрації</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eeeeee;
+    }
+    .header h1 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    .content {
+      padding: 20px 0;
+      line-height: 1.6;
+    }
+    .content p {
+      margin: 15px 0;
+    }
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .button {
+      background-color: #3498db;
+      color: #ffffff;
+      padding: 15px 25px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      display: inline-block;
+    }
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #eeeeee;
+      font-size: 12px;
+      color: #888888;
+    }
+    .footer p {
+        margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Ласкаво просимо до Saintpaulia!</h1>
+    </div>
+    <div class="content">
+      <p>Вітаємо, {{ username }}!</p>
+      <p>Дякуємо за реєстрацію на нашому сайті. Будь ласка, підтвердьте свою електронну адресу, натиснувши на кнопку нижче.</p>
+      <div class="button-container">
+        <a href="{{ host }}/confirm-email?token={{ token }}" class="button">Підтвердити email</a>
+      </div>
+      <p>Якщо ви не реєструвалися на сайті Saintpaulia, будь ласка, проігноруйте цей лист.</p>
+    </div>
+    <div class="footer">
+      <p>Це повідомлення було надіслано автоматично. Будь ласка, не відповідайте на нього.</p>
+      <p>З будь-яких питань ви можете звернутися до нас за адресою: arwen.vogel@gmail.com</p>
+    </div>
+  </div>
+</body>
 </html>
