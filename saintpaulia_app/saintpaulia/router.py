@@ -24,15 +24,8 @@ def create_variety(data: SaintpauliaCreate,
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
     print(data) # для відладки фронту
-    try:
-        new_variety = repository.create_saintpaulia_variety(data, current_user, db)
-        return SaintpauliaResponse.from_orm(new_variety)
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during variety creation: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при створенні сорту.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during variety creation: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    new_variety = repository.create_saintpaulia_variety(data, current_user, db)
+    return SaintpauliaResponse.from_orm(new_variety)
 
 # Отримати всі сорти
 @router.get("/", response_model=PaginatedVarietyResponse)
@@ -58,6 +51,7 @@ def get_variety_by_name(name: str,
         raise HTTPException(status_code=404, detail="Сорт не знайдено")
     return result
 
+
 # Пошук за id - потім буде для виведення карток кожного сорту на фронтенді:
 @router.get("/by-id/{id}", response_model=SaintpauliaResponse)
 def get_variety_by_id(id: int, db: Session = Depends(get_db)):
@@ -74,9 +68,6 @@ def search_varieties(name: str,
                      limit: int = Query(10, ge=1, le=20),
                      offset: int = Query(0, ge=0)):
     items, total = repository.search_saintpaulias_by_name(name, db, limit=limit, offset=offset)
-
-    if total == 0:
-        raise HTTPException(status_code=404, detail="Сортів не знайдено.")
     # Перетворюємо ORM-обʼєкти у Pydantic-схеми
     serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
     # Повертаємо результат у форматі пагінації
@@ -89,16 +80,9 @@ def update_variety(name: str,
                    updated_data: SaintpauliaUpdate,
                    db: Session = Depends(get_db), 
                    current_user: User = Depends(get_current_user)):
-    try:
-        updated = repository.update_variety(name, updated_data, current_user, db)
-        if not updated:
-            raise HTTPException(status_code=404, detail="Сорт не знайдено або видалено.")
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during variety update: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при оновленні сорту.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during variety update: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    updated = repository.update_variety(name, updated_data, current_user, db)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Сорт не знайдено або видалено.")
     return updated
 
 
@@ -132,8 +116,6 @@ def get_my_varieties(db: Session = Depends(get_db),
     Отримати сорти, які вніс поточний користувач.
     """
     items, total = repository.get_varieties_by_user(db, current_user.id, limit=limit, offset=offset)
-    if not items:
-        raise HTTPException(status_code=404, detail="Ваших сортів не знайдено.")
     # Перетворюємо ORM-обʼєкти у Pydantic-схеми
     serialized_items = [SaintpauliaResponse.from_orm(item) for item in items]
     # Повертаємо результат у форматі пагінації
@@ -142,15 +124,8 @@ def get_my_varieties(db: Session = Depends(get_db),
 # роут для отримання даних для випадаючих списків на фронтенді
 @router.get("/field-options", response_model=Dict[str, List[str]])
 async def get_all_field_options(db: Session = Depends(get_db)):
-    try:
-        options = repository.get_all_field_options(db)
-        return options
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during field options fetch: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при отриманні даних з бази.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during field options fetch: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    options = repository.get_all_field_options(db)
+    return options
 
 # Розширений пошук сортів    
 @router.get("/extended_search")
@@ -162,50 +137,25 @@ async def search_varieties(
     Ендпоінт для розширеного пошуку сортів.
     Приймає параметри фільтрації через Pydantic модель SaintpauliaSearchCriteria.
     """
-    try:
-        results = repository.extended_search(db, criteria)
-        
-        response = {
-            "items": results,
-            "total": len(results),
-            "message": "Сортів за цими критеріями не знайдено." if not results else "Пошук успішно виконано."
-        }
-        # logger.info(f"Критерії: {criteria.dict(exclude_unset=True)}") 
-        # logger.info(f"Знайдено {len(results)} сортів")
-        return response
-    
-    except SQLAlchemyError as e:
-        logger.error(f"Помилка бази даних під час розширеного пошуку: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при виконанні запиту до бази даних.")
-    
-    except Exception as e:
-        logger.exception(f"Неочікувана помилка під час розширеного пошуку: {e}")
-        raise HTTPException(status_code=500, detail="Сталася невідома помилка.")
+    results = repository.extended_search(db, criteria)
+    return {
+        "items": results,
+        "total": len(results),
+        "message": "Сортів за цими критеріями не знайдено." if not results else "Пошук успішно виконано."
+    }
 
 
 @router.get("/get_varieties_names")
 async def get_varieties_names(db: Session = Depends(get_db)):
-    try:
-        names = repository.get_varieties_names(db)
-        return {"total": len(names), "items": names}
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during varieties names fetch: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при отриманні назв сортів з бази.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during varieties names fetch: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    names = repository.get_varieties_names(db)
+    return {"total": len(names), "items": names}
+
     
 @router.get("/name_unique")
 async def is_name_unique(name: str, db: Session = Depends(get_db)):
-    try:
-        is_unique = repository.is_name_unique(name, db)
-        return {"is_unique": is_unique}
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during name uniqueness check: {e}")
-        raise HTTPException(status_code=500, detail="Помилка при перевірці унікальності назви.")
-    except Exception as e:
-        logger.exception(f"Unexpected error during name uniqueness check: {e}")
-        raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+    is_unique = repository.is_name_unique(name, db)
+    return {"is_unique": is_unique}
+
     
     # Перевірка сорту адмінами
 @router.put("/verify/{name}", response_model=VerificationResponse)

@@ -3,6 +3,8 @@ import cloudinary.uploader
 from fastapi import UploadFile
 from typing import ClassVar
 
+import saintpaulia_app.photos.cloudinary_config  # Імпортуємо, щоб конфігурація застосувалась
+
 CATEGORY_MAP = {
     "images": ["jpg", "jpeg", "png", "gif", "webp", "svg"],
 }

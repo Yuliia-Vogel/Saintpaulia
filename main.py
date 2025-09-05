@@ -17,6 +17,12 @@ from saintpaulia_app.admin_panel.router import router as admin_router
 from saintpaulia_app.router import router
 from saintpaulia_app.auth.dependencies import oauth2_scheme as security_scheme
 
+# Налаштування логування
+logging.basicConfig(
+    level=logging.INFO,  # Можна DEBUG, якщо треба бачити більше деталей
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
+
 
 app = FastAPI(
     title="Saintpaulia API",
@@ -24,6 +30,23 @@ app = FastAPI(
     version="1.0",
     swagger_ui_parameters={"persistAuthorization": True},  # Запам'ятовує авторизацію
 )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    """
+    Цей обробник буде "ловити" абсолютно всі непередбачувані помилки, 
+    які можуть виникнути в будь-якому місці додатку.
+    """
+    # Логуємо детальну інформацію про помилку на сервері для себе
+    logging.error(f"An unhandled exception occurred for request {request.url}: {exc}", exc_info=True)
+    
+    # А користувачеві повертаємо безпечне і зрозуміле повідомлення
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "На жаль, на сервері сталася несподівана помилка. Будь ласка, спробуйте пізніше."},
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,11 +61,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,  # Можна DEBUG, якщо хочеш бачити більше деталей
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-)
 
 logger = logging.getLogger(__name__)
 
