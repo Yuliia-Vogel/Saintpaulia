@@ -74,8 +74,17 @@ def check_database_connection():
         print("Database connection successful!")
     except SQLAlchemyError as e:
         print(f"Database connection failed: {e}")
-        
-        
+
+
+@app.get("/api/v1/healthchecker", tags=["healthchecker"])
+def healthchecker():
+    """
+    Endpoint для перевірки стану сервера. 
+    Для "прогріву" безкоштовного хостингу.
+    """
+    return {"message": "I am alive!"}
+
+
 @app.on_event("startup")
 async def startup_event():    
     check_database_connection()

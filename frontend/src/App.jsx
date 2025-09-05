@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react';
 
@@ -31,6 +32,34 @@ import AdminPanel from "./pages/admin/AdminPanel";
 
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true); // Стан для відстеження завантаження
+  console.log("Waking up the app...");
+  useEffect(() => {
+    // Цей код виконається лише один раз при першому завантаженні сайту
+    const wakeUpServer = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL
+        // Надсилаємо запит на наш "healthchecker"
+        // повний URL-адресу мого бекенду
+        await fetch(`${apiUrl}/api/v1/healthchecker`);
+      } catch (error) {
+        console.error("Could not wake up the server:", error);
+      } finally {
+        // Коли запит завершився (успішно чи з помилкою), ховаємо спінер
+        setIsLoading(false);
+      }
+    };
+
+    wakeUpServer();
+  }, []); // Пустий масив означає, що ефект виконається один раз
+
+  if (isLoading) {
+    // Поки isLoading === true, показуємо спінер на весь екран
+    return <div className="loading-spinner">Завантаження...</div>; 
+    // Тут може бути гарний компонент спінера
+  }
+
+  // Коли бекенд прокинувся, показуємо звичайний додаток
   console.log("📦 Rendering App component");
   return (
     <ErrorBoundary>
