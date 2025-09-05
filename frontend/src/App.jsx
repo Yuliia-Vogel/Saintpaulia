@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react';
+
 import Header from "./components/Header"
 import Navbar from './components/Navbar'
 import MainLayout from './layouts/MainLayout'
@@ -63,6 +65,7 @@ function App() {
         </Route>
 
       </Routes>
+      <Analytics />
     </ErrorBoundary>
   );
 }
