@@ -67,3 +67,46 @@ async def process_photo_upload(
     session.refresh(photo) # Оновлюємо об'єкт з БД
 
     return photo
+
+
+
+async def delete_photo(
+    photo_id: int,
+    current_user: User,
+    session: AsyncSession
+):
+    """
+    Логіка видалення фото: перевірки, видалення з Cloudinary, видалення з БД.
+    """
+    # 1. Знаходимо фото в БД
+    result = session.execute(select(UploadedPhoto).where(UploadedPhoto.id == photo_id))
+    photo = result.scalar_one_or_none()
+    if not photo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Фото не знайдено")
+
+    # 2. Перевірка прав доступу
+    allowed_roles = ["admin", "superadmin"]
+    print(current_user.role.value)
+    if current_user.id != photo.uploaded_by and current_user.role.value not in allowed_roles:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас немає прав для видалення цього фото")
+
+    # 3. Видалення з Cloudinary
+    try:
+        CloudinaryService.delete_image(photo.public_id)
+    except Exception as e:
+        logger.error(f"!!! Failed to delete image from Cloudinary: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не вдалося видалити фото з хмарного сервісу")
+
+    # 4. Видалення з БД
+    session.delete(photo)
+
+    log = PhotoLog(
+        photo_id=photo.id,
+        variety_id=photo.variety_id,
+        user_id=current_user.id,
+        action="delete",
+        timestamp=datetime.utcnow()
+    )
+    session.add(log)
+    
+    session.commit()

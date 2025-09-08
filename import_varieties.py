@@ -72,7 +72,7 @@ def import_varieties(file_path: str):
             )
             db.add(variety)
             db.flush()  # щоб отримати ID сорту для логування
-            log_action(action="bulk variety create", variety=variety, user=system_user, db=db)
+            log_action(action="bulk variety create", variety=variety, user=system_user, db=db) 
             added_count += 1
         except Exception as e:
             skipped_count += 1

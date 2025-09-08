@@ -111,6 +111,7 @@ def import_photos_for_varieties(folder_path: str):
 
         # 3. Завантажуємо фото, створюємо запис і лог
         try:
+            from saintpaulia_app.saintpaulia.repository import log_action
             with open(file_path, "rb") as file:
                 # Створюємо імітацію UploadFile
                 mock_upload_file = ScriptUploadFile(file=file, filename=file_path.name)
@@ -137,6 +138,7 @@ def import_photos_for_varieties(folder_path: str):
                     action="bulk photo upload",
                     timestamp=datetime.utcnow()
                 )
+                log_action(action="bulk photo upload", variety=variety, user=system_user, db=db)
                 db.add(log)
 
             added_count += 1
