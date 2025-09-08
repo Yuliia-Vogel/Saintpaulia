@@ -32,3 +32,19 @@ async def upload_variety_photo(
     )
 
     return new_photo
+
+
+@router.delete("/delete/{photo_id}", status_code=204)
+async def delete_variety_photo(
+    photo_id: int,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Видаляє фото за його ID.
+    Логіка видалення в сервісному шарі.
+    """
+    from saintpaulia_app.photos.service import delete_photo as service
+
+    await service(photo_id=photo_id, current_user=current_user, session=session)
+    return None
