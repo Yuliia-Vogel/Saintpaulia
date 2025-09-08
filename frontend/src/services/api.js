@@ -87,6 +87,11 @@ export const getPhotoLogs = async (varietyId) => {
   return response.data;
 };
 
+export const deletePhoto = async (photoId) => {
+  const response = await api.delete(`/photos/delete/${photoId}`);
+  return response.status === 204;
+};
+
 export const updateUserRole = async (userId, role) => {
   const response = await api.put(`/admin/users/${userId}/role`, { role });
   return response.data;

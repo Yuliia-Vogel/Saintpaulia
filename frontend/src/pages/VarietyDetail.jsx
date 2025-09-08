@@ -2,7 +2,7 @@ import PlaceholderImage from '../assets/placeholder.png';
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import api, { verifyVariety, deleteVariety, finalDeleteVariety } from "../services/api";
+import api, { verifyVariety, deleteVariety, finalDeleteVariety, deletePhoto } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
 import PhotoLogs from "../components/PhotoLogs";
@@ -182,6 +182,34 @@ export default function VarietyDetail() {
     });
   };
 
+  const handleDeletePhoto = (photoId) => {
+    toast("Ви впевнені, що хочете видалити це фото?", {
+      action: {
+        label: "Так, видалити",
+        onClick: async () => {
+          try {
+            await deletePhoto(photoId);
+            toast.success("Фото успішно видалено!");
+            
+            // оновлюємо стан, щоб фото зникло з UI без перезавантаження сторінки.
+            setVariety(prevVariety => ({
+              ...prevVariety,
+              photos: prevVariety.photos.filter(photo => photo.id !== photoId),
+            }));
+
+          } catch (error) {
+            toast.error("Не вдалося видалити фото.");
+            console.error("Помилка видалення фото:", error);
+          }
+        },
+      },
+      cancel: {
+        label: "Скасувати",
+      },
+      duration: 5000,
+    });
+  };
+
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!variety) return <p>Завантаження...</p>;
 
@@ -197,22 +225,50 @@ export default function VarietyDetail() {
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
 
 {/* Фото сорту у верхній частині або заглушка */}
-      <div className="mb-6">
-        {/* 1. Блок з фотографіями або заглушкою */}
-        <div className="mb-2"> {/* Додаємо невеликий відступ знизу */}
-          {variety.photos && variety.photos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {variety.photos.map((photo) => (
-                <div key={photo.id} className="flex flex-col">
+      <div className="mb-2">
+        {variety.photos && variety.photos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {variety.photos.map((photo) => {
+              // --- Логіка видимості кнопки для конкретного фото ---
+              const canDeletePhoto = currentUser && (
+                // Перевіряємо, чи ID поточного користувача співпадає з ID того, хто завантажив фото
+                currentUser.user_id === photo.user_id || 
+                // Або чи є користувач адміном/суперадміном
+                currentUser.role === "admin" || 
+                currentUser.role === "superadmin"
+              );
+
+              return (
+                // Використовуємо relative-позиціонування для батьківського блоку
+                <div key={photo.id} className="relative group flex flex-col">
                   <img
                     src={photo.file_url}
                     alt={variety.name}
                     className="w-full rounded-xl shadow cursor-pointer aspect-square object-cover"
                     onClick={() => setLightboxPhoto(photo.file_url)}
                   />
+                  
+                  {/* --- Умовний рендеринг кнопки --- */}
+                  {canDeletePhoto && (
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id)}
+                      // Стилізуємо кнопку, щоб вона з'являлася, наприклад, в кутку фото
+                      className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full 
+                                opacity-0 group-hover:opacity-100 transition-opacity 
+                                hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      aria-label="Видалити фото"
+                    >
+                      {/* Іконка кошика для кращого UX */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                      </svg>
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
           ) : (
             // Блок для відображення заглушки
             <div className="flex justify-center items-center w-48 h-48 bg-gray-100 rounded-xl shadow overflow-hidden aspect-square">
@@ -251,7 +307,6 @@ export default function VarietyDetail() {
             </p>
           );
         })()}
-      </div>
 
       {/* Кнопки табів */}
       <div className="flex space-x-4 mb-4 border-b">
