@@ -8,7 +8,8 @@ from sqlalchemy.future import select
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.photos.models import UploadedPhoto, PhotoLog
-from saintpaulia_app.photos.cloudinary_service import CloudinaryService
+from saintpaulia_app.photos.cloudinary_service import CloudinaryService 
+from saintpaulia_app.saintpaulia.repository import log_action
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ async def process_photo_upload(
         action="upload",
         timestamp=datetime.utcnow()
     )
+    log_action(action="photo uploaded", variety=variety, user=current_user, db=session)
     session.add(log)
     session.commit()
     
@@ -81,6 +83,7 @@ async def delete_photo(
     # 1. Знаходимо фото в БД
     result = session.execute(select(UploadedPhoto).where(UploadedPhoto.id == photo_id))
     photo = result.scalar_one_or_none()
+    variety = photo.variety if photo else None
     if not photo:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Фото не знайдено")
 
@@ -98,15 +101,7 @@ async def delete_photo(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не вдалося видалити фото з хмарного сервісу")
 
     # 4. Видалення з БД
+    log_action(action="photo deleted", variety=variety, user=current_user, db=session)
     session.delete(photo)
-
-    log = PhotoLog(
-        photo_id=photo.id,
-        variety_id=photo.variety_id,
-        user_id=current_user.id,
-        action="delete",
-        timestamp=datetime.utcnow()
-    )
-    session.add(log)
     
     session.commit()
