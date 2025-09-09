@@ -97,6 +97,21 @@ def soft_delete_variety(name: str,
     return {"message": f"Сорт '{name}' успішно позначено як видалений."} 
 
 
+@router.patch("/{variety_id}/restore", status_code=200) # PATCH для відновлення, оскільки це часткове оновлення ресурсу (зміна одного поля `is_deleted`),
+def restore_variety_route(
+    variety_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+    ):
+    """
+    Відновлює 'м'яко видалений' сорт. Доступно лише для адмінів.
+    Повертає повідомлення про успішне відновлення.
+    Якщо сорт не знайдено або користувач не має прав, повертає відповідну помилку.  
+    """
+    repository.restore_variety(variety_id, current_user, db)
+    return {"message": "Сорт успішно відновлено."}
+
+
 @router.get("/logs/")
 def get_logs(db: Session = Depends(get_db), 
              current_user: User = Depends(get_current_user)):

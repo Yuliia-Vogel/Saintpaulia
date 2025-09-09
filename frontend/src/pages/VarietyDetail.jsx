@@ -1,8 +1,9 @@
+// VarietyDetail.jsx
 import PlaceholderImage from '../assets/placeholder.png';
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import api, { verifyVariety, deleteVariety, finalDeleteVariety, deletePhoto } from "../services/api";
+import api, { verifyVariety, deleteVariety, restoreVariety, finalDeleteVariety, deletePhoto } from "../services/api";
 import { formatDateLocalized } from "../utils/formatDate";
 import VarietyLogs from "../components/VarietyLogs"; 
 import PhotoLogs from "../components/PhotoLogs";
@@ -59,6 +60,7 @@ export default function VarietyDetail() {
     const fetchVariety = async () => {
       try {
         const response = await api.get(`/saintpaulia/by-name/${encodeURIComponent(name)}`);
+        console.log("Дані, що прийшли з бекенду:", response.data);
         setVariety(response.data);
       } catch (err) {
         setError(err.response?.data?.detail || "Не вдалося завантажити дані про сорт.");
@@ -147,6 +149,31 @@ export default function VarietyDetail() {
     });
   };
 
+  const handleRestore = () => {
+    toast("Ви впевнені, що хочете відновити цей сорт?", {
+      action: {
+        label: "Так, відновити",
+        onClick: async () => {
+          try {
+            await restoreVariety(variety.id); // Використовуємо ID сорту
+            toast.success(`Сорт "${variety.name}" успішно відновлено!`);
+            // Оновлюємо стан локально, щоб UI миттєво відреагував
+            setVariety(prevVariety => ({
+              ...prevVariety,
+              is_deleted: false, 
+            }));
+          } catch (error) {
+            toast.error("Не вдалося відновити сорт.");
+            console.error(error);
+          }
+        },
+      },
+      cancel: {
+        label: "Скасувати",
+      },
+    });
+  };
+
   const handleFinalDelete = () => {
     // Використовуємо sonner/toast для багатокрокового підтвердження
     toast.error("Це НЕЗВОРОТНА дія! Сорт буде видалено НАЗАВЖДИ.", {
@@ -223,6 +250,13 @@ export default function VarietyDetail() {
       </button>
 
       <h1 className="text-3xl font-bold mb-4">{variety.name}</h1>
+
+      {/* <-- Індикатор, що сорт в архіві --> */}
+      {variety.is_deleted && (
+        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg">
+          <strong>Увага!</strong> Цей сорт знаходиться в архіві (позначений як видалений).
+        </div>
+      )}
 
 {/* Фото сорту у верхній частині або заглушка */}
       <div className="mb-2">
@@ -430,13 +464,27 @@ export default function VarietyDetail() {
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
               >
                 📷 Додати фото
-              </button>
-              <button
-                onClick={handleSoftDelete}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
-              >
-                🗑️ Видалити сорт
-              </button>
+              </button> 
+              {/* Умовний рендеринг кнопок видалення/відновлення --> */}              
+              {variety.is_deleted ? (
+                // Якщо сорт видалено, показуємо кнопку "Відновити" (лише для адмінів)
+                isAdmin && (
+                  <button
+                    onClick={handleRestore}
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded"
+                  >
+                    ♻️ Відновити сорт
+                  </button>
+                )
+              ) : (
+                // Інакше показуємо звичайну кнопку "Видалити"
+                <button
+                  onClick={handleSoftDelete}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+                >
+                  🗑️ Видалити сорт
+                </button>
+              )}
             </div>
           )}
 

@@ -8,7 +8,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // <-- ДОДАНО
+  const [isLoading, setIsLoading] = useState(true);
 
   const logoutUser = () => {
     setUser(null);
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Помилка ініціалізації або оновлення токена:", error);
       logoutUser(); // Якщо будь-яка помилка, виходимо
     } finally {
-      setIsLoading(false); // <-- ДОДАНО. Встановлюємо в false у будь-якому випадку
+      setIsLoading(false); // Встановлюємо в false у будь-якому випадку
     }
   };
 

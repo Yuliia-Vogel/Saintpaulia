@@ -2,11 +2,9 @@
 
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-// Шлях, швидше за все, має бути таким:
 import { useAuth } from '../../context/AuthContext'; 
 
 const AdminRoute = ({ children }) => {
-  // 👇 ГОЛОВНЕ ВИПРАВЛЕННЯ ТУТ
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
