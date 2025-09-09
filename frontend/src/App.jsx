@@ -29,6 +29,7 @@ import AdminUserPage from './pages/admin/AdminUserPage';
 import Contacts from './pages/Contacts';
 import DeletedVarietiesPage from "./pages/admin/DeletedVarietiesPage";
 import AdminPanel from "./pages/admin/AdminPanel";
+import AdminRoute from './components/admin/AdminRoute';
 
 
 function App() {
@@ -85,12 +86,14 @@ function App() {
           <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
           <Route path="/my-varieties" element={<PrivateRoute><MyVarietiesPage /></PrivateRoute>} />
           <Route path="/extended-search" element={<ExtendedSearchPage />} />
+
+          <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+          <Route path="/admin/users/:userId/varieties" element={<AdminRoute><UserVarietiesPage /></AdminRoute>} />
+          <Route path="/admin/users/:id" element={<AdminRoute><AdminUserPage /></AdminRoute>} />
+          <Route path="/admin/varieties/deleted" element={<AdminRoute><DeletedVarietiesPage /></AdminRoute>} />
+          <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>}  />
+
           <Route path="*" element={<NotFound />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
-          <Route path="/admin/users/:userId/varieties" element={<UserVarietiesPage />} />
-          <Route path="/admin/users/:id" element={<AdminUserPage />} />
-          <Route path="/admin/varieties/deleted" element={<DeletedVarietiesPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
         </Route>
 
       </Routes>

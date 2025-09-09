@@ -8,6 +8,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // <-- ДОДАНО
 
   const logoutUser = () => {
     setUser(null);
@@ -20,24 +21,16 @@ export const AuthProvider = ({ children }) => {
     let token = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
 
-    // Перевірка протермінування та оновлення токена
-    if (token && isTokenExpired(token) && refreshToken) {
-      try {
+    try {
+      if (token && isTokenExpired(token) && refreshToken) {
         const response = await api.post("/auth/refresh", {
           refresh_token: refreshToken,
         });
         token = response.data.access_token;
         localStorage.setItem("accessToken", token);
-      } catch (error) {
-        console.error("Помилка оновлення токена в AuthContext:", error);
-        logoutUser();
-        return;
       }
-    }
 
-    // Якщо токен валідний — декодуємо і зберігаємо
-    if (token) {
-      try {
+      if (token) {
         const decoded = jwtDecode(token);
         const newUser = {
           id: decoded.user_id,
@@ -46,19 +39,14 @@ export const AuthProvider = ({ children }) => {
           confirmed: decoded.confirmed,
           accessToken: token,
         };
-
-        setUser((prev) => {
-          if (JSON.stringify(prev) !== JSON.stringify(newUser)) {
-            return newUser;
-          }
-          return prev;
-        });
-
+        setUser(newUser);
         console.log("AuthContext: ініціалізація завершена, user:", newUser);
-      } catch (e) {
-        console.error("Помилка декодування токена:", e);
-        logoutUser();
       }
+    } catch (error) {
+      console.error("Помилка ініціалізації або оновлення токена:", error);
+      logoutUser(); // Якщо будь-яка помилка, виходимо
+    } finally {
+      setIsLoading(false); // <-- ДОДАНО. Встановлюємо в false у будь-якому випадку
     }
   };
 
@@ -67,7 +55,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logoutUser }}>
+    // Додаємо isLoading до об'єкта value
+    <AuthContext.Provider value={{ user, setUser, logoutUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
