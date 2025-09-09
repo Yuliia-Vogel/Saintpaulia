@@ -11,6 +11,7 @@
 │   │   │   └── react.svg
 │   │   ├── components/
 │   │   │   ├── admin/
+│   │   │   │   ├── AdminRoute.jsx
 │   │   │   │   ├── EditRoleModal.jsx 
 │   │   │   │   └── UsersTable.jsx
 │   │   │   ├── CabinetUserInfo.jsx

@@ -107,6 +107,11 @@ export const deleteVariety = async (name) => {
   return response.data;
 };
 
+export const restoreVariety = async (varietyId) => {
+  const response = await api.patch(`/saintpaulia/${varietyId}/restore`);
+  return response.data;
+};
+
 export const finalDeleteVariety = async (varietyId) => {
   try {
     const response = await api.delete(`/admin/varieties/${varietyId}`);

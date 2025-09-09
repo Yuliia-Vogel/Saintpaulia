@@ -223,6 +223,40 @@ def soft_delete_variety(name: str, user: User, db: Session) -> bool:
     return True
 
 
+def restore_variety(variety_id: int, user: User, db: Session) -> Saintpaulia:
+    """Відновлює сорт, позначений як soft-deleted'.
+
+    :param variety_id: ID сорту, який потрібно відновити.
+    :type variety_id: int
+    :param user: Користувач, який виконує відновлення.
+    :type user: User
+    :param db: Сесія бази даних.
+    :type db: Session
+    :return: Відновлений сорт.
+    :rtype: Saintpaulia
+    :raises HTTPException: Якщо сорт не знайдено, не був видалений або користувач не має прав.
+    """
+    
+    # Перевірка прав доступу
+    if user.role.value not in ["admin", "superadmin"]:
+        raise HTTPException(status_code=403, detail="Лише адміністратори можуть відновлювати сорти.")
+
+    variety = db.query(Saintpaulia).filter(Saintpaulia.id == variety_id).first()
+    
+    if not variety:
+        raise HTTPException(status_code=404, detail="Сорт не знайдено.")
+        
+    if not variety.is_deleted:
+        raise HTTPException(status_code=400, detail="Цей сорт не було видалено, його не можна відновити.")
+
+    variety.is_deleted = False
+    db.commit()
+    db.refresh(variety)
+    log_action("restore", variety, user, db) # Логуємо дію відновлення
+    
+    return variety
+
+
 def get_varieties_by_user(db: Session, 
                           user_id: int, 
                           limit: int = 10, 
