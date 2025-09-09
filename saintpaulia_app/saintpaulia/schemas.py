@@ -48,7 +48,7 @@ class SaintpauliaBase(BaseModel):
     selection_year: Optional[int] = None
     data_source: Optional[str] = None  # джерело даних про сорт
     photo_source: Optional[str] = None  # джерело фото сорту
-    is_deleted: bool = False  # для логічного видалення
+    is_deleted: bool = False  # цей прапорець необхідний для фронту, щоб показувати, що сорт в архіві
 
     @validator("selection_year", pre=True)
     def validate_selection_year(cls, value):
