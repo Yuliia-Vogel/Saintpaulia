@@ -140,3 +140,9 @@ export const bulkFinalDeleteVarieties = async (ids) => {
   const response = await api.post('/admin/varieties/bulk-delete', { variety_ids: ids });
   return response.data;
 };
+
+// масове підтвердження сортів
+export const bulkVerifyVarieties = async (ids) => {
+  const response = await api.post('admin/varieties/bulk-verify', {variety_ids: ids});
+  return response.data;
+}

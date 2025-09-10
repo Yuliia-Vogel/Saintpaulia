@@ -141,3 +141,15 @@ def bulk_delete_varieties_route(
     if deleted_count == 0:
         return {"message": "Не знайдено сортів для видалення."}
     return {"message": f"Успішно остаточно видалено {deleted_count} сорт(ів)."}
+
+
+@router.post("/varieties/bulk-verify", status_code=200)
+def bulk_verify_varieties_route(
+    payload: admin_schemas.BulkActionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    verified_count = admin_repository.bulk_verify_varieties(payload.variety_ids, current_user, db)
+    if verified_count == 0:
+        return {"message": "Не знайдено сортів для підтвердження."}
+    return {"message": f"Успішно підтверджено {verified_count} сорт(ів)."}  

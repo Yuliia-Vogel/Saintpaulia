@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload, Session
 from fastapi import HTTPException
 from typing import List
+from sqlalchemy import func
 
 from saintpaulia_app.auth.models import User, UserRole
 from saintpaulia_app.auth.schemas import UserOut
@@ -67,6 +68,28 @@ def get_soft_deleted_varieties(db: AsyncSession):
     Повертає список сортів, які були позначені як видалені (soft deleted).
     """
     return db.query(Saintpaulia).filter(Saintpaulia.is_deleted == True).all()
+
+
+def bulk_verify_varieties(ids: List[int], user: User, db: Session) -> int:
+    """Масово підтверджує сорти за списком їх ID."""
+    if user.role.value not in ["admin", "superadmin"]:
+        raise HTTPException(status_code=403, detail="Дія доступна лише адміністраторам.")
+    
+    # Знаходимо всі сорти, ID яких є у наданому списку
+    varieties_to_verify = db.query(Saintpaulia).filter(Saintpaulia.id.in_(ids)).all()
+    
+    if not varieties_to_verify:
+        return 0 # Нічого не знайдено для підтвердження
+
+    for variety in varieties_to_verify:
+        variety.verification_status = True
+        variety.verification_note = "bulk verified"
+        variety.verified_by = user.id
+        variety.verification_date = func.now()
+        log_action("bulk verify", variety, user, db) # Логуємо кожну дію
+    
+    db.commit()
+    return len(varieties_to_verify) # Повертаємо кількість підтверджених сортів 
 
 
 def bulk_restore_varieties(ids: List[int], user: User, db: Session) -> int:
