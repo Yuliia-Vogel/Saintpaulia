@@ -8,7 +8,8 @@ import {
   restoreVariety, 
   finalDeleteVariety, 
   bulkRestoreVarieties, 
-  bulkFinalDeleteVarieties 
+  bulkFinalDeleteVarieties,
+  bulkVerifyVarieties
 } from "../../services/api";
 import { toast } from "sonner";
 
@@ -93,6 +94,25 @@ export default function DeletedVarietiesPage() {
     });
   };
 
+  const handleBulkVerify = () => {
+    toast(`Підтвердити ${selectedIds.length} сорт(ів)?`, {
+      action: {
+        label: "Так, підтвердити",
+        onClick: async () => {
+          try {
+            const response = await bulkVerifyVarieties(selectedIds);
+            toast.success(response.message);
+            await fetchDeletedVarieties();
+            setSelectedIds([]);
+          } catch (error) {
+            toast.error("Сталася помилка під час підтвердження.");
+          }
+        },
+      },
+      cancel: { label: "Скасувати" },
+    });
+  }
+
   // --- Функції для ОДИНОЧНИХ дій ---
   const handleRestore = (varietyId, varietyName) => {
     toast(`Ви впевнені, що хочете відновити сорт "${varietyName}"?`, {
@@ -147,6 +167,9 @@ export default function DeletedVarietiesPage() {
           </button>
           <button onClick={handleBulkDelete} className="px-3 py-1 bg-red-700 text-white text-sm rounded hover:bg-red-800">
             Видалити вибрані
+          </button>
+          <button onClick={handleBulkVerify} className="px-3 py-1 bg-blue-700 text-white text-sm rounded hover:bg-blue-900">
+            Верифікувати вибрані
           </button>
         </div>
       )}
