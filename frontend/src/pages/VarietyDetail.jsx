@@ -60,7 +60,6 @@ export default function VarietyDetail() {
     const fetchVariety = async () => {
       try {
         const response = await api.get(`/saintpaulia/by-name/${encodeURIComponent(name)}`);
-        console.log("Дані, що прийшли з бекенду:", response.data);
         setVariety(response.data);
       } catch (err) {
         setError(err.response?.data?.detail || "Не вдалося завантажити дані про сорт.");

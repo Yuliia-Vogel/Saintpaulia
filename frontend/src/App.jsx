@@ -61,7 +61,6 @@ function App() {
   }
 
   // Коли бекенд прокинувся, показуємо звичайний додаток
-  console.log("📦 Rendering App component");
   return (
     <ErrorBoundary>
       <Header />

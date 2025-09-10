@@ -3,9 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "./authService";
 
-console.log("The API URL will be used now")
 const API_URL = import.meta.env.VITE_API_URL;
-console.log("The API URL my code is using is:", API_URL)
 
 const api = axios.create({
   baseURL: API_URL,
