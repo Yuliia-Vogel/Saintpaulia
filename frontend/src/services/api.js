@@ -128,3 +128,15 @@ export const getDeletedVarieties = async () => {
 export const deleteUser = async (userId) => {
   return await api.delete(`/admin/users/${userId}`);
 };
+
+// масове відновлення сортів
+export const bulkRestoreVarieties = async (ids) => {
+  const response = await api.post('/admin/varieties/bulk-restore', { variety_ids: ids });
+  return response.data;
+};
+
+// масове остаточне видалення
+export const bulkFinalDeleteVarieties = async (ids) => {
+  const response = await api.post('/admin/varieties/bulk-delete', { variety_ids: ids });
+  return response.data;
+};

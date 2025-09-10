@@ -119,7 +119,7 @@ def get_all_soft_deleted_varieties(db: AsyncSession = Depends(get_db)):
     return deleted_varieties
 
 
-@router.post("/bulk-restore", status_code=200)
+@router.post("/varieties/bulk-restore", status_code=200)
 def bulk_restore_varieties_route(
     payload: admin_schemas.BulkActionRequest, 
     db: Session = Depends(get_db),
@@ -131,7 +131,7 @@ def bulk_restore_varieties_route(
     return {"message": f"Успішно відновлено {restored_count} сорт(ів)."}
 
 
-@router.post("/bulk-delete", status_code=200)
+@router.post("/varieties/bulk-delete", status_code=200)
 def bulk_delete_varieties_route(
     payload: admin_schemas.BulkActionRequest,
     db: Session = Depends(get_db),
