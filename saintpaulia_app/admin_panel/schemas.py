@@ -1,6 +1,6 @@
 # admin_panel/schemas.py
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 from datetime import datetime
 
@@ -29,3 +29,9 @@ class SaintpauliaShortInfo(BaseModel):
 class UserVarietiesResponse(BaseModel):
     user: UserShortInfo
     varieties: List[SaintpauliaShortInfo]
+
+
+
+class BulkActionRequest(BaseModel):
+    variety_ids: List[int] = Field(..., min_items=1) # Очікуємо список ID, мінімум 1
+

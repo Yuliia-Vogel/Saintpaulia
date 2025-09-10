@@ -1,7 +1,8 @@
 # admin_panel/router.py
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status   
+from fastapi import APIRouter, Depends, HTTPException, status 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from saintpaulia_app.admin_panel import repository as admin_repository
 from saintpaulia_app.admin_panel import schemas as admin_schemas
@@ -116,3 +117,27 @@ def get_all_soft_deleted_varieties(db: AsyncSession = Depends(get_db)):
     """
     deleted_varieties = admin_repository.get_soft_deleted_varieties(db)
     return deleted_varieties
+
+
+@router.post("/varieties/bulk-restore", status_code=200)
+def bulk_restore_varieties_route(
+    payload: admin_schemas.BulkActionRequest, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    restored_count = admin_repository.bulk_restore_varieties(payload.variety_ids, current_user, db)
+    if restored_count == 0:
+        return {"message": "Не знайдено сортів для відновлення."}
+    return {"message": f"Успішно відновлено {restored_count} сорт(ів)."}
+
+
+@router.post("/varieties/bulk-delete", status_code=200)
+def bulk_delete_varieties_route(
+    payload: admin_schemas.BulkActionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    deleted_count = admin_repository.bulk_permanently_delete_varieties(payload.variety_ids, current_user, db)
+    if deleted_count == 0:
+        return {"message": "Не знайдено сортів для видалення."}
+    return {"message": f"Успішно остаточно видалено {deleted_count} сорт(ів)."}

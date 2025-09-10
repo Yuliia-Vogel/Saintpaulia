@@ -3,9 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { logout } from "./authService";
 
-console.log("The API URL will be used now")
 const API_URL = import.meta.env.VITE_API_URL;
-console.log("The API URL my code is using is:", API_URL)
 
 const api = axios.create({
   baseURL: API_URL,
@@ -129,4 +127,16 @@ export const getDeletedVarieties = async () => {
 
 export const deleteUser = async (userId) => {
   return await api.delete(`/admin/users/${userId}`);
+};
+
+// масове відновлення сортів
+export const bulkRestoreVarieties = async (ids) => {
+  const response = await api.post('/admin/varieties/bulk-restore', { variety_ids: ids });
+  return response.data;
+};
+
+// масове остаточне видалення
+export const bulkFinalDeleteVarieties = async (ids) => {
+  const response = await api.post('/admin/varieties/bulk-delete', { variety_ids: ids });
+  return response.data;
 };
