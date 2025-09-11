@@ -7,7 +7,7 @@ import enum
 
 class UserRole(enum.Enum):
     user = "user" # звичайний користувач
-    expert = "expert" # експерт, який вже може додавати
+    expert = "expert" # експерт, який вже може додавати сорти
     breeder = "breeder" # селекціонер, який може додавати сорти, а також верифікувати свої сорти
     admin = "admin"
     superadmin = "superadmin"

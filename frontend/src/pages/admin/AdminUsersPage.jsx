@@ -7,12 +7,23 @@ import { getAllUsers, updateUserRole } from "../../services/api";
 import { toast } from "sonner";
 import { deleteUser } from "../../services/api";
 
+// Створюємо об'єкт для перекладу ролей
+const roleTranslations = {
+  user: "Користувач",
+  expert: "Експерт",
+  breeder: "Селекціонер",
+  admin: "Адміністратор",
+  superadmin: "Суперадмін",
+};
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
   
-  const roles = ["user", "expert", "breeder", "admin", "superadmin"];
+  // const roles = ["user", "expert", "breeder", "admin", "superadmin"]; це було раніше, а тепер:
+   // Отримуємо масив англійських ролей (ключів) для використання в логіці.
+  const roles = Object.keys(roleTranslations); // ["user", "expert", "breeder", "admin", "superadmin"]
 
   const [roleFilter, setRoleFilter] = useState(
     roles.reduce((acc, role) => {
@@ -52,16 +63,7 @@ export default function AdminUsersPage() {
     }
   };
 
-    // 🔧 Крок 1: Стан для фільтрів
-  // const [roleFilter, setRoleFilter] = useState({
-  //   user: true,
-  //   expert: true,
-  //   breeder: true,
-  //   admin: true,
-  //   superadmin: true,
-  // });
-
-    // 🔧 Крок 2: Обробник перемикання чекбоксів
+    // 🔧 Обробник перемикання чекбоксів
   const handleRoleToggle = (role) => {
     setRoleFilter((prev) => ({
       ...prev,
@@ -96,7 +98,7 @@ export default function AdminUsersPage() {
     setLoading(true);
     try {
       await updateUserRole(selectedUser.id, newRole);
-      toast.success(`Роль користувача ${selectedUser.email} змінено на ${newRole}`);
+      toast.success(`Роль користувача ${selectedUser.email} змінено на ${roleTranslations[newRole]}`);
       await fetchUsers(); // оновити список
     } catch (error) {
       toast.error("Помилка при зміні ролі користувача");
@@ -125,7 +127,8 @@ export default function AdminUsersPage() {
               checked={roleFilter[role]}
               onChange={() => handleRoleToggle(role)}
             />
-            {role}
+            {/* Показуємо українську назву, а в логіці використовуємо англійський ключ `role` */}
+            {roleTranslations[role]}
           </label>
         ))}
 
@@ -178,7 +181,7 @@ export default function AdminUsersPage() {
                     Переглянути сорти
                   </Link>
                 </td>
-                <td className="p-2">{user.role}</td>
+                <td className="p-2">{roleTranslations[user.role]}</td>
                 <td className="p-2">
                   <button
                     className="text-blue-600 hover:underline text-sm"
