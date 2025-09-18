@@ -72,19 +72,19 @@ function App() {
           <Route path="/confirm-email" element={<ConfirmEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/extended-search" element={<ExtendedSearchPage />} />
+          <Route path="/search" element={<SearchPage />} />
         </Route>
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/contact-info" element={<Contacts />} />
-          <Route path="/search" element={<SearchPage />} />
           <Route path="/add" element={<AddVariety />} />
           <Route path="/variety/:name" element={<VarietyDetail />} />
           <Route path="/variety/:name/edit" element={<EditVariety />} />
           <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
           <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
           <Route path="/my-varieties" element={<PrivateRoute><MyVarietiesPage /></PrivateRoute>} />
-          <Route path="/extended-search" element={<ExtendedSearchPage />} />
 
           <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
           <Route path="/admin/users/:userId/varieties" element={<AdminRoute><UserVarietiesPage /></AdminRoute>} />
