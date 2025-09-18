@@ -11,7 +11,7 @@ const Header = () => {
         {user ? (
           <span>
             👋 Ви авторизовані як <strong>{user.email}</strong>{" "}
-            {user.role && <span>(роль: <strong>{user.role}</strong>)</span>}
+            {/* {user.role && <span>(роль: <strong>{user.role}</strong>)</span>} */}
           </span>
         ) : (
           <span>🔒 Ви ще не увійшли в свій акаунт</span>
