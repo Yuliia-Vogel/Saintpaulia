@@ -19,7 +19,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    user_creation_date = Column(DateTime, nullable=True, default=func.now()) # Дата створення, встановлюється автоматично
+    user_creation_date = Column(DateTime(timezone=True), server_default=func.now()) # Дата створення, встановлюється автоматично
     email_confirmed_at = Column(DateTime, nullable=True) # Дата підтвердження email 
     hashed_password = Column(String, nullable=False)
     first_name = Column(String, nullable=True)

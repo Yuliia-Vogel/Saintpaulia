@@ -11,7 +11,7 @@ from saintpaulia_app.auth.config import SECRET_KEY, ALGORITHM
 from saintpaulia_app.auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token, create_reset_password_token, verify_reset_password_token
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
-from saintpaulia_app.auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword
+from saintpaulia_app.auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword, UserMeResponse
 from saintpaulia_app.auth.repository import get_user_by_email, create_user, update_user_refresh_token, confirm_user_email
 from saintpaulia_app.auth.service import Hash
 from saintpaulia_app.auth.security import verify_password
@@ -176,18 +176,29 @@ async def reset_password(
     return {"message": "Password reset successful"}
 
 
-@router.get("/me")
+# @router.get("/me")
+# async def get_me(current_user: User = Depends(get_current_user)):
+#     varieties_number = len(current_user.saintpaulias) if current_user.saintpaulias else 0
+#     if not current_user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#     return {
+#         "name": str(current_user.first_name) + str(" ") + str(current_user.last_name) or current_user.email.split('@')[0],
+#         "email": current_user.email,
+#         "role": current_user.role.value,
+#         "user_id": current_user.id,
+#         "confirmed": current_user.confirmed,
+#         "varieties_number": varieties_number
+#     }
+
+
+@router.get("/me", response_model=UserMeResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
-    varieties_number = len(current_user.saintpaulias) if current_user.saintpaulias else 0
     if not current_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
     return {
-        "name": str(current_user.first_name) + str(" ") + str(current_user.last_name) or current_user.email.split('@')[0],
-        "email": current_user.email,
-        "role": current_user.role.value,
-        "user_id": current_user.id,
-        "confirmed": current_user.confirmed,
-        "varieties_number": varieties_number
+        **current_user.__dict__,
+        "varieties_number": len(current_user.saintpaulias) if current_user.saintpaulias else 0
     }
 
 
