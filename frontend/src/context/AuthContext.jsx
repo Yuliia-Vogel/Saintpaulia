@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { isTokenExpired } from "../utils/jwt";
 import api from "../services/api"; 
 
@@ -8,7 +8,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const logoutUser = () => {
     setUser(null);
@@ -17,47 +17,72 @@ export const AuthProvider = ({ children }) => {
   };
 
   const initializeUser = async () => {
-    console.log("AuthContext: старт ініціалізації");
-    let token = localStorage.getItem("accessToken");
+    console.log("AuthContext: Старт ініціалізації користувача...");
+    const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
 
     try {
-      if (token && isTokenExpired(token) && refreshToken) {
+      // Крок 1: Перевірка та оновлення токена (ця логіка правильна і залишається)
+      if (isTokenExpired(accessToken) && refreshToken) {
+        console.log("AuthContext: Токен доступу застарів. Оновлюємо...");
         const response = await api.post("/auth/refresh", {
           refresh_token: refreshToken,
         });
-        token = response.data.access_token;
-        localStorage.setItem("accessToken", token);
+        const newAccessToken = response.data.access_token;
+        localStorage.setItem("accessToken", newAccessToken);
       }
+      
+      // Крок 2: Отримання повних даних про користувача з бекенду
+      // Замість розшифровки токена, ми робимо запит до ендпоінту /me
+      console.log("AuthContext: Отримання повних даних профілю з /auth/me");
+      const response = await api.get("/auth/me");
+      
+      // Крок 3: Збереження повного об'єкта користувача у стані
+      setUser(response.data);
+      console.log("AuthContext: Ініціалізація успішна. Користувач:", response.data);
 
-      if (token) {
-        const decoded = jwtDecode(token);
-        const newUser = {
-          id: decoded.user_id,
-          email: decoded.sub,
-          role: decoded.role,
-          confirmed: decoded.confirmed,
-          accessToken: token,
-        };
-        setUser(newUser);
-        console.log("AuthContext: ініціалізація завершена, user:", newUser);
-      }
     } catch (error) {
-      console.error("Помилка ініціалізації або оновлення токена:", error);
-      logoutUser(); // Якщо будь-яка помилка, виходимо
+      console.error("AuthContext: Помилка під час ініціалізації або оновлення токена:", error);
+      // Якщо будь-який із запитів (refresh або /me) провалився,
+      // це означає, що сесія недійсна, тому виходимо.
+      logoutUser(); 
     } finally {
-      setIsLoading(false); // Встановлюємо в false у будь-якому випадку
+      setIsInitializing(false);
     }
   };
+
+  // Ця функція знадобиться вам на сторінці логіну
+  const loginUser = async (email, password) => {
+    // Робимо запит на логін
+    const response = await api.post('/auth/login', { email, password });
+    
+    // Зберігаємо токени
+    localStorage.setItem('accessToken', response.data.access_token);
+    localStorage.setItem('refreshToken', response.data.refresh_token);
+    
+    // Одразу отримуємо повні дані користувача і оновлюємо стан
+    // Це забезпечить миттєве оновлення UI після логіну
+    const meResponse = await api.get("/auth/me");
+    setUser(meResponse.data);
+  };
+
 
   useEffect(() => {
     initializeUser();
   }, []);
 
+  const contextData = {
+    user,
+    setUser, // Залишаємо на випадок, якщо потрібно оновити юзера з іншого місця (н-д, після редагування профілю)
+    logoutUser,
+    loginUser, // Додаємо функцію логіну в контекст
+    isInitializing,
+  };
+
   return (
-    // Додаємо isLoading до об'єкта value
-    <AuthContext.Provider value={{ user, setUser, logoutUser, isLoading }}>
-      {children}
+    <AuthContext.Provider value={contextData}>
+      {/* Показуємо дочірні компоненти тільки після завершення ініціалізації */}
+      {!isInitializing && children}
     </AuthContext.Provider>
   );
 };
