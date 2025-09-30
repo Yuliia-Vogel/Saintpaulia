@@ -456,8 +456,8 @@ export default function VarietyDetail() {
               </button>
               <button
                 onClick={() =>
-                  navigate(`/variety/${variety.id}/upload-photo`, {
-                    state: { varietyName: name },
+                 navigate(`/variety/${variety.id}/upload-photo`, {
+                    state: { varietyName: variety.name }, // varietyName для красивого заголовку на сторінці
                   })
                 }
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"

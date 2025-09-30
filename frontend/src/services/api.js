@@ -85,8 +85,19 @@ export const getPhotoLogs = async (varietyId) => {
   return response.data;
 };
 
+export const uploadVarietyPhoto = async (varietyId, file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post(`/saintpaulia/${varietyId}/upload-photo`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 export const deletePhoto = async (photoId) => {
-  const response = await api.delete(`/photos/delete/${photoId}`);
+  const response = await api.delete(`/saintpaulia/photos/${photoId}`);
   return response.status === 204;
 };
 

@@ -1,11 +1,29 @@
+# головна і **єдина** задача файлу repository.py — "говорити" з базою даних
+
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from saintpaulia_app.auth.models import User
+# from saintpaulia_app.photos import service as photo_service
 from saintpaulia_app.auth.service import Hash
 
 
 hash_handler = Hash()
+
+def log_action(action: str, user: User, db: Session):
+    if user is None:
+        raise ValueError("log_action called with user=None")
+    
+    log_entry = User(
+        action=action,
+        user_id=user.id,
+        timestamp=datetime.now(timezone.utc)
+    )
+
+    db.add(log_entry)
+    db.commit()
+
 
 def get_user_by_email(email: str, db: Session) -> User:
     user = db.query(User).filter(User.email == email).first()
@@ -31,9 +49,8 @@ def update_user_refresh_token(user: User, new_token: str, db: Session) -> None:
 def confirm_user_email(email: str, db: Session) -> None:
     user = get_user_by_email(email, db)
     user.confirmed = True
+    user.email_confirmed_at = datetime.now(timezone.utc)
     db.commit()
-
-
 
 
 # лише для локальної розробки

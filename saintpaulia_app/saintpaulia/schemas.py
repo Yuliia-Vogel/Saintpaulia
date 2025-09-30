@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field, validator, HttpUrl
+# from __future__ import annotations
+
+from pydantic import BaseModel, Field, validator, HttpUrl, EmailStr
 from typing import Optional, List
 from datetime import datetime
-from saintpaulia_app.photos.schemas import PhotoResponse 
 from saintpaulia_app.auth.schemas import UserShortInfo, UserRead
 
 
@@ -70,6 +71,18 @@ class SaintpauliaBase(BaseModel):
 
 class SaintpauliaCreate(SaintpauliaBase):
     pass
+
+
+class PhotoResponse(BaseModel):
+    id: int
+    file_url: str
+    public_id: str
+    uploaded_at: datetime
+    uploaded_by: int 
+
+    class Config:
+        from_attributes = True
+
 
 class SaintpauliaResponse(SaintpauliaBase):
     id: int
@@ -181,6 +194,42 @@ class SaintpauliaLogResponse(BaseModel):
     variety_name: str  # для зручності
     user: Optional[UserShortInfo]
     timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+
+
+class PhotoCreate(BaseModel):
+    file_url: str
+    public_id: str
+    variety_id: int
+    uploaded_by: int
+
+
+
+# розширена схема:
+# щоб повертати не просто сирі дані з таблиці, а також супровідну інформацію, наприклад, email користувача, 
+# який завантажував фото, і, можливо, ім'я файлу чи URL
+class PhotoLogEntry(BaseModel):
+    id: int
+    action: str
+    timestamp: datetime
+    photo_id: int
+    photo_filename: str  # беремо з UploadedPhoto.file_url
+    user_email: EmailStr  # беремо з User.email
+
+    class Config:
+        from_attributes = True
+
+
+class PhotoLogFull(BaseModel):
+    id: int
+    action: str
+    timestamp: datetime
+    photo_id: int
+    photo_filename: str
+    user_email: EmailStr
 
     class Config:
         from_attributes = True

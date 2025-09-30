@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
-from saintpaulia_app.photos.models import PhotoLog, UploadedPhoto
+from saintpaulia_app.saintpaulia.models import PhotoLog, UploadedPhoto
 from saintpaulia_app.auth.models import User
-from saintpaulia_app.photos.schemas import PhotoLogEntry
+from saintpaulia_app.saintpaulia.schemas import PhotoLogEntry
 from sqlalchemy.exc import SQLAlchemyError
 
 

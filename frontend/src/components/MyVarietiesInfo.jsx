@@ -1,44 +1,28 @@
 // components/MyVarietiesInfo.jsx
-import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import api from "../services/api"; 
 
 const MyVarietiesInfo = () => {
+  // Просто отримуємо користувача з контексту. Всі дані вже тут.
   const { user } = useAuth();
-  const [total, setTotal] = useState(null);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchTotal = async () => {
-      if (!user) return;
-      try {
-        const res = await api.get("/saintpaulia/my-varieties/?limit=1&offset=0");
-
-        setTotal(res.data.total);
-      } catch (err) {
-        console.error("Помилка завантаження кількості сортів:", err);
-        setError(err.response?.data?.detail || "Невідома помилка.");
-      }
-    };
-
-    fetchTotal();
-  }, [user]);
-
+  // Якщо даних користувача ще немає, нічого не показуємо
   if (!user) return null;
-  if (error) return <p className="text-red-600">❌ {error}</p>;
-  if (total === null) return <p>⏳ Завантаження інформації...</p>;
+
 
   return (
-    <p className="mt-4">
-      Ваших сортів в базі:{" "}
-      <Link
-        to="/my-varieties"
-        className="text-blue-600 font-semibold hover:underline"
-      >
-        {total}
-      </Link>
-    </p>
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Мої сорти</h2>
+      <p>
+        Всього додано вами сортів:{" "}
+        <Link
+          to="/my-varieties"
+          className="text-blue-600 font-semibold hover:underline text-lg"
+        >
+          {user.varieties_number}
+        </Link>
+      </p>
+    </div>
   );
 };
 

@@ -109,9 +109,7 @@
 │   │   ├── __init__.py                  
 │   │   ├── cloudinary_config.py                 
 │   │   ├── service.py  
-│   │   ├── models.py
-│   │   ├── router.py                
-│   │   └── schemas.py
+│   │   └── router.py                
 │   ├── saintpaulia/
 │   │   ├── __init__.py    
 │   │   ├── models.py
