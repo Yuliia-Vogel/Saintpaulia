@@ -82,7 +82,7 @@ function App() {
           <Route path="/add" element={<AddVariety />} />
           <Route path="/variety/:name" element={<VarietyDetail />} />
           <Route path="/variety/:name/edit" element={<EditVariety />} />
-          <Route path="/variety/:id/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
+          <Route path="/variety/:varietyId/upload-photo" element={<PrivateRoute><UploadPhoto /></PrivateRoute>} />
           <Route path="/cabinet" element={<PrivateRoute><CabinetPage /></PrivateRoute>} />
           <Route path="/my-varieties" element={<PrivateRoute><MyVarietiesPage /></PrivateRoute>} />
 

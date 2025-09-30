@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     const refreshToken = localStorage.getItem("refreshToken");
 
     try {
-      // Крок 1: Перевірка та оновлення токена (ця логіка правильна і залишається)
+      // Перевірка та оновлення токена, якщо потрібно
       if (isTokenExpired(accessToken) && refreshToken) {
         console.log("AuthContext: Токен доступу застарів. Оновлюємо...");
         const response = await api.post("/auth/refresh", {
@@ -32,12 +32,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("accessToken", newAccessToken);
       }
       
-      // Крок 2: Отримання повних даних про користувача з бекенду
+      // Отримання повних даних про користувача з бекенду
       // Замість розшифровки токена, ми робимо запит до ендпоінту /me
       console.log("AuthContext: Отримання повних даних профілю з /auth/me");
       const response = await api.get("/auth/me");
       
-      // Крок 3: Збереження повного об'єкта користувача у стані
+      // Збереження повного об'єкта користувача у стані
       setUser(response.data);
       console.log("AuthContext: Ініціалізація успішна. Користувач:", response.data);
 
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Ця функція знадобиться вам на сторінці логіну
+  // Ця функція знадобиться на сторінці логіну
   const loginUser = async (email, password) => {
     // Робимо запит на логін
     const response = await api.post('/auth/login', { email, password });
@@ -73,9 +73,9 @@ export const AuthProvider = ({ children }) => {
 
   const contextData = {
     user,
-    setUser, // Залишаємо на випадок, якщо потрібно оновити юзера з іншого місця (н-д, після редагування профілю)
+    setUser, 
     logoutUser,
-    loginUser, // Додаємо функцію логіну в контекст
+    loginUser, 
     isInitializing,
   };
 

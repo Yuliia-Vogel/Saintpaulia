@@ -9,8 +9,6 @@ const MyVarietiesInfo = () => {
   // Якщо даних користувача ще немає, нічого не показуємо
   if (!user) return null;
 
-  // Ніяких useEffect, useState, API-запитів!
-  // Вся інформація вже є в `user.varieties_number`.
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -18,7 +16,7 @@ const MyVarietiesInfo = () => {
       <p>
         Всього додано вами сортів:{" "}
         <Link
-          to="/my-varieties" // Переконайтесь, що цей роут існує
+          to="/my-varieties"
           className="text-blue-600 font-semibold hover:underline text-lg"
         >
           {user.varieties_number}

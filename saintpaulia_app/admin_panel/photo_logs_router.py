@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from saintpaulia_app.database import get_db
 from saintpaulia_app.auth.models import User 
 from saintpaulia_app.saintpaulia.models import Saintpaulia 
-from saintpaulia_app.photos.schemas import PhotoLogEntry
+from saintpaulia_app.saintpaulia.schemas import PhotoLogEntry
 from saintpaulia_app.admin_panel.photo_logs_repository import fetch_photo_logs_for_variety
 from saintpaulia_app.admin_panel.dependencies import admin_required
 

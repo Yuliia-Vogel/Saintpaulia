@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, status, Security, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Security, Request, BackgroundTasks, UploadFile, File
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
@@ -11,11 +11,12 @@ from saintpaulia_app.auth.config import SECRET_KEY, ALGORITHM
 from saintpaulia_app.auth.token import create_access_token, create_refresh_token, get_email_form_refresh_token, create_reset_password_token, verify_reset_password_token
 from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
-from saintpaulia_app.auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword, UserMeResponse
+from saintpaulia_app.auth.schemas import UserCreate, RequestEmail, RequestPasswordReset, ResetPassword, UserMeResponse, UserUpdate, UserRead
 from saintpaulia_app.auth.repository import get_user_by_email, create_user, update_user_refresh_token, confirm_user_email
-from saintpaulia_app.auth.service import Hash
-from saintpaulia_app.auth.security import verify_password
+from saintpaulia_app.auth.service import Hash, update_user_avatar 
+from saintpaulia_app.auth.security import verify_password 
 from saintpaulia_app.services.email import send_confirmation_email, send_password_reset_email
+from saintpaulia_app.photos import service as photo_service
 
 from dotenv import load_dotenv
 from saintpaulia_app.auth.token import create_access_token, get_email_form_refresh_token
@@ -155,7 +156,6 @@ async def forgot_password(
     user = get_user_by_email(body.email, db)
     if user:
         token = create_reset_password_token({"sub": user.email})
-        # reset_link = f"{request.base_url}reset-password?token={token}"
         front_url = os.getenv("FRONTEND_URL")
         reset_link = f"{front_url}/reset-password?token={token}"
         background_tasks.add_task(send_password_reset_email, user.email, user.email, reset_link) # user.email, user.email: перший - куди, другий - як звертатись
@@ -176,21 +176,7 @@ async def reset_password(
     return {"message": "Password reset successful"}
 
 
-# @router.get("/me")
-# async def get_me(current_user: User = Depends(get_current_user)):
-#     varieties_number = len(current_user.saintpaulias) if current_user.saintpaulias else 0
-#     if not current_user:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#     return {
-#         "name": str(current_user.first_name) + str(" ") + str(current_user.last_name) or current_user.email.split('@')[0],
-#         "email": current_user.email,
-#         "role": current_user.role.value,
-#         "user_id": current_user.id,
-#         "confirmed": current_user.confirmed,
-#         "varieties_number": varieties_number
-#     }
-
-
+# --------------- User Profile Management ----------------
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
     if not current_user:
@@ -202,6 +188,27 @@ async def get_me(current_user: User = Depends(get_current_user)):
     }
 
 
+
+@router.patch("/me", response_model=UserRead) 
+async def update_me(
+    body: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    
+    # Використовуємо метод Pydantic для отримання лише переданих полів
+    update_data = body.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+    
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    
+    return current_user
+
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
@@ -210,3 +217,23 @@ async def refresh_access_token(request: RefreshTokenRequest):
     email = await get_email_form_refresh_token(request.refresh_token)
     access_token = await create_access_token(data={"sub": email})
     return {"access_token": access_token}
+
+
+# --------------- User Avatar Management ----------------
+@router.patch("/me/avatar", response_model=UserRead)
+async def update_avatar_route(
+    file: UploadFile = File(),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Оновлює аватар поточного користувача.
+    """
+    # Викликаємо функцію з сервісного шару
+    updated_user = update_user_avatar(
+        current_user=current_user, 
+        file=file, 
+        db=db
+    )
+    
+    return updated_user

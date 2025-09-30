@@ -1,14 +1,15 @@
 # функції для роботи з базою даних
 from datetime import datetime, timezone
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, distinct, func
 from typing import List, Optional, Dict, Set, Any
 
 from saintpaulia_app.auth.models import User
-from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog
+from saintpaulia_app.saintpaulia.models import Saintpaulia, SaintpauliaLog, UploadedPhoto, PhotoLog
 from saintpaulia_app.saintpaulia.schemas import SaintpauliaBase, SaintpauliaCreate, SaintpauliaResponse, SaintpauliaUpdate, SaintpauliaSearchCriteria
+from saintpaulia_app.photos import service as photo_service
 
 
 def log_action(action: str, variety: Saintpaulia, user: User, db: Session):
@@ -448,3 +449,72 @@ def get_saintpaulia_by_id(id: int, db: Session) -> Optional[Saintpaulia]:
     :rtype: Optional[Saintpaulia]
     """ 
     return db.query(Saintpaulia).options(joinedload(Saintpaulia.verifier)).filter(Saintpaulia.id == id, Saintpaulia.is_deleted == False).first()
+
+
+def upload_variety_photo(
+    variety_id: int,
+    file: UploadFile,
+    current_user: User,
+    db: Session 
+) -> UploadedPhoto:
+    """Завантажує фото СПЕЦИФІЧНО для сорту фіалки."""
+    # 1. Перевірка сорту
+    variety = db.query(Saintpaulia).filter(Saintpaulia.id == variety_id).first()
+    if not variety:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Сорт не знайдено")
+
+    # 2. Перевірка прав доступу (приклад)
+    allowed_roles = ["admin", "superadmin"]
+    if current_user.id != variety.owner_id and current_user.role.value not in allowed_roles:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас немає прав для завантаження фото для цього сорту")
+
+    # 3. Виклик універсального сервісу для завантаження в хмару
+    upload_result = photo_service.upload_photo(
+        file=file, 
+        user_email=current_user.email, 
+        upload_type='variety'
+    )
+    
+    # 4. Створення запису в БД (логіка, специфічна для сортів)
+    photo = UploadedPhoto(
+        file_url=upload_result["secure_url"],
+        public_id=upload_result["public_id"],
+        variety_id=variety.id,
+        uploaded_by=current_user.id
+    )
+    db.add(photo)
+    db.flush() # Отримуємо photo.id
+    log = PhotoLog(
+        photo_id=photo.id,
+        variety_id=photo.variety_id,
+        user_id=current_user.id,
+        action="upload",
+        timestamp=datetime.utcnow()
+    )
+    log_action(action="photo uploaded", variety=variety, user=current_user, db=db)
+    db.add(log)
+    db.commit()
+    db.refresh(photo)
+    
+    return photo
+
+def delete_variety_photo(photo_id: int, current_user: User, db: Session): # <-- СИНХРОННА
+    """Видаляє фото, що належить сорту."""
+    # 1. Знаходимо фото в БД
+    photo = db.query(UploadedPhoto).filter(UploadedPhoto.id == photo_id).first()
+    if not photo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Фото не знайдено")
+
+    # 2. Перевірка прав доступу (приклад)
+    allowed_roles = ["admin", "superadmin"]
+    if current_user.id != photo.uploaded_by and current_user.role.value not in allowed_roles:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="У вас немає прав для видалення цього фото")
+    
+    # 3. Видалення з Cloudinary через універсальний сервіс
+    photo_service.delete_photo(photo.public_id)
+    # Логування дій
+    variety = db.query(Saintpaulia).filter(Saintpaulia.id == photo.variety_id).first()
+    log_action(action="photo deleted", variety=variety, user=current_user, db=db)
+    # 4. Видалення з БД
+    db.delete(photo)
+    db.commit()

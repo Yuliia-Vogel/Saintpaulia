@@ -1,8 +1,11 @@
+# головна і **єдина** задача файлу repository.py — "говорити" з базою даних
+
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from saintpaulia_app.auth.models import User
+# from saintpaulia_app.photos import service as photo_service
 from saintpaulia_app.auth.service import Hash
 
 
@@ -48,8 +51,6 @@ def confirm_user_email(email: str, db: Session) -> None:
     user.confirmed = True
     user.email_confirmed_at = datetime.now(timezone.utc)
     db.commit()
-
-
 
 
 # лише для локальної розробки

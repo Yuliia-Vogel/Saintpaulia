@@ -1,36 +1,53 @@
 import os
 import cloudinary.uploader
 from fastapi import UploadFile
-from typing import ClassVar
+from typing import Set
 
 import saintpaulia_app.photos.cloudinary_config  # Імпортуємо, щоб конфігурація застосувалась
 
-CATEGORY_MAP = {
-    "images": ["jpg", "jpeg", "png", "gif", "webp", "svg"],
-}
+
 FORBIDDEN_EXTENSIONS = ['.exe', '.bat', '.sh', '.php']
-ALLOWED_IMAGE_EXTENSIONS = set(CATEGORY_MAP["images"])
+DEFAULT_ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "svg"}
 
 class CloudinaryService:
     @classmethod
-    def validate_file(cls, uploaded_file: UploadFile):
-        file_name, file_extension = os.path.splitext(uploaded_file.filename)
-        ext = file_extension.lower().lstrip(".")
+    def validate_file(cls, 
+                      uploaded_file: UploadFile,
+                      allowed_extensions: Set[str], 
+                      error_message: str):
+        """
+        Універсальний валідатор файлів.
+        :param uploaded_file: Файл для перевірки.
+        :param allowed_extensions: Множина дозволених розширень (напр., {'jpg', 'png'}).
+        :param error_message: Повідомлення про помилку, якщо розширення не підходить.
+        """
+        _file_name, file_extension = os.path.splitext(uploaded_file.filename)
+        ext_lower = file_extension.lower()
         
-        if file_extension.lower() in FORBIDDEN_EXTENSIONS:
+        if ext_lower in FORBIDDEN_EXTENSIONS:
             raise ValueError(f"Файл з розширенням {file_extension} заборонений.")
 
-        if ext not in ALLOWED_IMAGE_EXTENSIONS:
-            raise ValueError("До опису сорту завантажити можна лише зображення!")
+        if ext_lower.lstrip(".") not in allowed_extensions:
+            raise ValueError(error_message)
+
 
     @classmethod
-    def upload_image(cls, uploaded_file: UploadFile, user_email: str):
-        cls.validate_file(uploaded_file)
-
+    def upload_image(cls, 
+                     file: UploadFile, 
+                     user_email: str,
+                     folder: str) -> dict:
+        """
+        Універсальний завантажувач зображень.
+        :param file: Об'єкт файлу.
+        :param user_email: Email для ідентифікації.
+        :param folder: Конкретна папка на Cloudinary (напр., 'avatars' або 'varieties').
+        """
+        # Створюємо більш організовану структуру папок
+        full_folder_path = f"saintpaulia_app/{folder}/{user_email}"
         result = cloudinary.uploader.upload(
-            uploaded_file.file,
-            folder=f"saintpaulia_app/{user_email}",
-            overwrite=False  # Не перезаписуємо існуючі файли
+            file,
+            folder=full_folder_path,
+            overwrite=False  # Для аватарів краще перезаписувати - вказувати overwrite=True, для сортів можна залишити False
         )
         print("UPLOAD RESULT:", result)
         return result

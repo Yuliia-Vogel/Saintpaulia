@@ -1,7 +1,7 @@
 import logging
 
 from typing import List, Optional, Dict
-from fastapi import APIRouter, HTTPException, Depends, status, Query, Request
+from fastapi import APIRouter, HTTPException, Depends, status, Query, Request, File, Form, UploadFile
 from sqlalchemy import select, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from saintpaulia_app.auth.dependencies import get_current_user
 from saintpaulia_app.auth.models import User
 from saintpaulia_app.saintpaulia.models import Saintpaulia
 from saintpaulia_app.saintpaulia import repository
-from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, SaintpauliaSearchCriteria, SaintpauliaUpdate, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate
+from saintpaulia_app.saintpaulia.schemas import SaintpauliaCreate, SaintpauliaResponse, SaintpauliaSearchCriteria, SaintpauliaUpdate, PaginatedVarietyResponse, VerificationResponse, VerificationUpdate, PhotoResponse
 from saintpaulia_app.saintpaulia.models import SaintpauliaLog
 
 router = APIRouter(tags=["Saintpaulia"])
@@ -171,6 +171,7 @@ async def is_name_unique(name: str, db: Session = Depends(get_db)):
     is_unique = repository.is_name_unique(name, db)
     return {"is_unique": is_unique}
 
+
     
     # Перевірка сорту адмінами
 @router.put("/verify/{name}", response_model=VerificationResponse)
@@ -206,3 +207,45 @@ async def verify_variety_route(
         raise HTTPException(status_code=500, detail="Помилка при перевірці сорту.")
     except Exception:
         raise HTTPException(status_code=500, detail="Невідома помилка при обробці запиту.")
+
+
+
+# --------------- Variety Photos Management (НОВИЙ, ПРАВИЛЬНИЙ КОД) ----------------
+
+@router.post("/{variety_id}/upload-photo", response_model=PhotoResponse)
+def upload_photo_for_variety(
+    variety_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db), # <-- СИНХРОННА СЕСІЯ (поки що ДО рефакторингу))
+    current_user: User = Depends(get_current_user)
+) -> PhotoResponse:
+    """
+    Завантажує фото для конкретного сорту.
+    """
+    # Тепер роутер викликає свій власний репозиторій
+    new_photo = repository.upload_variety_photo(
+        variety_id=variety_id,
+        file=file,
+        current_user=current_user,
+        db=db
+    )
+    return new_photo
+
+
+@router.delete("/photos/{photo_id}", status_code=204)
+def delete_photo_of_variety(
+    photo_id: int,
+    db: Session = Depends(get_db), # <-- СИНХРОННА СЕСІЯ
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Видаляє фото за його ID.
+    """
+    # Роутер викликає свій репозиторій
+    repository.delete_variety_photo(
+        photo_id=photo_id, 
+        current_user=current_user, 
+        db=db
+    )
+    return None # Для статусу 204 відповідь має бути порожньою
+
